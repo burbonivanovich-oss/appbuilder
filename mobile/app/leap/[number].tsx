@@ -7,7 +7,7 @@ import { Card } from '@/src/components/Card';
 import { Button } from '@/src/components/Button';
 import { radius, spacing, typography } from '@/src/theme/tokens';
 import { useThemedTokens } from '@/src/hooks/useThemedTokens';
-import { useChild } from '@/src/store/child';
+import { useChildRequired } from '@/src/store/child';
 import { computeLeapStates, type LeapState } from '@/src/lib/leaps';
 import { LEAPS, type LeapContent } from '@/src/content/leaps';
 import { formatDateRu, pluralRu } from '@/src/lib/date';
@@ -20,7 +20,7 @@ export default function LeapDetailScreen() {
   const t = useThemedTokens();
   const params = useLocalSearchParams<{ number: string }>();
   const leapNumber = Number(params.number);
-  const child = useChild();
+  const child = useChildRequired();
 
   const state = useMemo<LeapState | undefined>(
     () =>

@@ -6,12 +6,12 @@ import { LeapTimeline } from '@/src/components/LeapTimeline';
 import { Card } from '@/src/components/Card';
 import { spacing, typography } from '@/src/theme/tokens';
 import { useThemedTokens } from '@/src/hooks/useThemedTokens';
-import { useChild } from '@/src/store/child';
+import { useChildRequired } from '@/src/store/child';
 import { computeLeapStates } from '@/src/lib/leaps';
 
 export default function CalendarScreen() {
   const t = useThemedTokens();
-  const child = useChild();
+  const child = useChildRequired();
   const states = useMemo(() => computeLeapStates(child.expectedDob), [child.expectedDob]);
 
   return (

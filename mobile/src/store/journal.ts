@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react';
+import { PersistentStore, jsonSerializer } from '@/src/lib/persistence';
 
 export type Mood = 'great' | 'ok' | 'sad' | 'fussy' | 'sleepy';
 
@@ -44,75 +45,45 @@ export type JournalEntry = {
   linkedLeapNumber?: number;
 };
 
-type Listener = () => void;
+type JournalState = {
+  entries: JournalEntry[];
+};
 
-class JournalStore {
-  private entries: JournalEntry[];
-  private listeners = new Set<Listener>();
+const store = new PersistentStore<JournalState>(
+  'journal:v1',
+  { entries: [] },
+  jsonSerializer<JournalState>(),
+);
 
-  constructor(initial: JournalEntry[]) {
-    this.entries = [...initial].sort((a, b) => b.date.getTime() - a.date.getTime());
-  }
+function sortByDateDesc(entries: JournalEntry[]): JournalEntry[] {
+  return [...entries].sort((a, b) => b.date.getTime() - a.date.getTime());
+}
 
-  get = (): JournalEntry[] => this.entries;
+export const journalStore = {
+  hydrate: store.hydrate,
+  subscribe: store.subscribe,
+  get: store.get,
+  getIsHydrated: store.getIsHydrated,
 
-  add = (entry: Omit<JournalEntry, 'id'>) => {
+  add: (entry: Omit<JournalEntry, 'id'>): JournalEntry => {
     const id = `entry-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-    const next: JournalEntry = { id, ...entry };
-    this.entries = [next, ...this.entries].sort(
-      (a, b) => b.date.getTime() - a.date.getTime(),
-    );
-    this.emit();
-    return next;
-  };
+    const created: JournalEntry = { id, ...entry };
+    const next = sortByDateDesc([created, ...store.get().entries]);
+    store.set({ entries: next });
+    return created;
+  },
 
-  remove = (id: string) => {
-    this.entries = this.entries.filter((e) => e.id !== id);
-    this.emit();
-  };
+  remove: (id: string) => {
+    const next = store.get().entries.filter((e) => e.id !== id);
+    store.set({ entries: next });
+  },
 
-  subscribe = (listener: Listener): (() => void) => {
-    this.listeners.add(listener);
-    return () => {
-      this.listeners.delete(listener);
-    };
-  };
-
-  private emit() {
-    for (const l of this.listeners) l();
-  }
-}
-
-function makeSeedEntries(): JournalEntry[] {
-  const now = new Date();
-  return [
-    {
-      id: 'seed-1',
-      date: new Date(now.getTime() - 1000 * 60 * 60 * 3),
-      mood: 'fussy',
-      symptoms: ['crying', 'bad-sleep'],
-      note: 'Плохо засыпал днём, много плакал без видимой причины.',
-      linkedLeapNumber: 3,
-    },
-    {
-      id: 'seed-2',
-      date: new Date(now.getTime() - 1000 * 60 * 60 * 26),
-      mood: 'ok',
-      symptoms: ['needs-contact'],
-      note: 'Просился на руки весь вечер.',
-    },
-    {
-      id: 'seed-3',
-      date: new Date(now.getTime() - 1000 * 60 * 60 * 50),
-      mood: 'great',
-      symptoms: ['milestone'],
-      note: 'Первая осознанная улыбка на папу!',
-    },
-  ];
-}
-
-export const journalStore = new JournalStore(makeSeedEntries());
+  clear: () => {
+    store.reset();
+  },
+};
 
 export function useJournal(): JournalEntry[] {
-  return useSyncExternalStore(journalStore.subscribe, journalStore.get, journalStore.get);
+  const state = useSyncExternalStore(store.subscribe, store.get, store.get);
+  return state.entries;
 }

@@ -8,14 +8,14 @@ import { JournalEntryCard } from '@/src/components/JournalEntryCard';
 import { Card } from '@/src/components/Card';
 import { spacing, typography } from '@/src/theme/tokens';
 import { useThemedTokens } from '@/src/hooks/useThemedTokens';
-import { useChild } from '@/src/store/child';
+import { useChildRequired } from '@/src/store/child';
 import { useJournal, journalStore, type Mood } from '@/src/store/journal';
 import { computeLeapStates, getTodaySnapshot } from '@/src/lib/leaps';
 import { formatAgeRu } from '@/src/lib/age';
 
 export default function TodayScreen() {
   const t = useThemedTokens();
-  const child = useChild();
+  const child = useChildRequired();
   const journal = useJournal();
 
   const snapshot = useMemo(() => {

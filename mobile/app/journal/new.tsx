@@ -8,7 +8,7 @@ import { Button } from '@/src/components/Button';
 import { radius, spacing, typography } from '@/src/theme/tokens';
 import { useThemedTokens } from '@/src/hooks/useThemedTokens';
 import { journalStore, SYMPTOM_LABEL, type Mood, type SymptomTag } from '@/src/store/journal';
-import { useChild } from '@/src/store/child';
+import { useChildRequired } from '@/src/store/child';
 import { computeLeapStates, getActiveLeap } from '@/src/lib/leaps';
 
 const SYMPTOMS: SymptomTag[] = [
@@ -23,7 +23,7 @@ const SYMPTOMS: SymptomTag[] = [
 export default function NewEntryScreen() {
   const t = useThemedTokens();
   const params = useLocalSearchParams<{ leap?: string }>();
-  const child = useChild();
+  const child = useChildRequired();
 
   const activeLeapNumber = useMemo(() => {
     const state = getActiveLeap(computeLeapStates(child.expectedDob));

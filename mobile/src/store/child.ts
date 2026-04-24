@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react';
+import { PersistentStore, jsonSerializer } from '@/src/lib/persistence';
 
 export type ChildProfile = {
   id: string;
@@ -8,54 +9,51 @@ export type ChildProfile = {
   sex: 'male' | 'female' | 'unspecified';
 };
 
-type Listener = () => void;
+type ChildState = {
+  child: ChildProfile | null;
+};
 
-class ChildStore {
-  private child: ChildProfile;
-  private listeners = new Set<Listener>();
+const store = new PersistentStore<ChildState>(
+  'child:v1',
+  { child: null },
+  jsonSerializer<ChildState>(),
+);
 
-  constructor(initial: ChildProfile) {
-    this.child = initial;
-  }
+export const childStore = {
+  hydrate: store.hydrate,
+  subscribe: store.subscribe,
+  get: store.get,
+  getIsHydrated: store.getIsHydrated,
 
-  get = (): ChildProfile => this.child;
-
-  set = (next: ChildProfile) => {
-    this.child = next;
-    this.emit();
-  };
-
-  update = (patch: Partial<ChildProfile>) => {
-    this.child = { ...this.child, ...patch };
-    this.emit();
-  };
-
-  subscribe = (listener: Listener): (() => void) => {
-    this.listeners.add(listener);
-    return () => {
-      this.listeners.delete(listener);
+  create: (input: Omit<ChildProfile, 'id'>): ChildProfile => {
+    const child: ChildProfile = {
+      id: `child-${Date.now()}`,
+      ...input,
     };
-  };
+    store.set({ child });
+    return child;
+  },
 
-  private emit() {
-    for (const l of this.listeners) l();
+  update: (patch: Partial<ChildProfile>) => {
+    const current = store.get().child;
+    if (!current) return;
+    store.set({ child: { ...current, ...patch } });
+  },
+
+  clear: () => {
+    store.reset();
+  },
+};
+
+export function useChild(): ChildProfile | null {
+  const state = useSyncExternalStore(store.subscribe, store.get, store.get);
+  return state.child;
+}
+
+export function useChildRequired(): ChildProfile {
+  const child = useChild();
+  if (!child) {
+    throw new Error('useChildRequired called without a child profile');
   }
-}
-
-function makeDemoChild(): ChildProfile {
-  const now = new Date();
-  const dob = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 14 * 7);
-  return {
-    id: 'demo-child',
-    name: 'Лёва',
-    dob,
-    expectedDob: dob,
-    sex: 'male',
-  };
-}
-
-export const childStore = new ChildStore(makeDemoChild());
-
-export function useChild(): ChildProfile {
-  return useSyncExternalStore(childStore.subscribe, childStore.get, childStore.get);
+  return child;
 }

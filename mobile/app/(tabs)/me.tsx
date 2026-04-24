@@ -1,16 +1,38 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { Screen } from '@/src/components/Screen';
 import { Card } from '@/src/components/Card';
 import { spacing, typography } from '@/src/theme/tokens';
 import { useThemedTokens } from '@/src/hooks/useThemedTokens';
-import { useChild } from '@/src/store/child';
+import { useChildRequired, childStore } from '@/src/store/child';
+import { useAuth, authStore } from '@/src/store/auth';
+import { journalStore } from '@/src/store/journal';
 import { formatAgeRu } from '@/src/lib/age';
 import { formatDateRu } from '@/src/lib/date';
 
 export default function MeScreen() {
   const t = useThemedTokens();
-  const child = useChild();
+  const child = useChildRequired();
+  const { user } = useAuth();
+
+  const handleSignOut = () => {
+    const confirm = () => {
+      authStore.signOut();
+      childStore.clear();
+      journalStore.clear();
+    };
+    if (Platform.OS === 'web') {
+      if (typeof window !== 'undefined' && window.confirm('Выйти и очистить данные?')) {
+        confirm();
+      }
+    } else {
+      Alert.alert('Выйти?', 'Локальные данные будут очищены.', [
+        { text: 'Отмена', style: 'cancel' },
+        { text: 'Выйти', style: 'destructive', onPress: confirm },
+      ]);
+    }
+  };
 
   return (
     <Screen edges={['top']}>
@@ -23,6 +45,18 @@ export default function MeScreen() {
           <Text style={[typography.title, { color: t.textPrimary }]}>Я</Text>
         </View>
 
+        {user && (
+          <Card>
+            <Text style={[typography.caption, { color: t.textSecondary }]}>Аккаунт</Text>
+            <Text style={[typography.subtitle, { color: t.textPrimary, marginTop: spacing.xs }]}>
+              {user.displayName}
+            </Text>
+            <Text style={[typography.body, { color: t.textSecondary }]}>
+              {user.email} · вход через {providerLabel(user.provider)}
+            </Text>
+          </Card>
+        )}
+
         <Card>
           <Text style={[typography.caption, { color: t.textSecondary }]}>Ребёнок</Text>
           <Text style={[typography.subtitle, { color: t.textPrimary, marginTop: spacing.xs }]}>
@@ -31,6 +65,11 @@ export default function MeScreen() {
           <Text style={[typography.body, { color: t.textSecondary }]}>
             {formatAgeRu(child.dob)} · родился {formatDateRu(child.dob, { withYear: true })}
           </Text>
+          {child.dob.getTime() !== child.expectedDob.getTime() && (
+            <Text style={[typography.caption, { color: t.textMuted, marginTop: spacing.xs }]}>
+              ПДР: {formatDateRu(child.expectedDob, { withYear: true })}
+            </Text>
+          )}
         </Card>
 
         <SettingsSection title="Совместный доступ">
@@ -53,10 +92,25 @@ export default function MeScreen() {
           <Row icon="medkit-outline" label="Дисклеймер" hint="Не заменяет педиатра" />
         </SettingsSection>
 
+        <Pressable
+          onPress={handleSignOut}
+          style={({ pressed }) => [
+            styles.signOut,
+            { borderColor: t.border, opacity: pressed ? 0.8 : 1 },
+          ]}
+        >
+          <Ionicons name="log-out-outline" size={20} color={t.error} />
+          <Text style={[typography.bodyStrong, { color: t.error }]}>Выйти</Text>
+        </Pressable>
+
         <View style={{ height: spacing.huge }} />
       </ScrollView>
     </Screen>
   );
+}
+
+function providerLabel(p: 'apple' | 'google' | 'email'): string {
+  return p === 'apple' ? 'Apple' : p === 'google' ? 'Google' : 'Email';
 }
 
 function SettingsSection({ title, children }: { title: string; children: React.ReactNode }) {
@@ -121,5 +175,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.md,
     paddingVertical: spacing.md,
+  },
+  signOut: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.lg,
+    borderRadius: 12,
+    borderWidth: 1,
   },
 });
