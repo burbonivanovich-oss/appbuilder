@@ -29,6 +29,10 @@ export default function RootLayout() {
               name="journal/new"
               options={{ presentation: 'modal', title: 'Новая запись' }}
             />
+            <Stack.Screen
+              name="child/edit"
+              options={{ presentation: 'modal', title: 'Малыш' }}
+            />
           </Stack>
         </RouteGuard>
       </HydrationGate>

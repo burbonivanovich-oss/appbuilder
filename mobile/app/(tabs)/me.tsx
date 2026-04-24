@@ -57,20 +57,34 @@ export default function MeScreen() {
           </Card>
         )}
 
-        <Card>
-          <Text style={[typography.caption, { color: t.textSecondary }]}>Ребёнок</Text>
-          <Text style={[typography.subtitle, { color: t.textPrimary, marginTop: spacing.xs }]}>
-            {child.name}
-          </Text>
-          <Text style={[typography.body, { color: t.textSecondary }]}>
-            {formatAgeRu(child.dob)} · родился {formatDateRu(child.dob, { withYear: true })}
-          </Text>
-          {child.dob.getTime() !== child.expectedDob.getTime() && (
-            <Text style={[typography.caption, { color: t.textMuted, marginTop: spacing.xs }]}>
-              ПДР: {formatDateRu(child.expectedDob, { withYear: true })}
-            </Text>
-          )}
-        </Card>
+        <Pressable
+          onPress={() => router.push('/child/edit' as any)}
+          style={({ pressed }) => [{ opacity: pressed ? 0.85 : 1 }]}
+        >
+          <Card>
+            <View style={styles.childHeader}>
+              <View style={{ flex: 1 }}>
+                <Text style={[typography.caption, { color: t.textSecondary }]}>Ребёнок</Text>
+                <Text
+                  style={[typography.subtitle, { color: t.textPrimary, marginTop: spacing.xs }]}
+                >
+                  {child.name}
+                </Text>
+                <Text style={[typography.body, { color: t.textSecondary }]}>
+                  {formatAgeRu(child.dob)} · родился {formatDateRu(child.dob, { withYear: true })}
+                </Text>
+                {child.dob.getTime() !== child.expectedDob.getTime() && (
+                  <Text
+                    style={[typography.caption, { color: t.textMuted, marginTop: spacing.xs }]}
+                  >
+                    ПДР: {formatDateRu(child.expectedDob, { withYear: true })}
+                  </Text>
+                )}
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={t.textMuted} />
+            </View>
+          </Card>
+        </Pressable>
 
         <SettingsSection title="Совместный доступ">
           <Row icon="people-outline" label="Пригласить партнёра" stub />
@@ -184,5 +198,10 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.lg,
     borderRadius: 12,
     borderWidth: 1,
+  },
+  childHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
   },
 });
