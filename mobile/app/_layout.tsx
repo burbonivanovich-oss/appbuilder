@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { ErrorBoundary } from '@/src/components/ErrorBoundary';
 import { HydrationGate } from '@/src/components/HydrationGate';
 import { RouteGuard } from '@/src/components/RouteGuard';
 import { NotificationsManager } from '@/src/components/NotificationsManager';
@@ -18,28 +19,30 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <HydrationGate>
-        <RouteGuard>
-          <NotificationsManager />
-          <DisclaimerModal />
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="leap/[number]"
-              options={{ presentation: 'modal', title: 'Скачок' }}
-            />
-            <Stack.Screen
-              name="journal/new"
-              options={{ presentation: 'modal', title: 'Новая запись' }}
-            />
-            <Stack.Screen
-              name="child/edit"
-              options={{ presentation: 'modal', title: 'Малыш' }}
-            />
-          </Stack>
-        </RouteGuard>
-      </HydrationGate>
+      <ErrorBoundary>
+        <HydrationGate>
+          <RouteGuard>
+            <NotificationsManager />
+            <DisclaimerModal />
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="leap/[number]"
+                options={{ presentation: 'modal', title: 'Скачок' }}
+              />
+              <Stack.Screen
+                name="journal/new"
+                options={{ presentation: 'modal', title: 'Новая запись' }}
+              />
+              <Stack.Screen
+                name="child/edit"
+                options={{ presentation: 'modal', title: 'Малыш' }}
+              />
+            </Stack>
+          </RouteGuard>
+        </HydrationGate>
+      </ErrorBoundary>
       <StatusBar style="auto" />
     </ThemeProvider>
   );
