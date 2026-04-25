@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { Screen } from '@/src/components/Screen';
 import { LeapHeroCard } from '@/src/components/LeapHeroCard';
+import { AllDoneCard } from '@/src/components/AllDoneCard';
 import { MoodPicker } from '@/src/components/MoodPicker';
 import { JournalEntryCard } from '@/src/components/JournalEntryCard';
 import { Card } from '@/src/components/Card';
@@ -63,13 +64,17 @@ export default function TodayScreen() {
           </Text>
         </View>
 
-        <LeapHeroCard
-          snapshot={snapshot}
-          onPress={() =>
-            targetLeapNumber !== undefined &&
-            router.push(`/leap/${targetLeapNumber}` as any)
-          }
-        />
+        {snapshot.kind === 'all-done' ? (
+          <AllDoneCard />
+        ) : (
+          <LeapHeroCard
+            snapshot={snapshot}
+            onPress={() =>
+              targetLeapNumber !== undefined &&
+              router.push(`/leap/${targetLeapNumber}` as any)
+            }
+          />
+        )}
 
         <PermissionBanner />
 
