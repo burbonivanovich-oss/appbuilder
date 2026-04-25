@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { Screen } from '@/src/components/Screen';
 import { LeapHeroCard } from '@/src/components/LeapHeroCard';
 import { AllDoneCard } from '@/src/components/AllDoneCard';
+import { InsightsCard } from '@/src/components/InsightsCard';
 import { MoodPicker } from '@/src/components/MoodPicker';
 import { JournalEntryCard } from '@/src/components/JournalEntryCard';
 import { Card } from '@/src/components/Card';
@@ -79,6 +80,8 @@ export default function TodayScreen() {
         <PermissionBanner />
 
         <ShareButton childName={child.name} snapshot={snapshot} />
+
+        <InsightsCard />
 
         <Card tone="soft">
           <Text style={[typography.subtitle, { color: t.textPrimary }]}>Как сегодня?</Text>
