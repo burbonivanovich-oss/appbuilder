@@ -7,6 +7,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { HydrationGate } from '@/src/components/HydrationGate';
 import { RouteGuard } from '@/src/components/RouteGuard';
 import { NotificationsManager } from '@/src/components/NotificationsManager';
+import { DisclaimerModal } from '@/src/components/DisclaimerModal';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -20,6 +21,7 @@ export default function RootLayout() {
       <HydrationGate>
         <RouteGuard>
           <NotificationsManager />
+          <DisclaimerModal />
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="onboarding" options={{ headerShown: false }} />
