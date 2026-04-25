@@ -32,7 +32,7 @@ export default function SignIn() {
     <OnboardingShell
       eyebrow="Шаг 1 из 2"
       title="Войдите или создайте аккаунт"
-      subtitle="В MVP это демо-вход: реальной авторизации пока нет. Данные сохраняются локально."
+      subtitle="Пока вход демонстрационный — данные хранятся на устройстве. Реальный вход добавим до запуска."
     >
       <View style={{ gap: spacing.md }}>
         <ProviderButton

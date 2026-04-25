@@ -11,8 +11,8 @@ export default function Welcome() {
   return (
     <OnboardingShell
       step={{ current: 1, total: 3 }}
-      title="Понимайте поведение малыша"
-      subtitle="10 ментальных скачков роста в первые полтора года объясняют, почему ребёнок вдруг плачет, плохо спит или требует внимания."
+      title="Поведение малыша — понятнее"
+      subtitle="В первые полтора года малыши проходят 10 скачков роста. Они объясняют, почему ребёнок вдруг чаще плачет, хуже спит или просится на руки."
       footer={
         <>
           <Button title="Далее" size="lg" onPress={() => router.push('/onboarding/how-it-works')} />
@@ -33,7 +33,7 @@ export default function Welcome() {
               { color: t.textSecondary, textAlign: 'center', marginTop: spacing.sm },
             ]}
           >
-            Мы подскажем, что происходит в каждый момент, и предложим, что можно сделать.
+            Расскажем, что часто бывает в этот период, и подскажем, что может помочь.
           </Text>
         </View>
       </View>

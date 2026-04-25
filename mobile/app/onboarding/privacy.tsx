@@ -7,9 +7,9 @@ import { radius, spacing, typography } from '@/src/theme/tokens';
 import { useThemedTokens } from '@/src/hooks/useThemedTokens';
 
 const items = [
-  'Данные ребёнка хранятся на вашем устройстве.',
+  'Данные о малыше хранятся на вашем устройстве.',
   'Мы не продаём и не передаём их рекламодателям.',
-  'Экспорт и удаление в один тап в настройках.',
+  'Удалить всё — один тап в настройках.',
 ];
 
 export default function Privacy() {
@@ -18,7 +18,7 @@ export default function Privacy() {
     <OnboardingShell
       step={{ current: 3, total: 3 }}
       title="Приватность и доверие"
-      subtitle="Это приложение не заменяет педиатра. Мы помогаем понимать, а не ставим диагнозы."
+      subtitle="Мы помогаем замечать и понимать. При сомнениях — поговорите с педиатром."
       footer={
         <Button title="Продолжить" size="lg" onPress={() => router.push('/onboarding/sign-in')} />
       }
