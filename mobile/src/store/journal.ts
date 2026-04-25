@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import { PersistentStore, jsonSerializer } from '@/src/lib/persistence';
+import { PersistentStore } from '@/src/lib/persistence';
 
 export type Mood = 'great' | 'ok' | 'sad' | 'fussy' | 'sleepy';
 
@@ -52,7 +52,7 @@ type JournalState = {
 const store = new PersistentStore<JournalState>(
   'journal:v1',
   { entries: [] },
-  jsonSerializer<JournalState>(),
+  { version: 1 },
 );
 
 function sortByDateDesc(entries: JournalEntry[]): JournalEntry[] {

@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import { PersistentStore, jsonSerializer } from '@/src/lib/persistence';
+import { PersistentStore } from '@/src/lib/persistence';
 
 export type ChildProfile = {
   id: string;
@@ -16,7 +16,7 @@ type ChildState = {
 const store = new PersistentStore<ChildState>(
   'child:v1',
   { child: null },
-  jsonSerializer<ChildState>(),
+  { version: 1 },
 );
 
 export const childStore = {

@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import { PersistentStore, jsonSerializer } from '@/src/lib/persistence';
+import { PersistentStore } from '@/src/lib/persistence';
 
 export type AuthProvider = 'apple' | 'google' | 'email';
 
@@ -17,7 +17,7 @@ type AuthState = {
 const store = new PersistentStore<AuthState>(
   'auth:v1',
   { user: null },
-  jsonSerializer<AuthState>(),
+  { version: 1 },
 );
 
 export const authStore = {
