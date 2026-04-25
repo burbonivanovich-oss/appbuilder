@@ -25,6 +25,7 @@ export type AnalyticsEvent =
   | 'notif_tapped'
   | 'settings_notifications_toggled'
   | 'signed_out'
+  | 'data_exported'
   | 'crash_caught';
 
 export type AnalyticsProps = Record<string, string | number | boolean | null | undefined>;

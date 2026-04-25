@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Alert, Platform, Pressable, ScrollView, Share, StyleSheet, Switch, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Screen } from '@/src/components/Screen';
@@ -8,7 +8,13 @@ import { spacing, typography } from '@/src/theme/tokens';
 import { useThemedTokens } from '@/src/hooks/useThemedTokens';
 import { useChildRequired, childStore } from '@/src/store/child';
 import { useAuth, authStore } from '@/src/store/auth';
-import { journalStore } from '@/src/store/journal';
+import { journalStore, useJournal } from '@/src/store/journal';
+import {
+  buildExportPayload,
+  exportFilename,
+  exportSummary,
+  serializeExport,
+} from '@/src/lib/exportData';
 import { settingsStore, useSettings } from '@/src/store/settings';
 import {
   getPermissionStatus,
@@ -24,6 +30,7 @@ export default function MeScreen() {
   const child = useChildRequired();
   const { user } = useAuth();
   const settings = useSettings();
+  const journal = useJournal();
   const [permission, setPermission] = useState<PermissionStatus>('undetermined');
 
   useEffect(() => {
@@ -44,6 +51,38 @@ export default function MeScreen() {
     } else {
       settingsStore.setNotificationsEnabled(false);
       track('settings_notifications_toggled', { enabled: false });
+    }
+  };
+
+  const handleExport = async () => {
+    const payload = buildExportPayload(child, journal);
+    const text = serializeExport(payload);
+    const filename = exportFilename(payload);
+    track('data_exported', {
+      entryCount: payload.journal.length,
+      bytes: text.length,
+      platform: Platform.OS,
+    });
+    try {
+      if (Platform.OS === 'web') {
+        if (typeof window === 'undefined' || typeof document === 'undefined') return;
+        const blob = new Blob([text], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        return;
+      }
+      await Share.share({
+        title: filename,
+        message: text,
+      });
+    } catch {
+      Alert.alert('Не удалось экспортировать', 'Попробуйте ещё раз.');
     }
   };
 
@@ -147,7 +186,16 @@ export default function MeScreen() {
         </SettingsSection>
 
         <SettingsSection title="Данные">
-          <Row icon="download-outline" label="Экспорт в PDF" stub />
+          <Pressable
+            onPress={handleExport}
+            style={({ pressed }) => [{ opacity: pressed ? 0.7 : 1 }]}
+          >
+            <Row
+              icon="download-outline"
+              label="Экспорт данных"
+              hint={exportSummary(buildExportPayload(child, journal))}
+            />
+          </Pressable>
           <Row icon="trash-outline" label="Удалить аккаунт" stub destructive />
         </SettingsSection>
 
