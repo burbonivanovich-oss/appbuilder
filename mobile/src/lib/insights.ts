@@ -1,5 +1,6 @@
-import { addDays, isSameDay, startOfDay } from './date';
+import { addDays, isSameDay, pluralRu, startOfDay } from './date';
 import {
+  SYMPTOM_LABEL,
   type JournalEntry,
   type Mood,
   type SymptomTag,
@@ -84,4 +85,41 @@ export function isWithinLastDays(date: Date, days: number, now: Date = new Date(
   const start = addDays(today, -(days - 1));
   const d = startOfDay(date);
   return d >= start && (isSameDay(d, today) || d <= today);
+}
+
+export type InsightsText = {
+  entriesLine: string;
+  fussyLine: string;
+  topSymptomLine: string | null;
+};
+
+/**
+ * Formats compute output into the three lines shown by InsightsCard.
+ * Extracted as pure text so tone-of-voice can be unit-tested.
+ */
+export function formatInsightsText(insights: WeeklyInsights): InsightsText {
+  const entriesLine = `${insights.totalEntries} ${pluralRu(insights.totalEntries, [
+    'запись',
+    'записи',
+    'записей',
+  ])} за ${insights.daysCovered} ${pluralRu(insights.daysCovered, [
+    'день',
+    'дня',
+    'дней',
+  ])}`;
+
+  const fussyLine =
+    insights.fussyDays > 0
+      ? `Из них ${insights.fussyDays} ${pluralRu(insights.fussyDays, [
+          'беспокойный день',
+          'беспокойных дня',
+          'беспокойных дней',
+        ])} — это нормально, малыши не машины.`
+      : 'Спокойная неделя — здорово.';
+
+  const topSymptomLine = insights.topSymptom
+    ? `Чаще всего: ${SYMPTOM_LABEL[insights.topSymptom.symptom].toLowerCase()} (${insights.topSymptom.count})`
+    : null;
+
+  return { entriesLine, fussyLine, topSymptomLine };
 }

@@ -1,4 +1,4 @@
-import { computeWeeklyInsights } from './insights';
+import { computeWeeklyInsights, formatInsightsText, type WeeklyInsights } from './insights';
 import type { JournalEntry } from '@/src/store/journal';
 
 const NOW = new Date('2026-04-25T12:00:00Z');
@@ -104,5 +104,66 @@ describe('computeWeeklyInsights', () => {
     ];
     const result = computeWeeklyInsights(entries, NOW);
     expect(result!.totalEntries).toBe(2);
+  });
+});
+
+describe('formatInsightsText', () => {
+  function insights(over: Partial<WeeklyInsights> = {}): WeeklyInsights {
+    return {
+      totalEntries: 5,
+      daysCovered: 4,
+      fussyDays: 0,
+      topSymptom: null,
+      ...over,
+    };
+  }
+
+  it('pluralizes entries and days correctly (1, 2, 5)', () => {
+    expect(formatInsightsText(insights({ totalEntries: 1, daysCovered: 1 })).entriesLine).toBe(
+      '1 запись за 1 день',
+    );
+    expect(formatInsightsText(insights({ totalEntries: 2, daysCovered: 2 })).entriesLine).toBe(
+      '2 записи за 2 дня',
+    );
+    expect(formatInsightsText(insights({ totalEntries: 5, daysCovered: 5 })).entriesLine).toBe(
+      '5 записей за 5 дней',
+    );
+  });
+
+  it('pluralizes "беспокойный день" form correctly', () => {
+    expect(formatInsightsText(insights({ fussyDays: 1 })).fussyLine).toContain(
+      '1 беспокойный день',
+    );
+    expect(formatInsightsText(insights({ fussyDays: 3 })).fussyLine).toContain(
+      '3 беспокойных дня',
+    );
+    expect(formatInsightsText(insights({ fussyDays: 5 })).fussyLine).toContain(
+      '5 беспокойных дней',
+    );
+  });
+
+  it('shows the calm-week message when fussyDays is 0', () => {
+    const text = formatInsightsText(insights({ fussyDays: 0 }));
+    expect(text.fussyLine).toBe('Спокойная неделя — здорово.');
+  });
+
+  it('fussy line is non-judgemental and tone-of-voice compliant', () => {
+    const text = formatInsightsText(insights({ fussyDays: 4 }));
+    // tone rules: no "проблема", no "плохо", no "должен"
+    expect(text.fussyLine).not.toMatch(/проблем/i);
+    expect(text.fussyLine).not.toMatch(/плох/i);
+    expect(text.fussyLine).not.toMatch(/должн/i);
+    expect(text.fussyLine).toMatch(/нормально/i);
+  });
+
+  it('returns null topSymptomLine when there is no recurring symptom', () => {
+    expect(formatInsightsText(insights({ topSymptom: null })).topSymptomLine).toBeNull();
+  });
+
+  it('formats topSymptomLine with lowercased label and count', () => {
+    const text = formatInsightsText(
+      insights({ topSymptom: { symptom: 'bad-sleep', count: 3 } }),
+    );
+    expect(text.topSymptomLine).toBe('Чаще всего: хуже спит (3)');
   });
 });

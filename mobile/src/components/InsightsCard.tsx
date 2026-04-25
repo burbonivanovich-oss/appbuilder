@@ -4,9 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { Card } from '@/src/components/Card';
 import { spacing, typography } from '@/src/theme/tokens';
 import { useThemedTokens } from '@/src/hooks/useThemedTokens';
-import { pluralRu } from '@/src/lib/date';
-import { computeWeeklyInsights } from '@/src/lib/insights';
-import { SYMPTOM_LABEL, useJournal } from '@/src/store/journal';
+import { computeWeeklyInsights, formatInsightsText } from '@/src/lib/insights';
+import { useJournal } from '@/src/store/journal';
 
 /**
  * Soft, non-judgemental summary of the last 7 days. Hides itself entirely
@@ -19,24 +18,7 @@ export function InsightsCard() {
 
   if (!insights) return null;
 
-  const entriesLine = `${insights.totalEntries} ${pluralRu(insights.totalEntries, [
-    'запись',
-    'записи',
-    'записей',
-  ])} за ${insights.daysCovered} ${pluralRu(insights.daysCovered, [
-    'день',
-    'дня',
-    'дней',
-  ])}`;
-
-  const fussyLine =
-    insights.fussyDays > 0
-      ? `Из них ${insights.fussyDays} ${pluralRu(insights.fussyDays, [
-          'беспокойный день',
-          'беспокойных дня',
-          'беспокойных дней',
-        ])} — это нормально, малыши не машины.`
-      : 'Спокойная неделя — здорово.';
+  const text = formatInsightsText(insights);
 
   return (
     <Card>
@@ -47,17 +29,16 @@ export function InsightsCard() {
         </Text>
       </View>
       <Text style={[typography.bodyStrong, { color: t.textPrimary, marginTop: spacing.sm }]}>
-        {entriesLine}
+        {text.entriesLine}
       </Text>
       <Text style={[typography.body, { color: t.textSecondary, marginTop: spacing.xs }]}>
-        {fussyLine}
+        {text.fussyLine}
       </Text>
-      {insights.topSymptom && (
+      {text.topSymptomLine && (
         <View style={[styles.tag, { backgroundColor: t.surfaceAlt, borderColor: t.border }]}>
           <Ionicons name="trending-up-outline" size={14} color={t.textSecondary} />
           <Text style={[typography.caption, { color: t.textSecondary }]}>
-            Чаще всего: {SYMPTOM_LABEL[insights.topSymptom.symptom].toLowerCase()} (
-            {insights.topSymptom.count})
+            {text.topSymptomLine}
           </Text>
         </View>
       )}
