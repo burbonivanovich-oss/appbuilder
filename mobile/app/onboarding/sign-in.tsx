@@ -6,6 +6,7 @@ import { OnboardingShell } from '@/src/components/OnboardingShell';
 import { radius, spacing, typography } from '@/src/theme/tokens';
 import { useThemedTokens } from '@/src/hooks/useThemedTokens';
 import { authStore } from '@/src/store/auth';
+import { track } from '@/src/lib/analytics';
 
 export default function SignIn() {
   const t = useThemedTokens();
@@ -16,12 +17,14 @@ export default function SignIn() {
 
   const handleProvider = (p: 'apple' | 'google') => {
     authStore.signInMock(p);
+    track('auth_signed_in', { provider: p });
     after();
   };
 
   const handleEmail = () => {
     if (!email.trim()) return;
     authStore.signInMock('email', email.trim());
+    track('auth_signed_in', { provider: 'email' });
     after();
   };
 

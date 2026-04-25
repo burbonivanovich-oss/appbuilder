@@ -5,7 +5,8 @@ import { Button } from '@/src/components/Button';
 import { ChildForm } from '@/src/components/ChildForm';
 import { typography } from '@/src/theme/tokens';
 import { useThemedTokens } from '@/src/hooks/useThemedTokens';
-import { childStore } from '@/src/store/child';
+import { childStore, isPreterm } from '@/src/store/child';
+import { track } from '@/src/lib/analytics';
 
 export default function CreateChild() {
   const t = useThemedTokens();
@@ -19,7 +20,9 @@ export default function CreateChild() {
       <ChildForm
         footerNote="Это приложение — не медицинское устройство. При тревоге обращайтесь к педиатру."
         onSubmit={(values) => {
-          childStore.create(values);
+          const child = childStore.create(values);
+          track('child_created', { sex: child.sex, preterm: isPreterm(child) });
+          track('onboarding_completed');
           router.replace('/');
         }}
         renderSubmit={({ onPress, disabled, error }) => (

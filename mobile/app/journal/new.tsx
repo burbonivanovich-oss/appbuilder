@@ -10,6 +10,7 @@ import { useThemedTokens } from '@/src/hooks/useThemedTokens';
 import { journalStore, SYMPTOM_LABEL, type Mood, type SymptomTag } from '@/src/store/journal';
 import { useChildRequired } from '@/src/store/child';
 import { computeLeapStates, getActiveLeap } from '@/src/lib/leaps';
+import { track } from '@/src/lib/analytics';
 
 const SYMPTOMS: SymptomTag[] = [
   'crying',
@@ -55,6 +56,12 @@ export default function NewEntryScreen() {
       symptoms: Array.from(symptoms),
       note: note.trim(),
       linkedLeapNumber: linkedLeap,
+    });
+    track('entry_added', {
+      mood,
+      symptomCount: symptoms.size,
+      hasNote: note.trim().length > 0,
+      linkedLeap: linkedLeap ?? null,
     });
     router.back();
   };

@@ -5,6 +5,7 @@ import { useThemedTokens } from '@/src/hooks/useThemedTokens';
 import { useSettings, settingsStore } from '@/src/store/settings';
 import { useAuth } from '@/src/store/auth';
 import { useChild } from '@/src/store/child';
+import { track } from '@/src/lib/analytics';
 
 /**
  * Shown once after the user has signed in AND created a child profile.
@@ -53,7 +54,10 @@ export function DisclaimerModal() {
 
         <View style={[styles.footer, { borderColor: t.border, backgroundColor: t.bg }]}>
           <Pressable
-            onPress={() => settingsStore.acceptDisclaimer()}
+            onPress={() => {
+              settingsStore.acceptDisclaimer();
+              track('disclaimer_accepted');
+            }}
             style={({ pressed }) => [
               styles.btn,
               { backgroundColor: t.primary, opacity: pressed ? 0.85 : 1 },

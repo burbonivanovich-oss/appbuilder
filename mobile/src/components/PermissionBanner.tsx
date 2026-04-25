@@ -9,6 +9,7 @@ import {
   requestPermission,
   type PermissionStatus,
 } from '@/src/services/notifications';
+import { track } from '@/src/lib/analytics';
 
 /**
  * Soft prompt to enable notifications. Hides when:
@@ -39,6 +40,9 @@ export function PermissionBanner() {
   const handleEnable = async () => {
     const next = await requestPermission();
     setStatus(next);
+    track(next === 'granted' ? 'notif_permission_granted' : 'notif_permission_denied', {
+      source: 'banner',
+    });
     if (next !== 'granted') {
       // user declined — disable in settings so we don't keep asking
       settingsStore.setNotificationsEnabled(false);

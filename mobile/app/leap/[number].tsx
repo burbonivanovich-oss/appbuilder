@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
+import { track } from '@/src/lib/analytics';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -32,6 +33,10 @@ export default function LeapDetailScreen() {
     () => LEAPS.find((l) => l.number === leapNumber),
     [leapNumber],
   );
+
+  useEffect(() => {
+    if (state) track('leap_viewed', { leapNumber, status: state.status });
+  }, [leapNumber, state]);
 
   if (!state || !content) {
     return (

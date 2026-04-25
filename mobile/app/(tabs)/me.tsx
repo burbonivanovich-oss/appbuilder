@@ -17,6 +17,7 @@ import {
 } from '@/src/services/notifications';
 import { formatAgeWithCorrection } from '@/src/lib/age';
 import { formatDateRu } from '@/src/lib/date';
+import { resetAnalytics, track } from '@/src/lib/analytics';
 
 export default function MeScreen() {
   const t = useThemedTokens();
@@ -33,19 +34,26 @@ export default function MeScreen() {
     if (value) {
       const status = await requestPermission();
       setPermission(status);
+      track(status === 'granted' ? 'notif_permission_granted' : 'notif_permission_denied', {
+        source: 'settings',
+      });
       if (status === 'granted') {
         settingsStore.setNotificationsEnabled(true);
+        track('settings_notifications_toggled', { enabled: true });
       }
     } else {
       settingsStore.setNotificationsEnabled(false);
+      track('settings_notifications_toggled', { enabled: false });
     }
   };
 
   const handleSignOut = () => {
     const confirm = () => {
+      track('signed_out');
       authStore.signOut();
       childStore.clear();
       journalStore.clear();
+      resetAnalytics();
     };
     if (Platform.OS === 'web') {
       if (typeof window !== 'undefined' && window.confirm('Выйти и очистить данные?')) {

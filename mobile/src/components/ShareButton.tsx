@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { radius, spacing, typography } from '@/src/theme/tokens';
 import { useThemedTokens } from '@/src/hooks/useThemedTokens';
 import { buildShareText } from '@/src/lib/share';
+import { track } from '@/src/lib/analytics';
 import type { TodaySnapshot } from '@/src/lib/leaps';
 
 type Props = {
@@ -17,6 +18,7 @@ export function ShareButton({ childName, snapshot }: Props) {
   if (!payload) return null;
 
   const handlePress = async () => {
+    track('share_used', { snapshotKind: snapshot.kind, platform: Platform.OS });
     try {
       if (Platform.OS === 'web') {
         const navAny = typeof navigator !== 'undefined' ? (navigator as any) : undefined;

@@ -16,6 +16,7 @@ import { useChildRequired } from '@/src/store/child';
 import { useJournal, journalStore, type Mood } from '@/src/store/journal';
 import { computeLeapStates, getTodaySnapshot } from '@/src/lib/leaps';
 import { formatAgeWithCorrection } from '@/src/lib/age';
+import { track } from '@/src/lib/analytics';
 
 export default function TodayScreen() {
   const t = useThemedTokens();
@@ -48,6 +49,7 @@ export default function TodayScreen() {
       note: '',
       linkedLeapNumber,
     });
+    track('mood_quick_logged', { mood, linkedLeap: linkedLeapNumber ?? null });
   };
 
   const recent = journal.slice(0, 5);

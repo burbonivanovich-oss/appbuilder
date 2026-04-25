@@ -7,6 +7,7 @@ import { Button } from '@/src/components/Button';
 import { radius, spacing, typography } from '@/src/theme/tokens';
 import { useThemedTokens } from '@/src/hooks/useThemedTokens';
 import { childStore, useChildRequired } from '@/src/store/child';
+import { track } from '@/src/lib/analytics';
 
 export default function EditChildScreen() {
   const t = useThemedTokens();
@@ -37,6 +38,7 @@ export default function EditChildScreen() {
           footerNote="При смене ДР пересчитаются все 10 скачков."
           onSubmit={(values) => {
             childStore.update(values);
+            track('child_updated');
             router.back();
           }}
           renderSubmit={({ onPress, disabled, error }) => (

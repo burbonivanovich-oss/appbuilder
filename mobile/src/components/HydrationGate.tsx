@@ -6,6 +6,7 @@ import { childStore } from '@/src/store/child';
 import { journalStore } from '@/src/store/journal';
 import { settingsStore } from '@/src/store/settings';
 import { typography } from '@/src/theme/tokens';
+import { track } from '@/src/lib/analytics';
 
 type Props = {
   children: React.ReactNode;
@@ -27,6 +28,7 @@ export function HydrationGate({ children }: Props) {
       settingsStore.hydrate(),
     ]).then(() => {
       if (!mounted) return;
+      track('app_opened');
       // fade out splash before revealing content
       Animated.timing(opacity, {
         toValue: 0,
