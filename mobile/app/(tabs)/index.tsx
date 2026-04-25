@@ -6,12 +6,13 @@ import { LeapHeroCard } from '@/src/components/LeapHeroCard';
 import { MoodPicker } from '@/src/components/MoodPicker';
 import { JournalEntryCard } from '@/src/components/JournalEntryCard';
 import { Card } from '@/src/components/Card';
+import { ShareButton } from '@/src/components/ShareButton';
 import { spacing, typography } from '@/src/theme/tokens';
 import { useThemedTokens } from '@/src/hooks/useThemedTokens';
 import { useChildRequired } from '@/src/store/child';
 import { useJournal, journalStore, type Mood } from '@/src/store/journal';
 import { computeLeapStates, getTodaySnapshot } from '@/src/lib/leaps';
-import { formatAgeRu } from '@/src/lib/age';
+import { formatAgeWithCorrection } from '@/src/lib/age';
 
 export default function TodayScreen() {
   const t = useThemedTokens();
@@ -57,7 +58,7 @@ export default function TodayScreen() {
         <View style={styles.header}>
           <Text style={[typography.caption, { color: t.textSecondary }]}>Сегодня</Text>
           <Text style={[typography.title, { color: t.textPrimary }]}>
-            {child.name}, {formatAgeRu(child.dob)}
+            {child.name}, {formatAgeWithCorrection(child.dob, child.expectedDob)}
           </Text>
         </View>
 
@@ -68,6 +69,8 @@ export default function TodayScreen() {
             router.push(`/leap/${targetLeapNumber}` as any)
           }
         />
+
+        <ShareButton childName={child.name} snapshot={snapshot} />
 
         <Card tone="soft">
           <Text style={[typography.subtitle, { color: t.textPrimary }]}>Как сегодня?</Text>

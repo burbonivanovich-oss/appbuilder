@@ -8,7 +8,7 @@ import { useThemedTokens } from '@/src/hooks/useThemedTokens';
 import { useChildRequired, childStore } from '@/src/store/child';
 import { useAuth, authStore } from '@/src/store/auth';
 import { journalStore } from '@/src/store/journal';
-import { formatAgeRu } from '@/src/lib/age';
+import { formatAgeWithCorrection } from '@/src/lib/age';
 import { formatDateRu } from '@/src/lib/date';
 
 export default function MeScreen() {
@@ -71,7 +71,7 @@ export default function MeScreen() {
                   {child.name}
                 </Text>
                 <Text style={[typography.body, { color: t.textSecondary }]}>
-                  {formatAgeRu(child.dob)} · родился {formatDateRu(child.dob, { withYear: true })}
+                  {formatAgeWithCorrection(child.dob, child.expectedDob)} · родился {formatDateRu(child.dob, { withYear: true })}
                 </Text>
                 {child.dob.getTime() !== child.expectedDob.getTime() && (
                   <Text

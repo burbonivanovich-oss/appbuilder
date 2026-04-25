@@ -7,7 +7,7 @@ import { Card } from '@/src/components/Card';
 import { Button } from '@/src/components/Button';
 import { radius, spacing, typography } from '@/src/theme/tokens';
 import { useThemedTokens } from '@/src/hooks/useThemedTokens';
-import { useChildRequired } from '@/src/store/child';
+import { useChildRequired, isPreterm } from '@/src/store/child';
 import { computeLeapStates, type LeapState } from '@/src/lib/leaps';
 import { LEAPS, type LeapContent } from '@/src/content/leaps';
 import { formatDateRu, pluralRu } from '@/src/lib/date';
@@ -93,6 +93,19 @@ export default function LeapDetailScreen() {
           <Text style={[typography.caption, { color: t.textMuted, marginTop: spacing.md }]}>
             Ориентировочная дата: {formatDateRu(state.centerDate, { withYear: true })}
           </Text>
+          {isPreterm(child) && (
+            <View
+              style={[
+                styles.pretermNote,
+                { backgroundColor: t.secondarySoft, borderColor: t.secondary },
+              ]}
+            >
+              <Ionicons name="information-circle-outline" size={16} color={t.secondary} />
+              <Text style={[typography.caption, { color: t.textSecondary, flex: 1 }]}>
+                Дата считается от ПДР, а не от ДР — у недоношенных малышей всё идёт по своему графику.
+              </Text>
+            </View>
+          )}
         </Card>
 
         <Card>
@@ -252,5 +265,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 2,
+  },
+  pretermNote: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    alignItems: 'center',
+    padding: spacing.md,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    marginTop: spacing.md,
   },
 });

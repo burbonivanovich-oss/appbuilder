@@ -38,3 +38,32 @@ export function formatAgeRu(dob: Date, now: Date = new Date()): string {
 export function formatWeekAgeRu(weeks: number): string {
   return `около ${weeks} ${pluralRu(weeks, ['недели', 'недель', 'недель'])}`;
 }
+
+export type PretermInfo = {
+  isPreterm: boolean;
+  chronological: string;
+  corrected: string;
+};
+
+export function getPretermInfo(
+  dob: Date,
+  expectedDob: Date,
+  now: Date = new Date(),
+): PretermInfo {
+  const isPreterm = dob.getTime() !== expectedDob.getTime();
+  return {
+    isPreterm,
+    chronological: formatAgeRu(dob, now),
+    corrected: formatAgeRu(expectedDob, now),
+  };
+}
+
+export function formatAgeWithCorrection(
+  dob: Date,
+  expectedDob: Date,
+  now: Date = new Date(),
+): string {
+  const info = getPretermInfo(dob, expectedDob, now);
+  if (!info.isPreterm) return info.chronological;
+  return `${info.chronological} · ${info.corrected} скорр.`;
+}

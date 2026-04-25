@@ -1,4 +1,11 @@
-import { ageInDays, ageInWeeks, ageInMonthsApprox, formatAgeRu } from './age';
+import {
+  ageInDays,
+  ageInWeeks,
+  ageInMonthsApprox,
+  formatAgeRu,
+  formatAgeWithCorrection,
+  getPretermInfo,
+} from './age';
 import { addDays, addWeeks } from './date';
 
 describe('ageInDays', () => {
@@ -59,5 +66,39 @@ describe('formatAgeRu', () => {
   it('not yet born', () => {
     const future = addDays(dob, 10);
     expect(formatAgeRu(future, dob)).toBe('ещё не родился');
+  });
+});
+
+describe('getPretermInfo', () => {
+  it('not preterm when dob === expectedDob', () => {
+    const dob = new Date(2024, 0, 1);
+    const info = getPretermInfo(dob, dob, addWeeks(dob, 14));
+    expect(info.isPreterm).toBe(false);
+    expect(info.chronological).toBe(info.corrected);
+  });
+
+  it('preterm when dob earlier than expectedDob', () => {
+    const dob = new Date(2024, 0, 1);
+    const expected = addWeeks(dob, 7); // 7 weeks early
+    const info = getPretermInfo(dob, expected, addWeeks(dob, 14));
+    expect(info.isPreterm).toBe(true);
+    expect(info.chronological).not.toBe(info.corrected);
+  });
+});
+
+describe('formatAgeWithCorrection', () => {
+  it('returns plain age for term babies', () => {
+    const dob = new Date(2024, 0, 1);
+    expect(formatAgeWithCorrection(dob, dob, addWeeks(dob, 14))).toBe('14 недель');
+  });
+
+  it('shows both ages for preterm with скорр.', () => {
+    const dob = new Date(2024, 0, 1);
+    const expected = addWeeks(dob, 7); // born 7 weeks early
+    const result = formatAgeWithCorrection(dob, expected, addWeeks(dob, 14));
+    // chronological: 14 weeks; corrected: 7 weeks
+    expect(result).toContain('14 недель');
+    expect(result).toContain('7 недель');
+    expect(result).toContain('скорр');
   });
 });

@@ -57,3 +57,7 @@ export function useChildRequired(): ChildProfile {
   }
   return child;
 }
+
+export function isPreterm(child: ChildProfile): boolean {
+  return child.dob.getTime() !== child.expectedDob.getTime();
+}
