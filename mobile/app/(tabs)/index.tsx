@@ -7,6 +7,7 @@ import { MoodPicker } from '@/src/components/MoodPicker';
 import { JournalEntryCard } from '@/src/components/JournalEntryCard';
 import { Card } from '@/src/components/Card';
 import { ShareButton } from '@/src/components/ShareButton';
+import { PermissionBanner } from '@/src/components/PermissionBanner';
 import { spacing, typography } from '@/src/theme/tokens';
 import { useThemedTokens } from '@/src/hooks/useThemedTokens';
 import { useChildRequired } from '@/src/store/child';
@@ -69,6 +70,8 @@ export default function TodayScreen() {
             router.push(`/leap/${targetLeapNumber}` as any)
           }
         />
+
+        <PermissionBanner />
 
         <ShareButton childName={child.name} snapshot={snapshot} />
 

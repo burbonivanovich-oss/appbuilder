@@ -1,4 +1,5 @@
-import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Screen } from '@/src/components/Screen';
@@ -8,6 +9,12 @@ import { useThemedTokens } from '@/src/hooks/useThemedTokens';
 import { useChildRequired, childStore } from '@/src/store/child';
 import { useAuth, authStore } from '@/src/store/auth';
 import { journalStore } from '@/src/store/journal';
+import { settingsStore, useSettings } from '@/src/store/settings';
+import {
+  getPermissionStatus,
+  requestPermission,
+  type PermissionStatus,
+} from '@/src/services/notifications';
 import { formatAgeWithCorrection } from '@/src/lib/age';
 import { formatDateRu } from '@/src/lib/date';
 
@@ -15,6 +22,24 @@ export default function MeScreen() {
   const t = useThemedTokens();
   const child = useChildRequired();
   const { user } = useAuth();
+  const settings = useSettings();
+  const [permission, setPermission] = useState<PermissionStatus>('undetermined');
+
+  useEffect(() => {
+    void getPermissionStatus().then(setPermission);
+  }, []);
+
+  const handleNotificationsToggle = async (value: boolean) => {
+    if (value) {
+      const status = await requestPermission();
+      setPermission(status);
+      if (status === 'granted') {
+        settingsStore.setNotificationsEnabled(true);
+      }
+    } else {
+      settingsStore.setNotificationsEnabled(false);
+    }
+  };
 
   const handleSignOut = () => {
     const confirm = () => {
@@ -91,7 +116,24 @@ export default function MeScreen() {
         </SettingsSection>
 
         <SettingsSection title="Настройки">
-          <Row icon="notifications-outline" label="Уведомления" stub />
+          <View style={styles.row}>
+            <Ionicons name="notifications-outline" size={22} color={t.textSecondary} />
+            <View style={{ flex: 1 }}>
+              <Text style={[typography.body, { color: t.textPrimary }]}>Уведомления</Text>
+              <Text style={[typography.caption, { color: t.textMuted }]}>
+                {permission === 'denied'
+                  ? 'Разрешите в системных настройках'
+                  : 'За 3 дня до скачка и в день начала'}
+              </Text>
+            </View>
+            <Switch
+              value={settings.notificationsEnabled && permission === 'granted'}
+              onValueChange={handleNotificationsToggle}
+              disabled={permission === 'denied'}
+              trackColor={{ true: t.primary, false: t.border }}
+              thumbColor="#FFFFFF"
+            />
+          </View>
           <Row icon="language-outline" label="Язык" hint="Русский" stub />
           <Row icon="lock-closed-outline" label="Приватность" stub />
         </SettingsSection>

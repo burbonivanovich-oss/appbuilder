@@ -3,6 +3,7 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { authStore } from '@/src/store/auth';
 import { childStore } from '@/src/store/child';
 import { journalStore } from '@/src/store/journal';
+import { settingsStore } from '@/src/store/settings';
 import { useThemedTokens } from '@/src/hooks/useThemedTokens';
 
 type Props = {
@@ -19,6 +20,7 @@ export function HydrationGate({ children }: Props) {
       authStore.hydrate(),
       childStore.hydrate(),
       journalStore.hydrate(),
+      settingsStore.hydrate(),
     ]).then(() => {
       if (mounted) setReady(true);
     });

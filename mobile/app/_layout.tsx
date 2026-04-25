@@ -6,6 +6,7 @@ import 'react-native-reanimated';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { HydrationGate } from '@/src/components/HydrationGate';
 import { RouteGuard } from '@/src/components/RouteGuard';
+import { NotificationsManager } from '@/src/components/NotificationsManager';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -18,6 +19,7 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <HydrationGate>
         <RouteGuard>
+          <NotificationsManager />
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="onboarding" options={{ headerShown: false }} />
