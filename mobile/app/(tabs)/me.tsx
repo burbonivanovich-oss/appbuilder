@@ -12,14 +12,13 @@ import { useThemedTokens } from '@/src/hooks/useThemedTokens';
 import { useChildRequired, childStore } from '@/src/store/child';
 import { useAuth, authStore } from '@/src/store/auth';
 import { journalStore, useJournal } from '@/src/store/journal';
-import { useIsPremium, settingsStore } from '@/src/store/settings';
+import { useIsPremium, settingsStore, useSettings } from '@/src/store/settings';
 import {
   buildExportPayload,
   exportFilename,
   exportSummary,
   serializeExport,
 } from '@/src/lib/exportData';
-import { settingsStore, useSettings } from '@/src/store/settings';
 import {
   getPermissionStatus,
   requestPermission,

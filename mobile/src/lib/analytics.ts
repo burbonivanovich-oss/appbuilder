@@ -26,7 +26,11 @@ export type AnalyticsEvent =
   | 'settings_notifications_toggled'
   | 'signed_out'
   | 'data_exported'
-  | 'crash_caught';
+  | 'crash_caught'
+  | 'paywall_shown'
+  | 'paywall_subscribe_tapped'
+  | 'paywall_dismissed'
+  | 'premium_activated';
 
 export type AnalyticsProps = Record<string, string | number | boolean | null | undefined>;
 
