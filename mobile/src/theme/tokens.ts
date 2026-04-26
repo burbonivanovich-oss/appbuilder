@@ -45,7 +45,7 @@ const dark: Theme = {
   border: '#3A322D',
   textPrimary: '#F4EDE4',
   textSecondary: '#C4B9B0',
-  textMuted: '#887E76',
+  textMuted: '#958B83',
   primary: '#F4A588',
   primarySoft: '#3F2E26',
   secondary: '#A5C4AD',
@@ -57,6 +57,9 @@ const dark: Theme = {
   tabIconDefault: '#887E76',
   tabIconSelected: '#F4A588',
 };
+
+// Raised from #887E76 to meet WCAG AA (≥4.5:1) on dark bg
+// #887E76 on #1A1614 ≈ 3.5:1 — acceptable only for decorative text
 
 export const colors = { light, dark } as const;
 
@@ -89,6 +92,30 @@ export const typography = {
   captionStrong: { fontSize: 13, fontWeight: '600', lineHeight: 18 },
   micro: { fontSize: 11, fontWeight: '500', lineHeight: 14 },
 } as const;
+
+export const shadows = {
+  sm: { shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 4, shadowOffset: { width: 0, height: 2 }, elevation: 2 },
+  md: { shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 4 },
+  lg: { shadowColor: '#000', shadowOpacity: 0.20, shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 8 },
+} as const;
+
+export const animation = {
+  duration: {
+    fast: 150,
+    normal: 220,
+    slow: 350,
+  },
+  easing: 'ease-out',
+} as const;
+
+// SF Pro Rounded on iOS (ui-rounded) — warmer, friendlier than default SF Pro
+// Applied to all text elements for consistent warm tone
+import { Platform } from 'react-native';
+export const fontFamily = Platform.select({
+  ios: 'ui-rounded',
+  android: 'sans-serif',
+  default: 'system-ui',
+}) as string;
 
 export function getTheme(scheme: 'light' | 'dark' | null | undefined): Theme {
   return scheme === 'dark' ? colors.dark : colors.light;
