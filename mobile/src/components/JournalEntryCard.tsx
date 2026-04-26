@@ -2,7 +2,8 @@ import { StyleSheet, Text, View } from 'react-native';
 import { radius, spacing, typography } from '@/src/theme/tokens';
 import { useThemedTokens } from '@/src/hooks/useThemedTokens';
 import { formatRelativeDayRu, formatTimeRu } from '@/src/lib/date';
-import { MOOD_EMOJI, SYMPTOM_LABEL, type JournalEntry } from '@/src/store/journal';
+import { SYMPTOM_LABEL, type JournalEntry } from '@/src/store/journal';
+import { MoodIcon } from '@/src/components/ui/MoodIcon';
 
 type Props = {
   entry: JournalEntry;
@@ -23,7 +24,7 @@ export function JournalEntryCard({ entry, compact }: Props) {
       ]}
     >
       <View style={styles.headerRow}>
-        <Text style={styles.emoji}>{MOOD_EMOJI[entry.mood]}</Text>
+        <MoodIcon mood={entry.mood} size={22} withCircle />
         <View style={styles.headerText}>
           <Text style={[typography.captionStrong, { color: t.textPrimary }]}>
             {formatRelativeDayRu(entry.date)}
@@ -72,7 +73,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.md,
   },
-  emoji: { fontSize: 28 },
   headerText: { flex: 1 },
   chips: {
     flexDirection: 'row',

@@ -1,7 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { radius, spacing } from '@/src/theme/tokens';
 import { useThemedTokens } from '@/src/hooks/useThemedTokens';
-import { MOOD_EMOJI, MOOD_LABEL, type Mood } from '@/src/store/journal';
+import { MOOD_LABEL, type Mood } from '@/src/store/journal';
+import { MoodIcon } from '@/src/components/ui/MoodIcon';
 
 const MOODS: Mood[] = ['great', 'ok', 'sad', 'fussy', 'sleepy'];
 
@@ -30,7 +31,7 @@ export function MoodPicker({ value, onChange, showLabels }: Props) {
               },
             ]}
           >
-            <Text style={styles.emoji}>{MOOD_EMOJI[m]}</Text>
+            <MoodIcon mood={m} size={26} withCircle={false} />
             {showLabels && (
               <Text style={[styles.label, { color: t.textSecondary }]}>{MOOD_LABEL[m]}</Text>
             )}
@@ -54,9 +55,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xs,
     borderRadius: radius.md,
     borderWidth: 1,
-  },
-  emoji: {
-    fontSize: 28,
   },
   label: {
     marginTop: spacing.xs,

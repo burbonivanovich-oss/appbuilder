@@ -9,9 +9,18 @@ type Props = {
   onPress?: () => void;
 };
 
+function getLeapNumber(snapshot: TodaySnapshot): number | undefined {
+  if (snapshot.kind === 'active') return snapshot.leap.number;
+  if (snapshot.kind === 'pre-leap') return snapshot.leap.number;
+  if (snapshot.kind === 'calm' && snapshot.next) return snapshot.next.number;
+  if (snapshot.kind === 'all-done') return snapshot.last.number;
+  return undefined;
+}
+
 export function LeapHeroCard({ snapshot, onPress }: Props) {
   const t = useThemedTokens();
   const content = buildLeapHero(snapshot);
+  const leapNumber = getLeapNumber(snapshot);
 
   return (
     <Pressable
@@ -25,6 +34,19 @@ export function LeapHeroCard({ snapshot, onPress }: Props) {
         },
       ]}
     >
+      {/* Watermark: leap number bleeds off top-right edge */}
+      {leapNumber !== undefined && (
+        <Text
+          style={[
+            styles.watermark,
+            { color: content.accent ? t.primary : t.textMuted },
+          ]}
+          accessibilityElementsHidden
+        >
+          {leapNumber}
+        </Text>
+      )}
+
       <Text style={[styles.label, { color: t.textSecondary }]}>{content.label}</Text>
       <Text style={[styles.title, typography.title, { color: t.textPrimary }]}>
         {content.title}
@@ -57,6 +79,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: spacing.xxl,
     gap: spacing.sm,
+    overflow: 'hidden',
+  },
+  watermark: {
+    position: 'absolute',
+    right: -8,
+    top: -20,
+    fontSize: 144,
+    fontWeight: '900',
+    lineHeight: 144,
+    opacity: 0.07,
+    includeFontPadding: false,
   },
   label: {
     fontSize: 12,
