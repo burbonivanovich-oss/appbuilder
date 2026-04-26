@@ -4,11 +4,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Screen } from '@/src/components/Screen';
 import { Card } from '@/src/components/Card';
+import { Button } from '@/src/components/Button';
+import { PaywallSheet } from '@/src/components/PaywallSheet';
+import { PremiumBadge } from '@/src/components/ui/PremiumBadge';
 import { spacing, typography } from '@/src/theme/tokens';
 import { useThemedTokens } from '@/src/hooks/useThemedTokens';
 import { useChildRequired, childStore } from '@/src/store/child';
 import { useAuth, authStore } from '@/src/store/auth';
 import { journalStore, useJournal } from '@/src/store/journal';
+import { useIsPremium, settingsStore } from '@/src/store/settings';
 import {
   buildExportPayload,
   exportFilename,
@@ -30,8 +34,10 @@ export default function MeScreen() {
   const child = useChildRequired();
   const { user } = useAuth();
   const settings = useSettings();
+  const isPremium = useIsPremium();
   const journal = useJournal();
   const [permission, setPermission] = useState<PermissionStatus>('undetermined');
+  const [paywallVisible, setPaywallVisible] = useState(false);
 
   useEffect(() => {
     void getPermissionStatus().then(setPermission);
@@ -116,6 +122,50 @@ export default function MeScreen() {
           <Text style={[typography.caption, { color: t.textSecondary }]}>Профиль</Text>
           <Text style={[typography.title, { color: t.textPrimary }]}>Я</Text>
         </View>
+
+        {isPremium ? (
+          <Card tone="soft">
+            <View style={styles.premiumRow}>
+              <View style={{ flex: 1 }}>
+                <View style={styles.premiumLabelRow}>
+                  <Text style={[typography.subtitle, { color: t.textPrimary }]}>
+                    Premium активен
+                  </Text>
+                  <PremiumBadge size="md" />
+                </View>
+                <Text style={[typography.caption, { color: t.textSecondary, marginTop: spacing.xs }]}>
+                  Управление подпиской — в настройках App Store
+                </Text>
+              </View>
+              <Ionicons name="checkmark-circle" size={24} color={t.success} />
+            </View>
+          </Card>
+        ) : (
+          <Pressable
+            onPress={() => setPaywallVisible(true)}
+            style={({ pressed }) => [{ opacity: pressed ? 0.9 : 1 }]}
+          >
+            <Card tone="accent">
+              <View style={styles.premiumRow}>
+                <View style={{ flex: 1 }}>
+                  <Text style={[typography.subtitle, { color: t.textPrimary }]}>
+                    Попробовать Premium
+                  </Text>
+                  <Text style={[typography.caption, { color: t.textSecondary, marginTop: spacing.xs }]}>
+                    7 дней бесплатно · затем ₽83/мес при годовой оплате
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color={t.primary} />
+              </View>
+            </Card>
+          </Pressable>
+        )}
+
+        <PaywallSheet
+          visible={paywallVisible}
+          trigger="general"
+          onClose={() => setPaywallVisible(false)}
+        />
 
         {user && (
           <Card>
@@ -301,5 +351,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
+  },
+  premiumRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  premiumLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    flexWrap: 'wrap',
   },
 });

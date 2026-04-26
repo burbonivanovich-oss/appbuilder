@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Screen } from '@/src/components/Screen';
 import { Card } from '@/src/components/Card';
 import { Button } from '@/src/components/Button';
+import { PremiumGate } from '@/src/components/ui/PremiumGate';
 import { radius, spacing, typography } from '@/src/theme/tokens';
 import { useThemedTokens } from '@/src/hooks/useThemedTokens';
 import { useChildRequired, isPreterm } from '@/src/store/child';
@@ -128,33 +129,45 @@ export default function LeapDetailScreen() {
           </View>
         </Card>
 
-        <Card tone="soft">
-          <Text style={[typography.subtitle, { color: t.textPrimary }]}>Что можно попробовать</Text>
-          <View style={{ marginTop: spacing.md, gap: spacing.md }}>
-            {content.tips.map((tip, i) => (
-              <View key={i} style={styles.tipRow}>
-                <View style={[styles.tipNum, { backgroundColor: t.primary }]}>
-                  <Text style={[typography.captionStrong, { color: '#FFFFFF' }]}>{i + 1}</Text>
+        <PremiumGate
+          trigger="leap_tips"
+          lockedTitle="Что можно попробовать"
+          lockedHint="Практические советы на каждый день скачка"
+        >
+          <Card tone="soft">
+            <Text style={[typography.subtitle, { color: t.textPrimary }]}>Что можно попробовать</Text>
+            <View style={{ marginTop: spacing.md, gap: spacing.md }}>
+              {content.tips.map((tip, i) => (
+                <View key={i} style={styles.tipRow}>
+                  <View style={[styles.tipNum, { backgroundColor: t.primary }]}>
+                    <Text style={[typography.captionStrong, { color: '#FFFFFF' }]}>{i + 1}</Text>
+                  </View>
+                  <Text style={[typography.body, { color: t.textPrimary, flex: 1 }]}>{tip}</Text>
                 </View>
-                <Text style={[typography.body, { color: t.textPrimary, flex: 1 }]}>{tip}</Text>
-              </View>
-            ))}
-          </View>
-        </Card>
+              ))}
+            </View>
+          </Card>
+        </PremiumGate>
 
-        <Card>
-          <Text style={[typography.subtitle, { color: t.textPrimary }]}>
-            Что нового появится после
-          </Text>
-          <View style={{ marginTop: spacing.md, gap: spacing.sm }}>
-            {content.newAbilities.map((a, i) => (
-              <View key={i} style={styles.bullet}>
-                <Ionicons name="sparkles-outline" size={16} color={t.secondary} />
-                <Text style={[typography.body, { color: t.textPrimary, flex: 1 }]}>{a}</Text>
-              </View>
-            ))}
-          </View>
-        </Card>
+        <PremiumGate
+          trigger="leap_tips"
+          lockedTitle="Что нового появится после"
+          lockedHint="Умения и навыки, которые развиваются после этого скачка"
+        >
+          <Card>
+            <Text style={[typography.subtitle, { color: t.textPrimary }]}>
+              Что нового появится после
+            </Text>
+            <View style={{ marginTop: spacing.md, gap: spacing.sm }}>
+              {content.newAbilities.map((a, i) => (
+                <View key={i} style={styles.bullet}>
+                  <Ionicons name="sparkles-outline" size={16} color={t.secondary} />
+                  <Text style={[typography.body, { color: t.textPrimary, flex: 1 }]}>{a}</Text>
+                </View>
+              ))}
+            </View>
+          </Card>
+        </PremiumGate>
 
         <Button
           title="Добавить запись в журнал"

@@ -1,11 +1,13 @@
-import { useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Card } from '@/src/components/Card';
+import { PaywallSheet } from '@/src/components/PaywallSheet';
 import { spacing, typography } from '@/src/theme/tokens';
 import { useThemedTokens } from '@/src/hooks/useThemedTokens';
 import { computeWeeklyInsights, formatInsightsText } from '@/src/lib/insights';
 import { useJournal } from '@/src/store/journal';
+import { useIsPremium } from '@/src/store/settings';
 
 /**
  * Soft, non-judgemental summary of the last 7 days. Hides itself entirely
@@ -14,6 +16,8 @@ import { useJournal } from '@/src/store/journal';
 export function InsightsCard() {
   const t = useThemedTokens();
   const entries = useJournal();
+  const isPremium = useIsPremium();
+  const [paywallVisible, setPaywallVisible] = useState(false);
   const insights = useMemo(() => computeWeeklyInsights(entries), [entries]);
 
   if (!insights) return null;
@@ -42,6 +46,24 @@ export function InsightsCard() {
           </Text>
         </View>
       )}
+
+      {!isPremium && (
+        <Pressable
+          onPress={() => setPaywallVisible(true)}
+          style={({ pressed }) => [styles.upgradeRow, { borderTopColor: t.border, opacity: pressed ? 0.7 : 1 }]}
+        >
+          <Ionicons name="analytics-outline" size={14} color={t.primary} />
+          <Text style={[typography.captionStrong, { color: t.primary }]}>
+            Подробная аналитика в Premium →
+          </Text>
+        </Pressable>
+      )}
+
+      <PaywallSheet
+        visible={paywallVisible}
+        trigger="insights"
+        onClose={() => setPaywallVisible(false)}
+      />
     </Card>
   );
 }

@@ -4,23 +4,39 @@ import { PersistentStore } from '@/src/lib/persistence';
 export type SettingsState = {
   notificationsEnabled: boolean;
   disclaimerAccepted: boolean;
+  isPremium: boolean;
+  premiumSince: string | null;
+};
+
+const DEFAULT: SettingsState = {
+  notificationsEnabled: true,
+  disclaimerAccepted: false,
+  isPremium: false,
+  premiumSince: null,
 };
 
 const store = new PersistentStore<SettingsState>(
   'settings:v1',
-  { notificationsEnabled: true, disclaimerAccepted: false },
+  DEFAULT,
   {
-    version: 1,
+    version: 2,
     migrate: (raw, fromVersion) => {
-      // fromVersion 0 = legacy pre-versioning data, which only had
-      // notificationsEnabled (disclaimerAccepted was added later). Backfill
-      // it as false so existing users see the disclaimer once.
+      const r = (raw as Partial<SettingsState>) ?? {};
       if (fromVersion === 0) {
-        const r = (raw as { notificationsEnabled?: unknown }) ?? {};
         return {
+          ...DEFAULT,
           notificationsEnabled:
             typeof r.notificationsEnabled === 'boolean' ? r.notificationsEnabled : true,
           disclaimerAccepted: false,
+        };
+      }
+      if (fromVersion === 1) {
+        return {
+          ...DEFAULT,
+          notificationsEnabled:
+            typeof r.notificationsEnabled === 'boolean' ? r.notificationsEnabled : true,
+          disclaimerAccepted:
+            typeof r.disclaimerAccepted === 'boolean' ? r.disclaimerAccepted : false,
         };
       }
       return raw as SettingsState;
@@ -41,8 +57,24 @@ export const settingsStore = {
   acceptDisclaimer: () => {
     store.set({ ...store.get(), disclaimerAccepted: true });
   },
+
+  activatePremium: () => {
+    store.set({
+      ...store.get(),
+      isPremium: true,
+      premiumSince: new Date().toISOString(),
+    });
+  },
+
+  deactivatePremium: () => {
+    store.set({ ...store.get(), isPremium: false, premiumSince: null });
+  },
 };
 
 export function useSettings(): SettingsState {
   return useSyncExternalStore(store.subscribe, store.get, store.get);
+}
+
+export function useIsPremium(): boolean {
+  return useSettings().isPremium;
 }
