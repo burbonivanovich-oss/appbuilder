@@ -2,8 +2,7 @@ import { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { Screen } from '@/src/components/Screen';
-import { LeapTimeline } from '@/src/components/LeapTimeline';
-import { Card } from '@/src/components/Card';
+import { LeapArc } from '@/src/components/LeapArc';
 import { spacing, typography } from '@/src/theme/tokens';
 import { useThemedTokens } from '@/src/hooks/useThemedTokens';
 import { useChildRequired } from '@/src/store/child';
@@ -30,16 +29,7 @@ export default function CalendarScreen() {
           </Text>
         </View>
 
-        <Card tone="soft">
-          <Text style={[typography.caption, { color: t.textSecondary }]}>Легенда</Text>
-          <View style={styles.legendRow}>
-            <LegendItem color={t.primary} label="Идёт сейчас" />
-            <LegendItem color={t.secondary} label="Завершён" />
-            <LegendItem color={t.border} label="Впереди" />
-          </View>
-        </Card>
-
-        <LeapTimeline
+        <LeapArc
           states={states}
           onSelect={(n) => router.push(`/leap/${n}` as any)}
         />
@@ -47,16 +37,6 @@ export default function CalendarScreen() {
         <View style={{ height: spacing.huge }} />
       </ScrollView>
     </Screen>
-  );
-}
-
-function LegendItem({ color, label }: { color: string; label: string }) {
-  const t = useThemedTokens();
-  return (
-    <View style={styles.legendItem}>
-      <View style={[styles.legendDot, { backgroundColor: color }]} />
-      <Text style={[typography.caption, { color: t.textSecondary }]}>{label}</Text>
-    </View>
   );
 }
 
@@ -68,21 +48,5 @@ const styles = StyleSheet.create({
   },
   header: {
     gap: spacing.xs,
-  },
-  legendRow: {
-    flexDirection: 'row',
-    gap: spacing.lg,
-    marginTop: spacing.sm,
-    flexWrap: 'wrap',
-  },
-  legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  legendDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
   },
 });
