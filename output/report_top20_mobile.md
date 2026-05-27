@@ -12,323 +12,323 @@
 
 ## Краткая таблица
 
-| # | Ниша | Wiki views/mo | Wiki 5yr × | Quiet score | ARPU/yr | Модель |
+| # | Ниша | Wiki просм/мес | Рост за 5 лет | Quiet score | ARPU/год | Модель |
 |---|---|---|---|---|---|---|
-| 1 | **Long COVID** | 327,787 | 27.6× | +1.42 | $100 | Subscription $14.99/mo + one-time protocol bundles ($19… |
-| 2 | **Dopamine fasting** | 68,426 | 5.3× | +0.79 | $35 | Freemium: free with limits, $5.99/mo or $39.99/yr unloc… |
-| 3 | **Pilates** | 615,688 | 1.5× | +0.10 | $150 | Subscription $14.99/mo, family $19.99/mo |
-| 4 | **Insomnia (CBT-I)** | 473,202 | 0.7× | +0.19 | $90 | Subscription $12.99/mo or $79/yr; B2B insurance reimbur… |
-| 5 | **CGM (continuous glucose monitor)** | 63,674 | 3.1× | +0.36 | $200 | Subscription $19.99/mo (no device markup) + B2B telehea… |
-| 6 | **Mast cell activation (MCAS)** | 319,903 | 2.3× | +0.23 | $85 | Subscription $9.99/mo + AI-doctor-prep report $29 IAP p… |
-| 7 | **Insulin resistance** | 235,261 | 0.8× | +0.25 | $90 | Subscription $9.99/mo + affiliate to supplement brands … |
-| 8 | **Tai chi** | 441,011 | 1.1× | +0.13 | $90 | Subscription $9.99/mo, healthcare-employer benefit tier… |
-| 9 | **Endometriosis** | 987,967 | 0.9× | -0.02 | $90 | Subscription $7.99/mo + telemed referral $50-150 per bo… |
-| 10 | **POTS** | 546,029 | 1.4× | +0.08 | $80 | Subscription $9.99/mo + B2B telemed referral (commissio… |
-| 11 | **Sarcopenia / strength 50+** | 118,183 | 2.1× | +0.20 | $130 | Subscription $14.99/mo, family plan $24.99/mo (couples … |
-| 12 | **Hashimoto's / hypothyroid** | 623,985 | 0.9× | -0.04 | $100 | Subscription $9.99/mo + bloodwork-test affiliate (Quest… |
-| 13 | **Pelvic floor** | 140,632 | 0.8× | -0.05 | $130 | Subscription $14.99/mo + connected biofeedback device u… |
-| 14 | **Histamine intolerance** | 72,204 | 1.8× | +0.15 | $60 | Subscription $7.99/mo (mostly content lock); $29 one-ti… |
-| 15 | **Caregiver burnout** | 81,896 | 1.1× | +0.02 | $90 | Subscription $9.99/mo + B2B (employee benefit, Medicaid… |
-| 16 | **Cat health tracking** | 15,468 | 2.6× | +0.26 | $80 | Subscription $7.99/mo + affiliate (kidney prescription … |
-| 17 | **Dog longevity / senior dog** | 25,137 | 1.2× | +0.05 | $100 | Subscription $9.99/mo + supplement subscription (Rejuve… |
-| 18 | **Fall prevention (elderly)** | 8,722 | 1.3× | +0.07 | $200 | Family subscription $19.99/mo (paid by adult child); B2… |
-| 19 | **Picky eater (toddler)** | 3,370 | nan× | +0.00 | $80 | Subscription $9.99/mo or $59/yr; family plan $14.99/mo … |
-| 20 | **Baby sleep training** | 336 | 2.2× | +0.21 | $50 | One-time IAP $19.99 'plan' + $4.99/mo for ongoing track… |
+| 1 | **Long COVID** | 327,787 | 27.6× | +1.42 | $100 | Подписка $14.99/мес + разовые покупки протоколов ($19-3… |
+| 2 | **Dopamine fasting** | 68,426 | 5.3× | +0.79 | $35 | Freemium: бесплатно с лимитами; $5.99/мес или $39.99/го… |
+| 3 | **Pilates** | 615,688 | 1.5× | +0.10 | $150 | Подписка $14.99/мес, семейный $19.99/мес |
+| 4 | **Insomnia (CBT-I)** | 473,202 | 0.7× | +0.19 | $90 | Подписка $12.99/мес или $79/год; тир B2B с возмещением … |
+| 5 | **CGM (continuous glucose monitor)** | 63,674 | 3.1× | +0.36 | $200 | Подписка $19.99/мес (без накрутки за девайс) + B2B-тиф … |
+| 6 | **Mast cell activation (MCAS)** | 319,903 | 2.3× | +0.23 | $85 | Подписка $9.99/мес + отчёт «AI doc-prep» $29 IAP перед … |
+| 7 | **Insulin resistance** | 235,261 | 0.8× | +0.25 | $90 | Подписка $9.99/мес + аффилиат-комиссии на supplements (… |
+| 8 | **Tai chi** | 441,011 | 1.1× | +0.13 | $90 | Подписка $9.99/мес, тир «employer benefit» $4/сотрудник… |
+| 9 | **Endometriosis** | 987,967 | 0.9× | -0.02 | $90 | Подписка $7.99/мес + комиссия с телемед-рефералов $50-1… |
+| 10 | **POTS** | 546,029 | 1.4× | +0.08 | $80 | Подписка $9.99/мес + B2B-комиссия за телемед-рефералы (… |
+| 11 | **Sarcopenia / strength 50+** | 118,183 | 2.1× | +0.20 | $130 | Подписка $14.99/мес, семейный план $24.99/мес (для пар … |
+| 12 | **Hashimoto's / hypothyroid** | 623,985 | 0.9× | -0.04 | $100 | Подписка $9.99/мес + аффилиат на bloodwork-тесты (Quest… |
+| 13 | **Pelvic floor** | 140,632 | 0.8× | -0.05 | $130 | Подписка $14.99/мес + апселл девайса биофидбека ($129 р… |
+| 14 | **Histamine intolerance** | 72,204 | 1.8× | +0.15 | $60 | Подписка $7.99/мес (в основном content lock); $29 разов… |
+| 15 | **Caregiver burnout** | 81,896 | 1.1× | +0.02 | $90 | Подписка $9.99/мес + B2B (employer benefit, Medicaid wa… |
+| 16 | **Cat health tracking** | 15,468 | 2.6× | +0.26 | $80 | Подписка $7.99/мес + аффилиат (лечебные корма «почечная… |
+| 17 | **Dog longevity / senior dog** | 25,137 | 1.2× | +0.05 | $100 | Подписка $9.99/мес + supplement-подписка (Rejuvenate Bi… |
+| 18 | **Fall prevention (elderly)** | 8,722 | 1.3× | +0.07 | $200 | Семейная подписка $19.99/мес (платит взрослый ребёнок);… |
+| 19 | **Picky eater (toddler)** | 3,370 | nan× | +0.00 | $80 | Подписка $9.99/мес или $59/год; семейный план $14.99/ме… |
+| 20 | **Baby sleep training** | 336 | 2.2× | +0.21 | $50 | Разовый IAP $19.99 за «план» + $4.99/мес за продолжение… |
 
 ## Развёрнутые карточки
 
 ### 1. Long COVID
 
-**Сигнал**: 327,787 Wikipedia views/mo в среднем; x27.60 рост 2020→2024; quiet_trend `+1.42` (supply CAGR `-13%/yr`, demand CAGR `+129%/yr`).
+**Сигнал**: 327,787 просмотров Wikipedia в месяц в среднем; ×27.60 рост 2020→2024; quiet_trend `+1.42` (предложение CAGR `-13%/год`, спрос CAGR `+129%/год`).
 
-**Концепция**: Symptom-trigger tracker (heart rate, brain fog, PEM) + protocol library + community. Phone passive sensing of HR variability via Apple Watch / Wear OS.
+**Концепция**: Трекер симптомов и триггеров (пульс, brain fog, post-exertional malaise) + библиотека протоколов + сообщество. Пассивный сбор HRV через Apple Watch / Wear OS.
 
-**Монетизация**: Subscription $14.99/mo + one-time protocol bundles ($19-39 IAP). Оценка ARPU ~**$100/год**.
+**Монетизация**: Подписка $14.99/мес + разовые покупки протоколов ($19-39 IAP). Оценка ARPU ~**$100/год**.
 
-**Proof-of-economics**: Visible (Bateman Horne) charges $25/mo and is sold-out wait-list. Long COVID Diary on App Store.
+**Proof-of-economics**: Visible (от Bateman Horne) берёт $25/мес и держит wait-list. Long COVID Diary в App Store.
 
-**Целевая персона**: Female 25-45, ME/CFS or Long COVID diagnosis, English-speaking, doctors not helpful
+**Целевая персона**: Женщина 25-45, диагноз Long COVID или ME/CFS, врачи помогают слабо, активно ищет решения
 
 ---
 
 ### 2. Dopamine fasting
 
-**Сигнал**: 68,426 Wikipedia views/mo в среднем; x5.34 рост 2020→2024; quiet_trend `+0.79` (supply CAGR `-27%/yr`, demand CAGR `+52%/yr`).
+**Сигнал**: 68,426 просмотров Wikipedia в месяц в среднем; ×5.34 рост 2020→2024; quiet_trend `+0.79` (предложение CAGR `-27%/год`, спрос CAGR `+52%/год`).
 
-**Концепция**: Phone-usage gating app: trigger-based screen-time blocks, hard cutoffs by app/category, accountability streaks. Not Screen Time copy — built around 'cycle of stimulation' model.
+**Концепция**: Жёсткий блокировщик использования телефона: триггер-блоки по приложениям/категориям, hard cutoffs, streaks для накопления стрика. Не клон Screen Time — построено вокруг модели «цикла стимуляции».
 
-**Монетизация**: Freemium: free with limits, $5.99/mo or $39.99/yr unlocks unlimited rules + Apple Watch widget. Оценка ARPU ~**$35/год**.
+**Монетизация**: Freemium: бесплатно с лимитами; $5.99/мес или $39.99/год снимает лимиты + виджет для Apple Watch. Оценка ARPU ~**$35/год**.
 
-**Proof-of-economics**: Opal $79/yr, ScreenZen one-time $50, Forest $4 — all profitable. Andrew Huberman drove the term.
+**Proof-of-economics**: Opal $79/год, ScreenZen $50 разово, Forest $4 — все прибыльные. Термин раскачал Andrew Huberman.
 
-**Целевая персона**: Male 22-38, knowledge worker, tried Screen Time and dopamine-fasting content
+**Целевая персона**: Мужчина 22-38, knowledge worker, пробовал Screen Time, читает про dopamine detox
 
 ---
 
 ### 3. Pilates
 
-**Сигнал**: 615,688 Wikipedia views/mo в среднем; x1.48 рост 2020→2024; quiet_trend `+0.10` (supply CAGR `+0%/yr`, demand CAGR `+10%/yr`).
+**Сигнал**: 615,688 просмотров Wikipedia в месяц в среднем; ×1.48 рост 2020→2024; quiet_trend `+0.10` (предложение CAGR `+0%/год`, спрос CAGR `+10%/год`).
 
-**Концепция**: Video-coaching subscription specifically for *home reformer* owners — large new market post-2023 (Lagree, Lifeline reformers $1-2k retail). Not Peloton — equipment-specific routines.
+**Концепция**: Видео-коучинг подписка специально для владельцев домашних reformer-ов (Lagree, Lifeline и пр., $1-2k розница, бум после 2023). Не Peloton — рутины под конкретное оборудование.
 
-**Монетизация**: Subscription $14.99/mo, family $19.99/mo. Оценка ARPU ~**$150/год**.
+**Монетизация**: Подписка $14.99/мес, семейный $19.99/мес. Оценка ARPU ~**$150/год**.
 
-**Proof-of-economics**: Glo $24/mo, Pilatesology $25/mo — both growing. Home-reformer category exploded.
+**Proof-of-economics**: Glo $24/мес, Pilatesology $25/мес — оба растут. Категория «home reformer» взорвалась.
 
-**Целевая персона**: Female 35-55, bought home reformer, was in Pilates studio pre-2020
+**Целевая персона**: Женщина 35-55, купила домашний reformer, ходила в студию до 2020
 
 ---
 
 ### 4. Insomnia (CBT-I)
 
-**Сигнал**: 473,202 Wikipedia views/mo в среднем; x0.65 рост 2020→2024; quiet_trend `+0.19` (supply CAGR `-29%/yr`, demand CAGR `-10%/yr`).
+**Сигнал**: 473,202 просмотров Wikipedia в месяц в среднем; ×0.65 рост 2020→2024; quiet_trend `+0.19` (предложение CAGR `-29%/год`, спрос CAGR `-10%/год`).
 
-**Концепция**: CBT-I 8-week program app with sleep diary, stimulus-control protocols, sleep-restriction calculator. Apple HealthKit integration. Not Calm/Headspace (those are meditation).
+**Концепция**: 8-недельная программа когнитивно-поведенческой терапии инсомнии (CBT-I): дневник сна, протоколы stimulus-control, калькулятор sleep-restriction. Интеграция с Apple HealthKit. Это не Calm/Headspace (там медитация).
 
-**Монетизация**: Subscription $12.99/mo or $79/yr; B2B insurance reimbursement tier. Оценка ARPU ~**$90/год**.
+**Монетизация**: Подписка $12.99/мес или $79/год; тир B2B с возмещением через страховку. Оценка ARPU ~**$90/год**.
 
-**Proof-of-economics**: Somryst FDA-cleared at $899 prescription (covered by Medicare). Sleepio (UK NHS) sold to Big Health for ~$10M ARR.
+**Proof-of-economics**: Somryst FDA-cleared, $899 по рецепту (покрывается Medicare). Sleepio (UK NHS) продали Big Health за ~$10M ARR.
 
-**Целевая персона**: 30-60, chronic insomnia 3+ months, tried melatonin, doctor said 'try CBT-I' but can't find provider
+**Целевая персона**: 30-60, хроническая инсомния 3+ мес, пробовал мелатонин, врач сказал «попробуй CBT-I», но провайдера не найти
 
 ---
 
 ### 5. CGM (continuous glucose monitor)
 
-**Сигнал**: 63,674 Wikipedia views/mo в среднем; x3.09 рост 2020→2024; quiet_trend `+0.36` (supply CAGR `-4%/yr`, demand CAGR `+33%/yr`).
+**Сигнал**: 63,674 просмотров Wikipedia в месяц в среднем; ×3.09 рост 2020→2024; quiet_trend `+0.36` (предложение CAGR `-4%/год`, спрос CAGR `+33%/год`).
 
-**Концепция**: Software-only analytics layer on top of Dexcom/Libre Bluetooth feed. Food → glucose response correlations + macro tracking + weight-loss coaching. No hardware shipment.
+**Концепция**: Софт-only аналитика поверх Bluetooth-потока Dexcom/Libre. Корреляции «еда → глюкозный отклик», макро-трекинг, коучинг по похудению. Без поставки железа.
 
-**Монетизация**: Subscription $19.99/mo (no device markup) + B2B telehealth provider tier $99/seat/mo. Оценка ARPU ~**$200/год**.
+**Монетизация**: Подписка $19.99/мес (без накрутки за девайс) + B2B-тиф для телемед-клиник $99/место/мес. Оценка ARPU ~**$200/год**.
 
-**Proof-of-economics**: Levels (with device) $199/mo, NutriSense $250/mo — both have wait-lists. Stelo (Dexcom OTC) $99/mo retail launched 2024.
+**Proof-of-economics**: Levels (с девайсом) $199/мес, NutriSense $250/мес — у обоих wait-list. Stelo (Dexcom OTC) запустили в 2024 за $99/мес в рознице.
 
-**Целевая персона**: Male 30-55, biohacker/professional, has Apple Watch, willing to attach OTC sensor
+**Целевая персона**: Мужчина 30-55, биохакер/профессионал, носит Apple Watch, готов прилепить OTC-сенсор
 
 ---
 
 ### 6. Mast cell activation (MCAS)
 
-**Сигнал**: 319,903 Wikipedia views/mo в среднем; x2.28 рост 2020→2024; quiet_trend `+0.23` (supply CAGR `+0%/yr`, demand CAGR `+23%/yr`).
+**Сигнал**: 319,903 просмотров Wikipedia в месяц в среднем; ×2.28 рост 2020→2024; quiet_trend `+0.23` (предложение CAGR `+0%/год`, спрос CAGR `+23%/год`).
 
-**Концепция**: Food-and-environment trigger tracker: log meals, environment, symptoms with weight; correlation engine surfaces likely triggers; export PDF for doctor visit.
+**Концепция**: Трекер триггеров «еда+окружение»: лог приёмов пищи, среды, симптомы с весом. Корреляционный движок выводит наиболее вероятные триггеры. Экспорт PDF для визита к врачу.
 
-**Монетизация**: Subscription $9.99/mo + AI-doctor-prep report $29 IAP per visit. Оценка ARPU ~**$85/год**.
+**Монетизация**: Подписка $9.99/мес + отчёт «AI doc-prep» $29 IAP перед каждым визитом. Оценка ARPU ~**$85/год**.
 
-**Proof-of-economics**: MyMast app, Bezzy MCAS — niche but engaged. Histamine intolerance audience overlaps.
+**Proof-of-economics**: MyMast, Bezzy MCAS — нишево, но юзеры engaged. Аудитория пересекается с histamine intolerance.
 
-**Целевая персона**: Female 25-50, undiagnosed for years, hyper-engaged researcher
+**Целевая персона**: Женщина 25-50, годами без диагноза, гипер-engaged исследователь
 
 ---
 
 ### 7. Insulin resistance
 
-**Сигнал**: 235,261 Wikipedia views/mo в среднем; x0.85 рост 2020→2024; quiet_trend `+0.25` (supply CAGR `-29%/yr`, demand CAGR `-4%/yr`).
+**Сигнал**: 235,261 просмотров Wikipedia в месяц в среднем; ×0.85 рост 2020→2024; quiet_trend `+0.25` (предложение CAGR `-29%/год`, спрос CAGR `-4%/год`).
 
-**Концепция**: Pre-diabetic dashboard: tracks A1c, fasting glucose, blood-pressure, waist trend; food → metabolic response logs; targeted nutritional plans (not generic calorie counting).
+**Концепция**: Дашборд для пре-диабетиков: A1c, глюкоза натощак, давление, окружность талии; логи «еда → метаболический отклик»; нутрицевтические протоколы (не общий counter калорий).
 
-**Монетизация**: Subscription $9.99/mo + affiliate to supplement brands (berberine, inositol) ~15% commission. Оценка ARPU ~**$90/год**.
+**Монетизация**: Подписка $9.99/мес + аффилиат-комиссии на supplements (берберин, инозитол) ~15%. Оценка ARPU ~**$90/год**.
 
-**Proof-of-economics**: Signos $186/mo (with CGM), Verde Health, Welly Health. 96M Americans pre-diabetic per CDC.
+**Proof-of-economics**: Signos $186/мес (с CGM), Verde Health, Welly Health. 96M американцев в pre-diabetic зоне по CDC.
 
-**Целевая персона**: 40-60 with elevated A1c (5.7-6.4), wants to avoid diabetes meds, willing to use CGM/blood tests
+**Целевая персона**: 40-60 с повышенным A1c (5.7-6.4), хочет избежать метформина, готов использовать CGM/анализы
 
 ---
 
 ### 8. Tai chi
 
-**Сигнал**: 441,011 Wikipedia views/mo в среднем; x1.12 рост 2020→2024; quiet_trend `+0.13` (supply CAGR `-10%/yr`, demand CAGR `+3%/yr`).
+**Сигнал**: 441,011 просмотров Wikipedia в месяц в среднем; ×1.12 рост 2020→2024; quiet_trend `+0.13` (предложение CAGR `-10%/год`, спрос CAGR `+3%/год`).
 
-**Концепция**: Tai chi structured course for 50+ demo with form-correction via phone camera (MediaPipe pose). Targets fall prevention + cognitive benefits.
+**Концепция**: Структурированный курс тай-чи для аудитории 50+ с коррекцией формы через камеру (MediaPipe pose detection). Польза: профилактика падений + когнитивная функция.
 
-**Монетизация**: Subscription $9.99/mo, healthcare-employer benefit tier $4/employee/mo. Оценка ARPU ~**$90/год**.
+**Монетизация**: Подписка $9.99/мес, тир «employer benefit» $4/сотрудник/мес. Оценка ARPU ~**$90/год**.
 
-**Proof-of-economics**: Tai chi clinical trials show fall reduction; Medicare covers some classes. No dominant app.
+**Proof-of-economics**: Клин-трайлы тай-чи подтверждают снижение падений; Medicare покрывает некоторые занятия. Доминирующего приложения нет.
 
-**Целевая персона**: 60-75, suburb, hard knees/back, doctor suggested low-impact exercise
+**Целевая персона**: 60-75, пригород, проблемные колени/спина, врач рекомендовал low-impact упражнения
 
 ---
 
 ### 9. Endometriosis
 
-**Сигнал**: 987,967 Wikipedia views/mo в среднем; x0.94 рост 2020→2024; quiet_trend `-0.02` (supply CAGR `+0%/yr`, demand CAGR `-2%/yr`).
+**Сигнал**: 987,967 просмотров Wikipedia в месяц в среднем; ×0.94 рост 2020→2024; quiet_trend `-0.02` (предложение CAGR `+0%/год`, спрос CAGR `-2%/год`).
 
-**Концепция**: Period + pain + flare tracker with surgery/medication timeline. Doctor-visit prep PDF. Telemed referral to endo-specialists (very few; high commission opportunity).
+**Концепция**: Трекер цикла + боли + обострений с timeline операций и медикаментов. PDF для подготовки к визиту. Реферал к специалистам по эндометриозу (их мало; высокий margin на комиссии).
 
-**Монетизация**: Subscription $7.99/mo + telemed referral $50-150 per booking. Оценка ARPU ~**$90/год**.
+**Монетизация**: Подписка $7.99/мес + комиссия с телемед-рефералов $50-150 за запись. Оценка ARPU ~**$90/год**.
 
-**Proof-of-economics**: Phendo, Endo Health, Allara. Endo affects 10% of women. Wait time for specialist = 7 years average.
+**Proof-of-economics**: Phendo, Endo Health, Allara. Эндо у 10% женщин. Очередь к специалисту в среднем 7 лет.
 
-**Целевая персона**: Female 18-40, diagnosed or suspecting, frustrated with cycle apps that ignore pain
+**Целевая персона**: Женщина 18-40, диагноз или подозревает, бесит что cycle-приложения игнорируют боль
 
 ---
 
 ### 10. POTS
 
-**Сигнал**: 546,029 Wikipedia views/mo в среднем; x1.39 рост 2020→2024; quiet_trend `+0.08` (supply CAGR `+0%/yr`, demand CAGR `+9%/yr`).
+**Сигнал**: 546,029 просмотров Wikipedia в месяц в среднем; ×1.39 рост 2020→2024; quiet_trend `+0.08` (предложение CAGR `+0%/год`, спрос CAGR `+9%/год`).
 
-**Концепция**: Symptom + heart rate + posture tracker (Apple Watch reads HR delta on standing). Daily salt/fluid logs, medication reminders, doctor-visit PDF export.
+**Концепция**: Трекер симптомов + пульс + поза (Apple Watch фиксирует HR-дельту при вставании). Ежедневные логи соли/жидкости, напоминания о приёме лекарств, PDF-экспорт для врача.
 
-**Монетизация**: Subscription $9.99/mo + B2B telemed referral (commissions from cardiology telehealth). Оценка ARPU ~**$80/год**.
+**Монетизация**: Подписка $9.99/мес + B2B-комиссия за телемед-рефералы (кардиология). Оценка ARPU ~**$80/год**.
 
-**Proof-of-economics**: POTUS Tracker free + ads. Standing Up to POTS donations. Visible (long COVID app) overlap.
+**Proof-of-economics**: POTUS Tracker бесплатный + реклама. Standing Up to POTS — донат-модель. Visible (Long COVID) пересекается по аудитории.
 
-**Целевая персона**: Female 18-35, recent diagnosis or self-diagnosed, doctor 6mo wait
+**Целевая персона**: Женщина 18-35, недавний диагноз или self-diagnosed, очередь к врачу 6 мес
 
 ---
 
 ### 11. Sarcopenia / strength 50+
 
-**Сигнал**: 118,183 Wikipedia views/mo в среднем; x2.11 рост 2020→2024; quiet_trend `+0.20` (supply CAGR `+0%/yr`, demand CAGR `+20%/yr`).
+**Сигнал**: 118,183 просмотров Wikipedia в месяц в среднем; ×2.11 рост 2020→2024; quiet_trend `+0.20` (предложение CAGR `+0%/год`, спрос CAGR `+20%/год`).
 
-**Концепция**: Strength-training app structured around sarcopenia prevention: progressive overload tracking, DEXA/inbody integration, weekly 'muscle-mass risk' score from grip/sit-stand tests phone can run.
+**Концепция**: Силовое приложение, заточенное на предотвращение саркопении: трекинг progressive overload, импорт DEXA/Inbody, еженедельная оценка «риска потери мышц» через grip-strength и sit-to-stand тесты на телефоне.
 
-**Монетизация**: Subscription $14.99/mo, family plan $24.99/mo (couples 50+). Оценка ARPU ~**$130/год**.
+**Монетизация**: Подписка $14.99/мес, семейный план $24.99/мес (для пар 50+). Оценка ARPU ~**$130/год**.
 
-**Proof-of-economics**: Future $199/mo (1-on-1), Caliber $35/mo. Mature category but '50+ specifically' is white space.
+**Proof-of-economics**: Future $199/мес (1-на-1), Caliber $35/мес. Категория зрелая, но «специально для 50+» — белая дыра.
 
-**Целевая персона**: Male/female 50-70, post-MD scare or post-Attia-podcast convert, gym member but no plan
+**Целевая персона**: Мужчины/женщины 50-70, после врачебного предостережения или подкаста Peter Attia. Член зала, но без плана
 
 ---
 
 ### 12. Hashimoto's / hypothyroid
 
-**Сигнал**: 623,985 Wikipedia views/mo в среднем; x0.86 рост 2020→2024; quiet_trend `-0.04` (supply CAGR `+0%/yr`, demand CAGR `-4%/yr`).
+**Сигнал**: 623,985 просмотров Wikipedia в месяц в среднем; ×0.86 рост 2020→2024; quiet_trend `-0.04` (предложение CAGR `+0%/год`, спрос CAGR `-4%/год`).
 
-**Концепция**: Thyroid-specific dashboard: TSH/T4/T3 lab tracker, medication switch journal (Levo vs NDT vs LDN), gluten/symptom log.
+**Концепция**: Дашборд под щитовидку: трекер TSH/T4/T3, журнал смены препаратов (L-thyroxin vs NDT vs LDN), лог глютена и симптомов.
 
-**Монетизация**: Subscription $9.99/mo + bloodwork-test affiliate (Quest/Labcorp/Inside Tracker). Оценка ARPU ~**$100/год**.
+**Монетизация**: Подписка $9.99/мес + аффилиат на bloodwork-тесты (Quest, Labcorp, InsideTracker). Оценка ARPU ~**$100/год**.
 
-**Proof-of-economics**: Paloma Health (full telemed) $99/mo. Stop The Thyroid Madness sold $20+ books. ~20M Americans hypothyroid.
+**Proof-of-economics**: Paloma Health (полный телемед) $99/мес. Книги Stop The Thyroid Madness продаются миллионами. ~20M американцев с гипотиреозом.
 
-**Целевая персона**: Female 30-55, recently medicated, not getting better, researching alternatives
+**Целевая персона**: Женщина 30-55, недавно начала лечение, лучше не становится, ищет альтернативы
 
 ---
 
 ### 13. Pelvic floor
 
-**Сигнал**: 140,632 Wikipedia views/mo в среднем; x0.81 рост 2020→2024; quiet_trend `-0.05` (supply CAGR `+0%/yr`, demand CAGR `-5%/yr`).
+**Сигнал**: 140,632 просмотров Wikipedia в месяц в среднем; ×0.81 рост 2020→2024; quiet_trend `-0.05` (предложение CAGR `+0%/год`, спрос CAGR `-5%/год`).
 
-**Концепция**: Guided Kegel + pelvic-floor PT exercises with biofeedback via accelerometer (pocket-based posture detection). Primary use: postpartum + perimenopause + post-prostatectomy.
+**Концепция**: Гайдед упражнения Кегеля + pelvic-floor PT с биофидбеком через акселерометр (детект позы через карман). Основные use-cases: postpartum, перименопауза, после простатэктомии.
 
-**Монетизация**: Subscription $14.99/mo + connected biofeedback device upsell ($129 one-time, lower margin). Оценка ARPU ~**$130/год**.
+**Монетизация**: Подписка $14.99/мес + апселл девайса биофидбека ($129 разово, низкая маржа). Оценка ARPU ~**$130/год**.
 
-**Proof-of-economics**: Elvie ($199 device + free app), Kegel Trainer freemium. Origin (PT app) raised $24M.
+**Proof-of-economics**: Elvie ($199 девайс + бесплатное приложение), Kegel Trainer freemium. PT-приложение Origin привлекло $24M.
 
-**Целевая персона**: Female 30-50 post-baby OR 50+ perimenopause; male 60+ post-prostate surgery
+**Целевая персона**: Женщина 30-50 после родов ИЛИ 50+ в перименопаузе; мужчина 60+ после операции на простате
 
 ---
 
 ### 14. Histamine intolerance
 
-**Сигнал**: 72,204 Wikipedia views/mo в среднем; x1.78 рост 2020→2024; quiet_trend `+0.15` (supply CAGR `+0%/yr`, demand CAGR `+15%/yr`).
+**Сигнал**: 72,204 просмотров Wikipedia в месяц в среднем; ×1.78 рост 2020→2024; quiet_trend `+0.15` (предложение CAGR `+0%/год`, спрос CAGR `+15%/год`).
 
-**Концепция**: Low-histamine food database (~3000 items), meal-planning, batch-cook recipe library; symptom tracker overlay (same engine as MCAS).
+**Концепция**: База данных low-histamine продуктов (~3000 SKU), генератор meal-plan, рецепты для batch-cook; symptom tracker (на том же движке, что MCAS).
 
-**Монетизация**: Subscription $7.99/mo (mostly content lock); $29 one-time 'starter kit' PDF. Оценка ARPU ~**$60/год**.
+**Монетизация**: Подписка $7.99/мес (в основном content lock); $29 разово за «стартер-pack» PDF. Оценка ARPU ~**$60/год**.
 
-**Proof-of-economics**: Mast Cell 360 (paid course $400+) shows pay-willingness; no mobile app dominates.
+**Proof-of-economics**: Mast Cell 360 (платный курс $400+) подтверждает готовность платить; мобильного лидера нет.
 
-**Целевая персона**: Female 30-55, recently elimination-diet stage, overwhelmed by lists
+**Целевая персона**: Женщина 30-55, недавно начала элиминационную диету, тонет в списках
 
 ---
 
 ### 15. Caregiver burnout
 
-**Сигнал**: 81,896 Wikipedia views/mo в среднем; x1.07 рост 2020→2024; quiet_trend `+0.02` (supply CAGR `+0%/yr`, demand CAGR `+2%/yr`).
+**Сигнал**: 81,896 просмотров Wikipedia в месяц в среднем; ×1.07 рост 2020→2024; quiet_trend `+0.02` (предложение CAGR `+0%/год`, спрос CAGR `+2%/год`).
 
-**Концепция**: Caregiver-self tracker: stress score (HRV via phone camera), respite scheduler, peer-support match, escalation triggers ('you've slept <5h three nights — call backup').
+**Концепция**: Self-tracker для ухаживающего: стресс-скор (HRV через камеру телефона), планировщик передышек, peer-support match, эскалация триггеров («ты спал <5ч три ночи подряд — звони запасному»).
 
-**Монетизация**: Subscription $9.99/mo + B2B (employee benefit, Medicaid waiver programs). Оценка ARPU ~**$90/год**.
+**Монетизация**: Подписка $9.99/мес + B2B (employer benefit, Medicaid waiver программы). Оценка ARPU ~**$90/год**.
 
-**Proof-of-economics**: Cariloop $30M Series B; Wellthy $25M; AARP runs caregiver programs.
+**Proof-of-economics**: Cariloop $30M Series B; Wellthy $25M; AARP запускает программы для caregivers.
 
-**Целевая персона**: Female 50-65, caring for parent w/dementia, hasn't seen own doctor in a year
+**Целевая персона**: Женщина 50-65, ухаживает за родителем с деменцией, год не была у своего врача
 
 ---
 
 ### 16. Cat health tracking
 
-**Сигнал**: 15,468 Wikipedia views/mo в среднем; x2.55 рост 2020→2024; quiet_trend `+0.26` (supply CAGR `+0%/yr`, demand CAGR `+26%/yr`).
+**Сигнал**: 15,468 просмотров Wikipedia в месяц в среднем; ×2.55 рост 2020→2024; quiet_trend `+0.26` (предложение CAGR `+0%/год`, спрос CAGR `+26%/год`).
 
-**Концепция**: Litterbox photo → AI urine/stool analysis (consistency, blood, volume); food/water log; weight curve. Aimed at senior cats (10+) where chronic kidney disease is leading killer.
+**Концепция**: Фото лотка → AI-анализ мочи/стула (консистенция, кровь, объём); лог еды и воды; кривая веса. Целевой сегмент — старшие коты (10+), где ХБП — ведущая причина смерти.
 
-**Монетизация**: Subscription $7.99/mo + affiliate (kidney prescription food, supplements) ~15%. Оценка ARPU ~**$80/год**.
+**Монетизация**: Подписка $7.99/мес + аффилиат (лечебные корма «почечная диета», supplements) ~15%. Оценка ARPU ~**$80/год**.
 
-**Proof-of-economics**: Pretty Litter ($30/mo) and CatGenie show pay-willingness for senior cat owners.
+**Proof-of-economics**: Pretty Litter ($30/мес) и CatGenie доказали готовность платить у владельцев старших кошек.
 
-**Целевая персона**: Cat owner 35+, cat 10+ years, vet costs creeping up
+**Целевая персона**: Владелец кота 35+, кот 10+ лет, счета у ветеринара растут
 
 ---
 
 ### 17. Dog longevity / senior dog
 
-**Сигнал**: 25,137 Wikipedia views/mo в среднем; x1.20 рост 2020→2024; quiet_trend `+0.05` (supply CAGR `+0%/yr`, demand CAGR `+5%/yr`).
+**Сигнал**: 25,137 просмотров Wikipedia в месяц в среднем; ×1.20 рост 2020→2024; quiet_trend `+0.05` (предложение CAGR `+0%/год`, спрос CAGR `+5%/год`).
 
-**Концепция**: Frailty index for dogs: weekly assessment (cognition, mobility, sleep, appetite), feeding/supplement scheduler, vet-share dashboard. Inspired by Dog Aging Project.
+**Концепция**: Индекс старения для собак: еженедельная оценка (когниция, мобильность, сон, аппетит), планировщик кормления и supplements, дашборд для шеринга с ветом. Вдохновлено Dog Aging Project.
 
-**Монетизация**: Subscription $9.99/mo + supplement subscription (Rejuvenate Bio, NuVet) affiliates. Оценка ARPU ~**$100/год**.
+**Монетизация**: Подписка $9.99/мес + supplement-подписка (Rejuvenate Bio, NuVet) с аффилиат-комиссией. Оценка ARPU ~**$100/год**.
 
-**Proof-of-economics**: Loyal raised $125M for dog longevity drug. Dog Aging Project has 50k+ enrolled.
+**Proof-of-economics**: Loyal привлекли $125M на препарат собачьего долголетия. В Dog Aging Project зарегистрировано 50k+ собак.
 
-**Целевая персона**: Dog owner 40+, dog 7+ years, owner reads science
+**Целевая персона**: Владелец собаки 40+, собаке 7+ лет, владелец читает медицинские статьи
 
 ---
 
 ### 18. Fall prevention (elderly)
 
-**Сигнал**: 8,722 Wikipedia views/mo в среднем; x1.29 рост 2020→2024; quiet_trend `+0.07` (supply CAGR `+0%/yr`, demand CAGR `+7%/yr`).
+**Сигнал**: 8,722 просмотров Wikipedia в месяц в среднем; ×1.29 рост 2020→2024; quiet_trend `+0.07` (предложение CAGR `+0%/год`, спрос CAGR `+7%/год`).
 
-**Концепция**: Caregiver-installed app: tracks walking gait via phone (in pocket), strength-test reminders, push notifications to family on declines. Apple Watch fall detect = afterwards; this is *prevention*.
+**Концепция**: Приложение, которое ставит ухаживающий: фиксирует походку через телефон в кармане, напоминает о силовых тестах, шлёт push-уведомления семье при ухудшении. Apple Watch fall detect ловит уже свершившееся; это — *профилактика*.
 
-**Монетизация**: Family subscription $19.99/mo (paid by adult child); B2B home-care agency tier $30/patient/mo. Оценка ARPU ~**$200/год**.
+**Монетизация**: Семейная подписка $19.99/мес (платит взрослый ребёнок); B2B-тиф для home-care агентств $30/пациент/мес. Оценка ARPU ~**$200/год**.
 
-**Proof-of-economics**: Papa, Honor — well-funded home-care services. Apple's Health team explicitly punted on prevention.
+**Proof-of-economics**: Papa, Honor — хорошо профинансированные сервисы домашнего ухода. У Apple Health профилактики падений нет.
 
-**Целевая персона**: Adult child (45-60) of elderly parent (75+), parent had near-fall recently
+**Целевая персона**: Взрослый ребёнок (45-60) пожилого родителя (75+), у родителя недавно был «почти-упал»
 
 ---
 
 ### 19. Picky eater (toddler)
 
-**Сигнал**: 3,370 Wikipedia views/mo в среднем; xnan рост 2020→2024; quiet_trend `+0.00` (supply CAGR `+0%/yr`, demand CAGR `+0%/yr`).
+**Сигнал**: 3,370 просмотров Wikipedia в месяц в среднем; ×nan рост 2020→2024; quiet_trend `+0.00` (предложение CAGR `+0%/год`, спрос CAGR `+0%/год`).
 
-**Концепция**: Daily meal-plan generator + 'first 7 bites' challenges + photo log of accepted foods; AI generates next-step exposure plan per kid's pattern. Anchored on responsive-feeding method (Ellyn Satter).
+**Концепция**: Генератор meal-plan + челлендж «первые 7 кусочков» + фотолог принятых продуктов; AI генерирует план «следующего шага» для конкретного ребёнка. На базе responsive-feeding метода Ellyn Satter.
 
-**Монетизация**: Subscription $9.99/mo or $59/yr; family plan $14.99/mo (multiple kids). Оценка ARPU ~**$80/год**.
+**Монетизация**: Подписка $9.99/мес или $59/год; семейный план $14.99/мес (несколько детей). Оценка ARPU ~**$80/год**.
 
-**Proof-of-economics**: Yumble (meals) and Solid Starts (paid course $99+app) prove pay-willingness; 30%+ of toddlers selective.
+**Proof-of-economics**: Yumble (готовые меню) и Solid Starts (платный курс $99 + приложение) доказывают готовность платить. 30%+ малышей — picky eaters.
 
-**Целевая персона**: Mother of 2-5yo, exhausted, judging-self, googled 'my kid won't eat anything'
+**Целевая персона**: Мама ребёнка 2-5 лет, выгоревшая, винит себя, гуглит «мой ребёнок ничего не ест»
 
 ---
 
 ### 20. Baby sleep training
 
-**Сигнал**: 336 Wikipedia views/mo в среднем; x2.16 рост 2020→2024; quiet_trend `+0.21` (supply CAGR `+0%/yr`, demand CAGR `+21%/yr`).
+**Сигнал**: 336 просмотров Wikipedia в месяц в среднем; ×2.16 рост 2020→2024; quiet_trend `+0.21` (предложение CAGR `+0%/год`, спрос CAGR `+21%/год`).
 
-**Концепция**: Personalized sleep schedule generator + nap-and-wake-window logging + acoustic monitor (phone mic detects crying duration and pattern). Method-agnostic (Ferber, chair, hybrid).
+**Концепция**: Персонализированный генератор расписания сна + лог дневных снов и wake-windows + акустический монитор (микрофон детектит длительность плача и паттерн). Без привязки к одному методу (Ferber, chair, hybrid).
 
-**Монетизация**: One-time IAP $19.99 'plan' + $4.99/mo for ongoing tracking. Оценка ARPU ~**$50/год**.
+**Монетизация**: Разовый IAP $19.99 за «план» + $4.99/мес за продолжение трекинга. Оценка ARPU ~**$50/год**.
 
-**Proof-of-economics**: Huckleberry $69/yr, Hatch Rest hardware+app, Taking Cara Babies course $179. Massive engaged market.
+**Proof-of-economics**: Huckleberry $69/год, Hatch Rest (железо + приложение), курс Taking Cara Babies $179. Огромный engaged рынок.
 
-**Целевая персона**: Parent of 3-12mo, sleep-deprived, googled at 3am
+**Целевая персона**: Родитель ребёнка 3-12 мес, не спит, гуглит в 3 ночи
 
 ---
 
 ## Кросс-вертикальные паттерны
 
-- **Хронические недодиагностированные состояния (Long COVID, MCAS, POTS, Hashimoto, Insulin resistance)** — лучшие кандидаты по соотношению LTV/CAC. Юзеры engaged, система здравоохранения их подводит, готовы платить за tools которые помогают.
-- **Mobile-app-fit стек**: tracker + симптомный лог + PDF-экспорт врачу + телемед-реферал = повторяемая бизнес-модель в большинстве top-20.
-- **Affiliate как второй revenue stream**: bloodwork (Quest, InsideTracker), supplements, телемед — 10-20% commissions, добавляет 30-50% к подписке.
-- **Долгий retention** в хронических нишах (POTS, Endometriosis, Hashimoto) >24 мес = ARPU умножается. В parenting нишах retention 6-12 мес (ребёнок вырос).
-- **B2B insurance/employer тир** = 3-10× ARPU для тех, что FDA-clear-able (CBT-I, endometriosis, fall prevention, caregiver burnout).
+- **Хронические недодиагностированные состояния** (Long COVID, MCAS, POTS, Хашимото, Инсулинорезистентность) — лучшие кандидаты по соотношению LTV/CAC. Пользователи вовлечены, медицина их подводит, готовы платить за инструменты которые помогают.
+- **Универсальный мобильный стек**: трекер + симптомный лог + PDF-экспорт врачу + телемед-реферал = повторяемая бизнес-модель в большинстве top-20.
+- **Аффилиат как второй revenue stream**: bloodwork (Quest, InsideTracker), supplements, телемед — 10-20% комиссии, добавляет 30-50% к подписке.
+- **Долгий retention** в хронических нишах (POTS, эндометриоз, Хашимото) >24 мес — ARPU умножается. В parenting-нишах retention 6-12 мес (ребёнок вырос).
+- **B2B-тир для страховых/работодателей** даёт 3-10× ARPU для тех приложений, которые можно сертифицировать как FDA-cleared (CBT-I, эндометриоз, fall prevention, caregiver burnout).
 
-## Что я НЕ рекомендую (хайп)
+## Чего избегать (хайп)
 
-- **Sleep apnea** — HN x5.3, Apple Watch только запустил детектор → ниша захлопнется.
-- **Biological age** — все строят калькуляторы, публика теряет интерес (wiki -10%/yr).
-- **ADHD adult** — насыщено (Inflow, Numo, Tiimo, Routinery), HN x1.75.
-- **Rapamycin, microbiome, vagus nerve** — supply растёт x2-6, demand стагнирует.
-- **Microdosing, CBT general** — supply удвоилось, demand плоский.
+- **Sleep apnea (апноэ сна)** — HN ×5.3, Apple Watch только запустил детектор → ниша закроется.
+- **Biological age (биологический возраст)** — все строят калькуляторы, публика теряет интерес (wiki -10%/год).
+- **ADHD (СДВГ) у взрослых** — насыщено (Inflow, Numo, Tiimo, Routinery), HN ×1.75.
+- **Рапамицин, микробиом, vagus nerve** — supply растёт ×2-6, demand стагнирует.
+- **Микродозирование, CBT в целом** — supply удвоился, demand плоский.
