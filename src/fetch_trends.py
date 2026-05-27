@@ -26,11 +26,10 @@ RAW.mkdir(parents=True, exist_ok=True)
 # (display_name, wiki_article, hn/pubmed_query)
 # Wikipedia titles must match exactly; check via https://en.wikipedia.org/wiki/<slug>
 NICHES = [
-    # longevity-adjacent
+    # ── longevity (already partly tested in v1) ─────────────────────────
     ("Longevity (umbrella)", "Longevity", "longevity"),
     ("Podiatry / foot health", "Podiatry", "podiatry OR podology"),
     ("Menopause", "Menopause", "menopause"),
-    ("Perimenopause", "Menopause", "perimenopause"),
     ("Sarcopenia / strength 50+", "Sarcopenia", "sarcopenia"),
     ("CGM (continuous glucose monitor)", "Continuous_glucose_monitor", "continuous glucose monitor"),
     ("HRV / heart-rate variability", "Heart_rate_variability", "heart rate variability"),
@@ -44,12 +43,59 @@ NICHES = [
     ("Cold exposure / cold plunge", "Cold_shower", "cold plunge OR cold exposure"),
     ("Red light therapy", "Light_therapy", "red light therapy"),
     ("Sauna / heat therapy", "Sauna", "sauna therapy"),
-    ("Bloodwork tracking", "Blood_test", "bloodwork tracker"),
     ("Vagus nerve stimulation", "Vagus_nerve", "vagus nerve"),
     ("Time-restricted eating", "Intermittent_fasting", "intermittent fasting"),
     ("VO2 max", "VO2_max", "VO2 max"),
-    ("Strength training for older adults", "Strength_training", "strength training older adults"),
-    # control / hyped (to compare)
+    # ── parenting ───────────────────────────────────────────────────────
+    ("Postpartum depression", "Postpartum_depression", "postpartum depression"),
+    ("Baby sleep training", "Sleep_training", "baby sleep training"),
+    ("Breastfeeding / lactation", "Breastfeeding", "breastfeeding tracker"),
+    ("Picky eater (toddler)", "Selective_eating", "picky eater toddler"),
+    ("Co-parenting (post-divorce)", "Co-parenting", "co-parenting app"),
+    ("Pregnancy nutrition", "Maternal_nutrition", "pregnancy nutrition"),
+    # ── women's health ──────────────────────────────────────────────────
+    ("Endometriosis", "Endometriosis", "endometriosis"),
+    ("PCOS", "Polycystic_ovary_syndrome", "PCOS"),
+    ("Pelvic floor", "Pelvic_floor", "pelvic floor"),
+    ("Fertility tracking", "Fertility_awareness", "fertility tracking"),
+    ("Cycle syncing / hormonal cycle", "Menstrual_cycle", "cycle syncing"),
+    # ── men's health ────────────────────────────────────────────────────
+    ("Testosterone optimization", "Testosterone", "testosterone optimization"),
+    ("Hair loss (male)", "Pattern_hair_loss", "hair loss men"),
+    ("Erectile dysfunction (telehealth)", "Erectile_dysfunction", "erectile dysfunction"),
+    ("Prostate health", "Prostate", "prostate health"),
+    # ── mental health / neurodiv ────────────────────────────────────────
+    ("ADHD (adult)", "Attention_deficit_hyperactivity_disorder", "adult ADHD"),
+    ("Burnout", "Occupational_burnout", "burnout"),
+    ("CBT (cognitive behavioral)", "Cognitive_behavioral_therapy", "CBT app"),
+    ("Microdosing", "Microdosing", "microdosing"),
+    ("Dopamine fasting", "Dopamine_fasting", "dopamine fasting"),
+    ("Anxiety (general)", "Anxiety", "anxiety app"),
+    # ── sleep ───────────────────────────────────────────────────────────
+    ("Insomnia (CBT-I)", "Insomnia", "insomnia CBT"),
+    ("Jet lag", "Jet_lag", "jet lag app"),
+    # ── chronic / niche conditions ──────────────────────────────────────
+    ("Long COVID", "Long_COVID", "long covid"),
+    ("Lyme disease", "Lyme_disease", "lyme disease"),
+    ("POTS", "Postural_orthostatic_tachycardia_syndrome", "POTS"),
+    ("Mast cell activation (MCAS)", "Mast_cell_activation_syndrome", "MCAS mast cell"),
+    ("Hashimoto's / hypothyroid", "Hashimoto's_thyroiditis", "Hashimoto thyroid"),
+    ("Insulin resistance", "Insulin_resistance", "insulin resistance"),
+    ("Fatty liver / NAFLD", "Non-alcoholic_fatty_liver_disease", "fatty liver NAFLD"),
+    ("Histamine intolerance", "Histamine_intolerance", "histamine intolerance"),
+    # ── aging-in-place / elder care ─────────────────────────────────────
+    ("Caregiver burnout", "Caregiver", "caregiver burnout"),
+    ("Fall prevention (elderly)", "Falls_in_older_adults", "fall prevention elderly"),
+    ("Medication management (elderly)", "Polypharmacy", "medication management app"),
+    ("Dementia care", "Caring_for_people_with_dementia", "dementia care app"),
+    # ── pets ────────────────────────────────────────────────────────────
+    ("Dog longevity / senior dog", "Dog_health", "dog longevity senior"),
+    ("Cat health tracking", "Cat_health", "cat health tracker"),
+    # ── hobbies w/ health crossover ─────────────────────────────────────
+    ("Gardening", "Gardening", "gardening app"),
+    ("Tai chi", "Tai_chi", "tai chi"),
+    ("Pilates", "Pilates", "pilates app"),
+    # ── control / hyped (to compare) ────────────────────────────────────
     ("Padel (hype control)", "Padel", "padel"),
     ("GLP-1 / Ozempic (hype control)", "Glucagon-like_peptide-1_receptor_agonist", "GLP-1 OR ozempic"),
     ("Pickleball (hype control)", "Pickleball", "pickleball"),
