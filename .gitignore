@@ -4,6 +4,6 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .mypy_cache/
-data/raw/*.json
-data/raw/*.html
+data/raw/**/*.json
+data/raw/**/*.html
 !data/raw/.gitkeep
