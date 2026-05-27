@@ -1,0 +1,162 @@
+{
+  "E-commerce": {
+    "ph": "e-commerce",
+    "oss": ["e-?commerce", "shopify", "online store"],
+    "reddit_keywords": ["ecommerce", "e-commerce", "shopify", "online store"]
+  },
+  "Content Creation": {
+    "ph": "writing",
+    "oss": ["video", "blogging", "newsletter", "podcast"],
+    "reddit_keywords": ["content creation", "youtube", "creator", "newsletter", "blogging"]
+  },
+  "Artificial Intelligence": {
+    "ph": "artificial-intelligence",
+    "oss": ["chatbot.*chatgpt|chatgpt|llm|ai code completion|vector database"],
+    "reddit_keywords": ["chatgpt", " AI ", "openai", "claude", "gemini", "llm"]
+  },
+  "Marketing": {
+    "ph": "marketing",
+    "oss": ["email marketing|marketing saas|newsletters|seo|customer engagement"],
+    "reddit_keywords": ["marketing tool", "email marketing", "newsletter", "drip campaign", "growth"]
+  },
+  "SaaS": {
+    "ph": "saas",
+    "oss": [],
+    "reddit_keywords": ["saas tool", "subscription", "b2b saas"]
+  },
+  "Education": {
+    "ph": "education",
+    "oss": [],
+    "reddit_keywords": ["learning", "course", "edtech", "tutoring"]
+  },
+  "Entertainment": {
+    "ph": "games",
+    "oss": ["streaming"],
+    "reddit_keywords": ["streaming", "entertainment"]
+  },
+  "Marketplace": {
+    "ph": "e-commerce",
+    "oss": [],
+    "reddit_keywords": ["marketplace", "two-sided", "freelance platform"]
+  },
+  "Travel": {
+    "ph": "travel",
+    "oss": [],
+    "reddit_keywords": ["travel app", "booking", "itinerary"]
+  },
+  "Mobile Apps": {
+    "ph": "",
+    "oss": [],
+    "reddit_keywords": ["mobile app", "ios app", "android app"]
+  },
+  "Productivity": {
+    "ph": "productivity",
+    "oss": ["notetaking|notion alternatives|to-?do|kanban|knowledge management|scheduling"],
+    "reddit_keywords": ["productivity", "todo", "task management", "note taking", "notion", "obsidian"]
+  },
+  "Health & Fitness": {
+    "ph": "health",
+    "oss": [],
+    "reddit_keywords": ["fitness", "wellness", "mental health", "meditation", "workout"]
+  },
+  "Analytics": {
+    "ph": "analytics",
+    "oss": ["website analytics|web analytics|product analytics|business intelligence|session replay"],
+    "reddit_keywords": ["analytics tool", "google analytics", "tracking", "dashboards"]
+  },
+  "Security": {
+    "ph": "developer-tools",
+    "oss": ["cybersecurity|password manager|auth|sso|vpn|cnapp"],
+    "reddit_keywords": ["security tool", "vulnerability", "compliance", "vpn", "password"]
+  },
+  "Developer Tools": {
+    "ph": "developer-tools",
+    "oss": ["api platform|api gateway|api development|webhooks|developer|sentry|bug tracking|feature flag|workflow|backend as a service|platform as a service|database|tunnelling|cloud development|relational database"],
+    "reddit_keywords": ["dev tool", "api", "ci/cd", "developer experience"]
+  },
+  "Social Media": {
+    "ph": "social-media",
+    "oss": ["social network|micro-?blogging|community platform|forum"],
+    "reddit_keywords": ["social media", "twitter", "scheduling posts", "buffer"]
+  },
+  "Design Tools": {
+    "ph": "design-tools",
+    "oss": ["design|figma|icons|collaborative design"],
+    "reddit_keywords": ["design tool", "figma", "mockup", "ui design"]
+  },
+  "Sales": {
+    "ph": "sales",
+    "oss": ["crm.*salesforce|integration platform"],
+    "reddit_keywords": ["sales tool", "cold email", "outbound", "prospecting", "crm"]
+  },
+  "Community": {
+    "ph": "social-media",
+    "oss": ["community platform|community management|forum"],
+    "reddit_keywords": ["community platform", "discord alternative", "circle"]
+  },
+  "Games": {
+    "ph": "games",
+    "oss": [],
+    "reddit_keywords": ["indie game", "game dev"]
+  },
+  "Fintech": {
+    "ph": "fintech",
+    "oss": ["personal finance|invoicing|financial service|erp"],
+    "reddit_keywords": ["fintech", "invoicing", "accounting", "bookkeeping", "payments"]
+  },
+  "Customer Support": {
+    "ph": "customer-communication",
+    "oss": ["helpdesk|ticket management|zendesk"],
+    "reddit_keywords": ["customer support", "helpdesk", "zendesk", "intercom"]
+  },
+  "Utilities": {
+    "ph": "",
+    "oss": [],
+    "reddit_keywords": ["utility", "convert", "tool that"]
+  },
+  "Legal": {
+    "ph": "legal",
+    "oss": ["digital signature"],
+    "reddit_keywords": ["legal tool", "contract", "esign", "compliance"]
+  },
+  "Real Estate": {
+    "ph": "finance",
+    "oss": [],
+    "reddit_keywords": ["real estate", "property management", "landlord"]
+  },
+  "Recruiting & HR": {
+    "ph": "",
+    "oss": [],
+    "reddit_keywords": ["hiring", "ats", "recruiting", "hr software"]
+  },
+  "No-Code": {
+    "ph": "no-code",
+    "oss": ["no-?code database|smart spreadsheet|airtable|form building"],
+    "reddit_keywords": ["no code", "no-code", "low code", "airtable", "bubble"]
+  },
+  "IoT & Hardware": {
+    "ph": "",
+    "oss": [],
+    "reddit_keywords": ["iot", "hardware", "raspberry pi"]
+  },
+  "News & Magazines": {
+    "ph": "newsletters",
+    "oss": ["newsletter|content management"],
+    "reddit_keywords": ["newsletter", "publishing", "media"]
+  },
+  "Crypto & Web3": {
+    "ph": "crypto",
+    "oss": [],
+    "reddit_keywords": ["crypto", "web3", "nft", "blockchain"]
+  },
+  "Green Tech": {
+    "ph": "",
+    "oss": [],
+    "reddit_keywords": ["climate", "sustainability", "carbon"]
+  },
+  "Uncategorized": {
+    "ph": "",
+    "oss": [],
+    "reddit_keywords": []
+  }
+}

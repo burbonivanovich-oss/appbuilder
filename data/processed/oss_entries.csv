@@ -1,0 +1,296 @@
+source,category,owner,repo,saas_alternative
+runa,API Gateway,apache,apisix,apigee
+runa,API Platform,firecamp-dev,firecamp,Postman
+runa,API Platform,apioo,fusio,Postman
+runa,API Platform,hoppscotch,hoppscotch,Postman
+runa,API Platform,keploy,keploy,Smartbear
+runa,API Platform,stepci,stepci,Checkly
+runa,Auth & SSO,boxyhq,jackson,
+runa,Auth & SSO,cerbos,cerbos,Okta
+runa,Auth & SSO,FusionAuth,fusionauth-containers,
+runa,Auth & SSO,teamhanko,hanko,Okta
+runa,Auth & SSO,keycloak,keycloak,Okta
+runa,Auth & SSO,permitio,opal,Okta
+runa,Auth & SSO,ory,kratos,Okta
+runa,Auth & SSO,osohq,oso,Okta
+runa,Auth & SSO,supertokens,supertokens-core,Okta
+runa,Auth & SSO,warrant-dev,warrant,Okta
+runa,Auth & SSO,zitadel,zitadel,
+runa,Backend as a service,appy-one,acebase,Firebase
+runa,Backend as a service,amplication,amplication,Firebase
+runa,Backend as a service,appwrite,appwrite,Firebase
+runa,Backend as a service,casejs,case,
+runa,Backend as a service,encoredev,encore,
+runa,Backend as a service,kuzzleio,kuzzle,Firebase
+runa,Backend as a service,nhost,nhost,Firebase
+runa,Backend as a service,pocketbase,pocketbase,
+runa,Backend as a service,supabase,supabase,Firebase
+runa,Business Intelligence,metabase,metabase,Tableau
+runa,Business Intelligence,apache,superset,
+runa,CMS,builderio,builder,Contentful
+runa,CMS,concrete5,concrete5,
+runa,CMS,decaporg,decap-cms,Contentful
+runa,CMS,directus,directus,Contentful
+runa,CMS,tryghost,ghost,Medium
+runa,CMS,plasmicapp,plasmic,
+runa,CMS,strapi,strapi,Contentful
+runa,CMS,sulu,sulu,Contentful
+runa,CMS,tinacms,tinacms,Contentful
+runa,CMS,webiny,webiny-js,Contentful
+runa,Cloud Data Warehouse,datafuselabs,databend,
+runa,Cloud Development Environment,gitpod-io,gitpod,
+runa,Cloud Storage,minio,minio,
+runa,Cloud Storage,storj,storj,
+runa,Cloud-Native Application Protection Platform,deepfence,ThreatMapper,
+runa,Communication,fonoster,fonoster,
+runa,Communication,novuhq,novu,
+runa,Community Platform,CrowdDotDev,crowd.dev,
+runa,Customer Data Platform,jitsucom,jitsu,Segment
+runa,Customer Data Platform,rudderlabs,rudder-server,Segment
+runa,Customer Data Platform,tracardi,tracardi,Segment
+runa,Customer Engagement,chaskiq,chaskiq,Intercom
+runa,Customer Engagement,chatwoot,chatwoot,Intercom
+runa,Customer Engagement,papercups-io,papercups,Intercom
+runa,Cybersecurity,cloudquery,cloudquery,
+runa,Cybersecurity,crowdsecurity,crowdsec,
+runa,Cybersecurity,infobyte,faraday,
+runa,Cybersecurity,firezone,firezone,OpenVPN Access Server
+runa,Cybersecurity,gravitl,netmaker,
+runa,Cybersecurity,lunasec-io,lunasec,
+runa,Cybersecurity,matanolabs,matano,
+runa,Cybersecurity,netbirdio,netbird,
+runa,Cybersecurity,projectdiscovery,nuclei,
+runa,Design,rorkai,21st,
+runa,Design,radix-ui,primitives,
+runa,Design,penpot,penpot,
+runa,Digital Signature,docusealco,docuseal,
+runa,Digital Signature,documenso,documenso,
+runa,Digital Signature,LibreSign,libresign,DocuSign
+runa,E-commerce,bagisto,bagisto,Shopify
+runa,E-commerce,medusajs,medusa,Shopify
+runa,E-commerce,saleor,saleor,Shopify
+runa,E-commerce,shuup,shuup,Shopify
+runa,E-commerce,sylius,sylius,Shopify
+runa,E-commerce,vendure-ecommerce,vendure,Shopify
+runa,E-commerce,vuestorefront,vue-storefront,Shogun
+runa,ELT / ETL,airbytehq,airbyte,Fivetran
+runa,ELT / ETL,benthosdev,benthos,Fivetran
+runa,ELT / ETL,dagster-io,dagster,Fivetran
+runa,ELT / ETL,kestra-io,kestra,Fivetran
+runa,ELT / ETL,orchest,orchest,Fivetran
+runa,ELT / ETL,prefecthq,prefect,Fivetran
+runa,ELT / ETL,selefra,selefra,Fivetran
+runa,ERP,Dolibarr,dolibarr,Oracle Fusion ERP Cloud
+runa,ERP,frappe,erpnext,SAP Business One
+runa,Email marketing,pentacent,keila,
+runa,Enterprise Search,appbaseio,reactivesearch,Algolia
+runa,Enterprise Search,jina-ai,jina,Algolia
+runa,Enterprise Search,manticoresoftware,manticoresearch,Elastic Cloud
+runa,Enterprise Search,meilisearch,meilisearch,Algolia
+runa,Enterprise Search,qdrant,qdrant,
+runa,Enterprise Search,semi-technologies,weaviate,Google Vertex AI
+runa,Enterprise Search,typesense,typesense,Algolia
+runa,Enterprise Search,milvus-io,milvus,Google Vertex AI
+runa,Enterprise Search,prabhatsharma,zinc,Elastic Cloud
+runa,Enterprise Search,deepset-ai,haystack,
+runa,Feature flag and toggle management,Flagsmith,flagsmith,LaunchDarkly
+runa,Feature flag and toggle management,growthbook,growthbook,LaunchDarkly
+runa,Feature flag and toggle management,Unleash,unleash,LaunchDarkly
+runa,File Hosting,mickael-kerjean,filestash,
+runa,File Hosting,nextcloud,server,
+runa,File Hosting,owncloud,core,Dropbox
+runa,File Hosting,spacedriveapp,spacedrive,
+runa,Financial Service,getlago,lago,
+runa,Financial Service,openbb-finance,OpenBBTerminal,Bloomberg
+runa,Form Building,formkit,formkit,Vueform
+runa,Form Building,formbricks,formbricks,Typeform
+runa,Form Building,formio,formio,Vueform
+runa,Forum Software,discourse,discourse,Tribe
+runa,Forum Software,vanilla,vanilla,
+runa,Graph database,arangodb,arangodb,TigerGraph
+runa,Graph database,memgraph,memgraph,TigerGraph
+runa,Graph database,neo4j,neo4j,TigerGraph
+runa,Graph database,terminusdb,terminusdb,TigerGraph
+runa,Helpdesk Solution,Peppermint-Lab,peppermint,Zendesk
+runa,Helpdesk Solution,uvdesk,community-skeleton,Zendesk
+runa,Internal Tools,appsmithorg,appsmith,Retool
+runa,Internal Tools,Budibase,budibase,Retool
+runa,Internal Tools,illacloud,illa-builder,Retool
+runa,Internal Tools,lowdefy,lowdefy,Retool
+runa,Internal Tools,tooljet,tooljet,Retool
+runa,Internal Tools,windmill-labs,windmill,
+runa,Localization (i18n),tolgee,tolgee-platform,Lokalise
+runa,Localization (i18n),inlang,inlang,Lokalise
+runa,Log Management,Graylog2,graylog2-server,Splunk
+runa,Log Management,quickwit-oss,quickwit,Elastic Cloud
+runa,ML Ops,cortexlabs,cortex,AWS SageMaker
+runa,ML Ops,metarank,metarank,
+runa,ML Ops,mindsdb,mindsdb,
+runa,ML Ops,ploomber,ploomber,
+runa,ML Ops,SeldonIO,seldon-core,
+runa,ML Ops,towhee-io,towhee,
+runa,Marketing SaaS,steven-tey,dub,Bitly
+runa,Messaging,vector-im,element-web,
+runa,Messaging,mattermost,mattermost-server,
+runa,Messaging,RocketChat,Rocket.Chat,
+runa,Messaging,tinode,chat,
+runa,Messaging,zulip,zulip,
+runa,Metrics store,cube-js,cube.js,Looker
+runa,Metrics store,evidence-dev,evidence,Looker
+runa,Metrics store,lightdash,lightdash,Looker
+runa,Metrics store,mlcraft-io,mlcraft,Looker
+runa,Metrics store,metriql,metriql,Looker
+runa,No-code database,nocodb,nocodb,AirTable
+runa,No-code database,rowyio,rowy,
+runa,No-code database,totumonline,totum-mit,
+runa,Notetaking,AppFlowy-IO,appflowy,Notion
+runa,Notetaking,athensresearch,athens,
+runa,Notetaking,bangle-io,bangle-io,
+runa,Notetaking,BoostIO,BoostNote-App,
+runa,Notetaking,dendronhq,dendron,
+runa,Notetaking,laurent22,joplin,
+runa,Notetaking,logseq,logseq,
+runa,Notetaking,churichard,notabase,
+runa,Notetaking,streetwriters,notesnook,
+runa,Notetaking,outline,outline,
+runa,Notetaking,zadam,trilium,Evernote
+runa,Observability and monitoring,chaos-genius,chaos_genius,AWS Lookout
+runa,Observability and monitoring,grafana,grafana,DataDog
+runa,Observability and monitoring,netdata,netdata,DataDog
+runa,Observability and monitoring,openstatusHQ,openstatus,DataDog
+runa,Observability and monitoring,getsentry,sentry,DataDog
+runa,Observability and monitoring,signoz,signoz,DataDog
+runa,Observability and monitoring,uptrace,uptrace,DataDog
+runa,Observability and monitoring,VictoriaMetrics,VictoriaMetrics,DataDog
+runa,Password manager,bitwarden,server,1Password
+runa,Password manager,padloc,padloc,
+runa,Password manager,passbolt,passbolt_api,1Password
+runa,Platform as a service,coollabsio,coolify,
+runa,Platform as a service,dokku,dokku,
+runa,Platform as a service,redkubes,otomi-core,Heroku
+runa,Platform as a service,porter-dev,porter,Heroku
+runa,Platform as a service,pulumi,pulumi,
+runa,Platform as a service,Qovery,engine,Heroku
+runa,Platform as a service,spacecloud-io,space-cloud,
+runa,Platform as a service,dyrector-io,dyrectorio,
+runa,Product Analytics,objectiv,objectiv-analytics,
+runa,Product Analytics,PostHog,posthog,Amplitude
+runa,Product Analytics,FrigadeHQ,trench,
+runa,Project Management,mattermost,focalboard,
+runa,Project Management,opf,openproject,
+runa,Project Management,makeplane,plane,
+runa,Project Management,kaleidos-ventures,taiga-docker,
+runa,Project Management,go-vikunja,api,
+runa,Relational database,pingcap,tidb,
+runa,Relational database,yugabyte,yugabyte-db,
+runa,Remote Desktop Application,rustdesk,rustdesk,
+runa,Reverse ETL,castledio,castled,Hightouch
+runa,Reverse ETL,grouparoo,grouparoo,Hightouch
+runa,Robotic Process Automation (RPA),robocorp,rcc,UiPath
+runa,Scheduling,calendso,calendso,Calendly
+runa,Session replay software,openreplay,openreplay,LogRocket
+runa,Social Media,gitroomhq,postiz-app,Buffer
+runa,Streaming,glimesh,glimesh.tv,Twitch
+runa,Surveys,LimeSurvey,LimeSurvey,SurveyMonkey
+runa,Timeseries database,crate,crate,Kdb+
+runa,Timeseries database,influxdata,influxdb,Kdb+
+runa,Timeseries database,questdb,questdb,Kdb+
+runa,Timeseries database,taosdata,TDengine,Kdb+
+runa,Timeseries database,timescale,timescaledb,Kdb+
+runa,Tunnelling,robbie-cahill,tunnelmole-client,Ngrok
+runa,VPN as a Service,omniedgeio,omniedge,
+runa,Video Conferencing,jitsi,jitsi-meet,
+runa,Video Conferencing,livekit,livekit-server,
+runa,Video Conferencing,OpenVidu,openvidu,
+runa,Webhooks,svix,svix-webhooks,
+runa,Website analytics,arp242,goatcounter,Google Analytics
+runa,Website analytics,matomo-org,matomo,Google Analytics
+runa,Website analytics,plausible,analytics,Google Analytics
+runa,Website analytics,swetrix,swetrix-js,
+runa,Website analytics,mikecao,umami,Google Analytics
+runa,Workflow automation,activepieces,activepieces,Zapier
+runa,Workflow automation,n8n-io,n8n,Zapier
+runa,Workflow automation,PipedreamHQ,pipedream,
+runa,Workflow automation,temporalio,temporal,Zapier
+btwso,Artificial intelligence chatbot/ LLM (ChatGPT alternatives),LAION-AI,Open-Assistant,
+btwso,Artificial intelligence chatbot/ LLM (ChatGPT alternatives),leon-ai,leon,
+btwso,Artificial intelligence chatbot/ LLM (ChatGPT alternatives),BlinkDL,ChatRWKV,
+btwso,AI code completion (Github CoPilot alternatives),fauxpilot,fauxpilot,
+btwso,AI code completion (Github CoPilot alternatives),ycm-core,ycmd,
+btwso,Team knowledge base (Notion alternatives),toeverything,AFFiNE,
+btwso,Team knowledge base (Notion alternatives),docmost,docmost,
+btwso,Internal tools (Retool alternatives),openblocks-dev,openblocks,
+btwso,Internal tools (Retool alternatives),dashpresshq,dashpress,
+btwso,Web analytics (Google Analytics alternatives),umami-software,umami,
+btwso,Web analytics (Google Analytics alternatives),Open-Web-Analytics,Open-Web-Analytics,
+btwso,Note-taking/ Knowledge management (Evernote alternatives),siyuan-note,siyuan,
+btwso,Blogging platform/ Personal website builder (Medium alternatives),writefreely,writefreely,
+btwso,Blogging platform/ Personal website builder (Medium alternatives),btw-so,btw,
+btwso,Newsletters (ConvertKit alternatives),knadh,listmonk,
+btwso,Static website generator,gohugoio,hugo,
+btwso,Static website generator,jekyll,jekyll,
+btwso,Static website generator,withastro,astro,
+btwso,Static website generator,11ty,eleventy,
+btwso,Static website generator,getzola,zola,
+btwso,"Website builder (Wix, Strikingly, Webflow alternatives)",silexlabs,Silex,
+btwso,"Website builder (Wix, Strikingly, Webflow alternatives)",dotenx,dotenx,
+btwso,"Website builder (Wix, Strikingly, Webflow alternatives)",webstudio-is,webstudio,
+btwso,Icons (Noun Project alternatives),FortAwesome,Font-Awesome,
+btwso,Icons (Noun Project alternatives),feathericons,feather,
+btwso,Icons (Noun Project alternatives),tabler,tabler-icons,
+btwso,Icons (Noun Project alternatives),twbs,icons,
+btwso,Icons (Noun Project alternatives),Remix-Design,RemixIcon,
+btwso,Collaborative design tool (Figma alternatives),KlausSchaefers,quant-ux,
+btwso,Session replay and analytics (Fullstory alternatives),highlight,highlight,
+btwso,Content Management System/ CMS (Contentful alternatives),payloadcms,payload,
+btwso,To-do app,johannesjo,super-productivity,
+btwso,Community management,flarum,flarum,
+btwso,Kanban board (Trello alternatives),wekan,wekan,
+btwso,Kanban board (Trello alternatives),kanboard,kanboard,
+btwso,Kanban board (Trello alternatives),plankanban,planka,
+btwso,Social network/ Micro-blogging (Twitter alternatives),mastodon,mastodon,
+btwso,Social network/ Micro-blogging (Twitter alternatives),humhub,humhub,
+btwso,Social network/ Micro-blogging (Twitter alternatives),elgg,elgg,
+btwso,"Ticket management (Zendesk, Freshdesk alternatives)",zammad,zammad,
+btwso,Scheduling tool (Calendly alternatives),calcom,cal.com,
+btwso,Smart spreadsheet (Airtable alternatives),dream-num,Luckysheet,
+btwso,Smart spreadsheet (Airtable alternatives),apitable,apitable,
+btwso,Smart spreadsheet (Airtable alternatives),gristlabs,grist-core,
+btwso,"Team communication (Slack, Discord alternatives)",spacebarchat,spacebarchat,
+btwso,"Team communication (Slack, Discord alternatives)",relatedcode,Messenger,
+btwso,User authentication (Auth0 alternatives),logto-io,logto,
+btwso,Online store builder (Shopify alternatives),PrestaShop,PrestaShop,
+btwso,Online store builder (Shopify alternatives),itswadesh,svelte-commerce,
+btwso,Password manager (1Password alternatives),bitwarden,clients,
+btwso,"Email delivery (Mailgun, SendGrid alternatives)",postalserver,postal,
+btwso,File uploader,transloadit,uppy,
+btwso,Notification infrastructure,binwiederhier,ntfy,
+btwso,Notification infrastructure,gotify,server,
+btwso,Notification infrastructure,caronc,apprise,
+btwso,API development (Postman alternatives),Kong,insomnia,
+btwso,Programmatic videos,remotion-dev,remotion,
+btwso,Annotation,doccano,doccano,
+btwso,Feature management/ Feature flag,openflagr,flagr,
+btwso,Feature management/ Feature flag,featbit,featbit,
+btwso,"Video conferencing (Google Meet, Skype alternatives)",vector-im,element-call,
+btwso,"Platform-as-a-Service/ PaaS (Heroku, Netlify, Vercel alternatives)",caprover,caprover,
+btwso,"Platform-as-a-Service/ PaaS (Heroku, Netlify, Vercel alternatives)",kubero-dev,kubero,
+btwso,Bug tracking/ Error tracking (Sentry alternatives),bugzilla,bugzilla,
+btwso,Invoicing,invoiceninja,invoiceninja,
+btwso,Invoicing,crater-invoice,crater,
+btwso,Invoicing,SolidInvoice,SolidInvoice,
+btwso,Graph database,JanusGraph,janusgraph,
+btwso,Vector database,weaviate,weaviate,
+btwso,Vector database,activeloopai,deeplake,
+btwso,Vector database,cozodb,cozo,
+btwso,Time-series database,prometheus,prometheus,
+btwso,Time-series database,OpenTSDB,opentsdb,
+btwso,Time-series database,kairosdb,kairosdb,
+btwso,Workflow automation (Zapier alternatives),automatisch,automatisch,
+btwso,"Project Management (Asana, JIRA alternatives)",Leantime,leantime,
+btwso,"Time Tracking (Toggl, Clockify alternatives)",kimai,kimai,
+btwso,"Time Tracking (Toggl, Clockify alternatives)",solidtime-io,solidtime,
+btwso,Personal finance (Empower Personal Wealth alternatives),ghostfolio,ghostfolio,
+btwso,Personal finance (Empower Personal Wealth alternatives),firefly-iii,firefly-iii,
+btwso,"CRM (Salesforce, Hubspot alternatives)",twentyhq,twenty,
+btwso,"Integration Platform (Tray.io, Merge.dev alternatives)",revertinc,revert,
