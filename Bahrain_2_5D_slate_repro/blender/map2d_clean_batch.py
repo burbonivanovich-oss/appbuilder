@@ -3957,17 +3957,18 @@ def _grade_pass(sc, night=False, sharpen=0.30, dispersion=0.0, day=False):
     return f"grade: unsharp {sharpen} in focus, S-curve {toe}/{sh}, split-tone, sat {sat}, CA {dispersion}"
 
 
-_DAY_HAZE = ((0.46, 0.43, 0.38), 0.05)   # (linear haze colour, amount) for _aerial_pass
+_DAY_HAZE = ((0.46, 0.44, 0.40), 0.05)   # (linear haze colour, amount) for _aerial_pass
 
 # Daytime broadcast palette, sRGB. Asphalt is the darkest large surface in frame and the
 # plate the lightest, so the ribbon reads by value first; kerbs and verge add the only
 # saturated colour near the line. Everything else stays in the sand / concrete family.
 _DAY = {
-    "sand_lo": (172, 146, 112), "sand_hi": (204, 182, 146), "rock": (146, 122, 94),
-    "near": (214, 194, 158),                                   # compacted apron by the line
-    "asphalt": (62, 64, 68), "rubber": (46, 48, 52), "pit": (96, 98, 102),
-    "line": (240, 240, 240), "runoff": (214, 192, 150), "verge": (96, 138, 64),
-    "road": (116, 112, 106), "ring": (92, 92, 94), "lot": (150, 134, 110),
+    "sand_lo": (158, 146, 126), "sand_hi": (192, 181, 160), "rock": (138, 126, 108),
+    "near": (196, 186, 166), "shrub": (98, 94, 72),                                   # compacted apron by the line
+    "asphalt": (104, 106, 110), "rubber": (84, 86, 90), "pit": (96, 98, 102),
+    "line": (240, 240, 240), "runoff_tar": (46, 48, 52), "apron": (224, 200, 152),
+    "wall": (206, 206, 204), "paint_a": (188, 48, 42), "paint_b": (232, 232, 230), "runoff": (214, 192, 150), "verge": (96, 138, 64),
+    "road": (116, 112, 106), "ring": (150, 146, 138), "lot": (118, 116, 112),
     "roof_osm": (190, 186, 178), "side_osm": (150, 144, 134),
     "roof": (206, 206, 204), "side": (168, 168, 166), "pit_roof": (216, 216, 216),
     "paddock_roof": (184, 184, 182), "water": (46, 112, 138),
@@ -3975,7 +3976,7 @@ _DAY = {
 
 # Small objects that render as grit at ~1.6 m/px. The screenshot the look targets is
 # busy only where the racing is; these are dropped outright on the day level.
-_DAY_HIDE = ("M2D_Marshal_", "M2D_Glow", "M2D_Rd_service", "M2D_Rd_residential",
+_DAY_HIDE = ("M2D_Marshal_", "M2D_Glow", "M2D_Runoff", "M2D_Verge", "M2D_TyreWall_", "M2D_Rd_service", "M2D_Rd_residential",
              "M2D_Rd_unclassified", "M2D_Rd_track", "M2D_Vignette", "M2D_Stream")
 
 
@@ -4061,6 +4062,32 @@ def _day_terrain(sc, log):
         it = nt.nodes.new("ShaderNodeTexImage"); it.image = img; it.extension = 'REPEAT'
         nt.links.new(uv.outputs["Vector"], it.inputs["Vector"])
         col = mix(None, col, it.outputs["Color"], 'SOFT_LIGHT', 0.30)
+    # Desert shrubs, as the aerial shows them: sparse dark dots ~3-5 m across on a 14 m
+    # cell, a third of the cells occupied, thinned further by a 200 m density noise.
+    # Shader-only, so they cost nothing and never collide with furniture.
+    vmap = nt.nodes.new("ShaderNodeMapping"); k = 1.0 / 14.0
+    vmap.inputs["Scale"].default_value = (k, k, k)
+    nt.links.new(geo.outputs["Position"], vmap.inputs["Vector"])
+    vor = nt.nodes.new("ShaderNodeTexVoronoi"); vor.inputs["Scale"].default_value = 1.0
+    vor.inputs["Randomness"].default_value = 0.9
+    nt.links.new(vmap.outputs["Vector"], vor.inputs["Vector"])
+    dot = nt.nodes.new("ShaderNodeMapRange"); dot.interpolation_type = 'SMOOTHSTEP'
+    dot.inputs["From Min"].default_value = 0.12; dot.inputs["From Max"].default_value = 0.19
+    dot.inputs["To Min"].default_value = 1.0; dot.inputs["To Max"].default_value = 0.0
+    nt.links.new(vor.outputs["Distance"], dot.inputs["Value"])
+    csep = nt.nodes.new("ShaderNodeSeparateColor"); nt.links.new(vor.outputs["Color"], csep.inputs["Color"])
+    dens = nt.nodes.new("ShaderNodeMapRange")
+    dens.inputs["From Min"].default_value = 0.35; dens.inputs["From Max"].default_value = 0.65
+    dens.inputs["To Min"].default_value = 0.45; dens.inputs["To Max"].default_value = 0.85
+    nt.links.new(noise(200.0, 2.0, 0.5).outputs["Fac"], dens.inputs["Value"])
+    occ = nt.nodes.new("ShaderNodeMath"); occ.operation = 'GREATER_THAN'
+    nt.links.new(csep.outputs["Red"], occ.inputs[0]); nt.links.new(dens.outputs["Result"], occ.inputs[1])
+    shf = nt.nodes.new("ShaderNodeMath"); shf.operation = 'MULTIPLY'
+    nt.links.new(dot.outputs["Result"], shf.inputs[0]); nt.links.new(occ.outputs[0], shf.inputs[1])
+    shf2 = nt.nodes.new("ShaderNodeMath"); shf2.operation = 'MULTIPLY'; shf2.inputs[1].default_value = 0.6
+    nt.links.new(shf.outputs[0], shf2.inputs[0])
+    shrub = nt.nodes.new("ShaderNodeRGB"); shrub.outputs[0].default_value = (*_srgb(*_DAY["shrub"]), 1.0)
+    col = mix(shf2.outputs[0], col, shrub.outputs[0])
     # fine 8 m grain so the sand does not read as a flat fill up close
     g = nt.nodes.new("ShaderNodeMapRange"); g.inputs["To Min"].default_value = 0.94; g.inputs["To Max"].default_value = 1.05
     nt.links.new(noise(8.0, 2.0, 0.5).outputs["Fac"], g.inputs["Value"])
@@ -4070,11 +4097,11 @@ def _day_terrain(sc, log):
         if l.to_node == b and l.to_socket.name == "Base Color":
             nt.links.remove(l)
     nt.links.new(gm.outputs[0], b.inputs["Base Color"])
-    return "day terrain: sand 420 m ramp, rock 95 m, compacted apron by the line, arid texture, 8 m grain"
+    return "day terrain: sand 420 m ramp, rock 160 m, shrub dots 14 m, compacted apron by the line, arid texture, 8 m grain"
 
 
 def _day_light(sc, sun_energy=4.6, sun_elev=40.0, sky=(0.60, 0.74, 1.0), sky_strength=0.75,
-               bg=(0.50, 0.38, 0.24)):
+               bg=(0.44, 0.39, 0.31)):
     """Midday-ish key: higher, whiter sun, a strong blue sky fill so shadows go cool
     instead of black, a weak rim, and a warm sand haze as the camera background so the
     dissolved plate edge fades into the same family."""
@@ -4115,80 +4142,212 @@ def _day_light(sc, sun_energy=4.6, sun_elev=40.0, sky=(0.60, 0.74, 1.0), sky_str
     return f"day light: sun {sun_energy} at {sun_elev:.0f}°, sky fill {sky_strength}, sand haze background"
 
 
-def _day_palms(sc, log, pitch_m=22.0, offset_m=8.0, clear_line_m=28.0, clear_bld_m=10.0):
-    """Landscaped avenue: two rows of palm crowns along the ring road, one merged mesh.
-    Orderly rows read as design, not grit — the opposite of the old scatter. Crowns
-    stay off the racing line, off buildings and inside the visible plate."""
-    import bmesh, mathutils
-    ring = [o for o in sc.objects if o.type == 'MESH' and not o.hide_render
-            and o.name.split('.')[0] in ("M2D_RingRoad",)]
-    line = _racing_line(sc)
-    if not ring or line is None:
-        return "palms: no ring road"
-    P = np.vstack([np.c_[_world_xy(o), np.array([(o.matrix_world @ v.co).z for v in o.data.vertices])] for o in ring])
-    cen = line.mean(0)
-    # thin to one sample per pitch cell
-    key = np.floor(P[:, :2] / pitch_m).astype(np.int64)
-    _, first = np.unique(key[:, 0] * 1000003 + key[:, 1], return_index=True)
-    S = P[np.sort(first)]
-    obst = [o for o in sc.objects if o.type == 'MESH' and not o.hide_render and o.name.split('.')[0].startswith(
-        ("M2D_Buildings", "M2D_PitBuilding", "M2D_Paddock", "M2D_Stand_", "M2D_Motorhome", "M2D_Tent", "M2D_Truck",
-         "M2D_Helipad", "M2D_M2D_Park", "M2D_Park", "M2D_Screen", "M2D_TVMast", "M2D_PitLane",
-         "M2D_Hoard", "M2D_Runoff", "M2D_Aero"))]
-    # Footprints, not just vertices: a 300 m grandstand has vertices only at its ends,
-    # and crowns landed on its roof. Sample every triangle at ~3 m.
-    pts = [np.zeros((1, 2)) + 1e9]
-    for o in obst:
-        me = o.data; me.calc_loop_triangles()
-        W = _world_xy(o)
-        for t in me.loop_triangles:
-            a, b_, c = W[t.vertices[0]], W[t.vertices[1]], W[t.vertices[2]]
-            k = int(min(40, max(1, np.ceil(max(np.linalg.norm(b_ - a), np.linalg.norm(c - a)) / 3.0))))
-            u, v = np.meshgrid(np.linspace(0, 1, k + 1), np.linspace(0, 1, k + 1))
-            sel = (u + v) <= 1.0
-            u, v = u[sel], v[sel]
-            pts.append(a + np.outer(u, b_ - a) + np.outer(v, c - a))
-    B = np.vstack(pts)
-    kd = mathutils.kdtree.KDTree(len(B))
-    for i, q in enumerate(B):
-        kd.insert((q[0], q[1], 0.0), i)
+def _loop_filter(a, r, closed, op):
+    """Moving max / mean over ±r samples, wrapping on a closed lap."""
+    n = len(a)
+    idx = np.arange(-r, r + 1)
+    rows = (np.arange(n)[:, None] + idx[None, :])
+    rows = rows % n if closed else np.clip(rows, 0, n - 1)
+    return a[rows].max(1) if op == "max" else a[rows].mean(1)
+
+
+def _terrain_bvh(sc):
+    from mathutils.bvhtree import BVHTree
+    dg = bpy.context.evaluated_depsgraph_get()
+    trees = []
+    for o in sc.objects:
+        if o.type == 'MESH' and o.name.startswith("M2D_Terrain"):
+            me = o.evaluated_get(dg).to_mesh()
+            mw = o.matrix_world
+            verts = [mw @ v.co for v in me.vertices]
+            polys = [tuple(p.vertices) for p in me.polygons]
+            trees.append(BVHTree.FromPolygons(verts, polys))
+            o.evaluated_get(dg).to_mesh_clear()
+    return trees
+
+
+def _terrain_z(trees, x, y):
+    from mathutils import Vector
+    best = None
+    for t in trees:
+        hit = t.ray_cast(Vector((x, y, 5000.0)), Vector((0.0, 0.0, -1.0)))
+        if hit[0] is not None and (best is None or hit[0].z > best):
+            best = hit[0].z
+    return best
+
+
+def _day_runoff(sc, log):
+    """Sakhir's signature, from the aerial reference: wide DARK tarmac run-off on the
+    outside of every corner (almost no gravel), bounded by a beige painted band and a
+    concrete wall; the widest zones carry red/white painted stripes. Width is solved
+    per sample from the ribbon's own curvature: 5 m on straights, up to ~40 m outside
+    a slow corner, spread ±60 m along the lap so it covers braking and exit. A sample
+    that would reach into another part of the circuit is shrunk until it doesn't."""
+    import mathutils
+    asp = next((o for o in sc.objects if o.type == 'MESH' and o.name.split('.')[0] == "M2D_Asphalt"), None)
+    if asp is None:
+        return "runoff: no asphalt"
+    me = asp.data; n = len(me.vertices)
+    co = np.empty(n * 3); me.vertices.foreach_get("co", co)
+    V = (np.c_[co.reshape(-1, 3), np.ones(n)] @ np.array(asp.matrix_world).T)[:, :3]
+    Lv, Rv = V[0::2], V[1::2]; C = (Lv + Rv) * 0.5; m = len(C)
+    seg = np.linalg.norm(np.diff(C[:, :2], axis=0), axis=1); step = float(np.median(seg))
+    closed = float(np.linalg.norm(C[0, :2] - C[-1, :2])) < 3.0 * step
+    ii = np.arange(m)
+    nxt = (ii + 1) % m if closed else np.minimum(ii + 1, m - 1)
+    prv = (ii - 1) % m if closed else np.maximum(ii - 1, 0)
+    T = C[nxt, :2] - C[prv, :2]; T /= np.maximum(np.linalg.norm(T, axis=1), 1e-6)[:, None]
+    NL = np.c_[-T[:, 1], T[:, 0]]                         # left normal
+    th = np.arctan2(T[:, 1], T[:, 0])
+    k = max(2, int(round(10.0 / step)))                   # ±10 m window
+    a = (ii + k) % m if closed else np.minimum(ii + k, m - 1)
+    b = (ii - k) % m if closed else np.maximum(ii - k, 0)
+    dth = (th[a] - th[b] + np.pi) % (2 * np.pi) - np.pi
+    kappa = dth / (2 * k * step)                          # signed, + = turning left
+    spread = max(1, int(round(80.0 / step)))
+    smooth = max(1, int(round(25.0 / step)))
+    kd = mathutils.kdtree.KDTree(m)
+    for i in range(m):
+        kd.insert((C[i, 0], C[i, 1], 0.0), i)
     kd.balance()
-    bm = bmesh.new(); trunk = bmesh.new()
-    n = 0
-    for x, y, z in S:
-        d = np.array([x, y]) - cen; d /= max(np.linalg.norm(d), 1e-6)
-        for sgn in (1.0, -1.0):
-            q = np.array([x, y]) + d * offset_m * sgn
-            if np.hypot(line[:, 0] - q[0], line[:, 1] - q[1]).min() < clear_line_m:
-                continue
-            if kd.find((q[0], q[1], 0.0))[2] < clear_bld_m:
-                continue
-            if _ALPHA_KD is not None:
-                ka, al = _ALPHA_KD
-                if al[ka.find((q[0], q[1], 0.0))[1]] < 0.55:
-                    continue
-            h = _hash01(q[0], q[1], 41.0)
-            r = 4.6 + 1.8 * h
-            m = (mathutils.Matrix.Translation((q[0], q[1], z + 7.0 + 2.0 * h))
-                 @ mathutils.Matrix.Diagonal((r, r, r * 0.55, 1.0)))
-            bmesh.ops.create_icosphere(bm, subdivisions=2, radius=1.0, matrix=m)
-            n += 1
-    if not n:
-        bm.free(); trunk.free()
-        return "palms: 0 placed"
-    me = bpy.data.meshes.new("M2D_DayPalms"); bm.to_mesh(me); bm.free(); trunk.free()
-    for p in me.polygons:
-        p.use_smooth = True
-    mat = bpy.data.materials.get("M2D_DayPalm") or bpy.data.materials.new("M2D_DayPalm")
-    mat.use_nodes = True
-    b = _bsdf(mat)
-    b.inputs["Roughness"].default_value = 0.9
-    if not any(l.to_node == b and l.to_socket.name == "Base Color" for l in mat.node_tree.links):
-        _noise_mix(mat, 3.0, _srgb(46, 84, 40), _srgb(92, 128, 58), detail=3.0)
-    me.materials.append(mat)
-    ob = bpy.data.objects.new("M2D_DayPalms", me)
-    ring[0].users_collection[0].objects.link(ob)
-    return f"palms: {n} crowns in avenue rows along the ring road ({pitch_m:.0f} m pitch)"
+    trees = _terrain_bvh(sc)
+    coll = asp.users_collection[0]
+
+    m_tar = _runtime_flat("M2D_DayRunoff", (*_srgb(*_DAY["runoff_tar"]), 1.0))
+    m_beige = _runtime_flat("M2D_DayApron", (*_srgb(*_DAY["apron"]), 1.0))
+    m_wall = _runtime_flat("M2D_DayWall", (*_srgb(*_DAY["wall"]), 1.0))
+    _noise_mix(m_beige, 3.0, tuple(c * 0.94 for c in _srgb(*_DAY["apron"])),
+               tuple(c * 1.04 for c in _srgb(*_DAY["apron"])), detail=2.0)
+    # tarmac: fine grain + painted stripes where the per-vertex "Paint" weight is set
+    nt = m_tar.node_tree; bs = _bsdf(m_tar)
+    base = _noise_mix(m_tar, 4.0, tuple(c * 0.92 for c in _srgb(*_DAY["runoff_tar"])),
+                      tuple(c * 1.08 for c in _srgb(*_DAY["runoff_tar"])), detail=2.0)
+    geo = nt.nodes.new("ShaderNodeNewGeometry")
+    mp = nt.nodes.new("ShaderNodeMapping"); mp.inputs["Rotation"].default_value = (0, 0, math.radians(45))
+    mp.inputs["Scale"].default_value = (1 / 12.0, 1 / 12.0, 1 / 12.0)
+    nt.links.new(geo.outputs["Position"], mp.inputs["Vector"])
+    wave = nt.nodes.new("ShaderNodeTexWave"); wave.wave_type = 'BANDS'; wave.bands_direction = 'X'
+    wave.wave_profile = 'SAW'; wave.inputs["Scale"].default_value = 1.0; wave.inputs["Distortion"].default_value = 0.0
+    nt.links.new(mp.outputs["Vector"], wave.inputs["Vector"])
+    st = nt.nodes.new("ShaderNodeMath"); st.operation = 'GREATER_THAN'; st.inputs[1].default_value = 0.5
+    nt.links.new(wave.outputs["Fac"], st.inputs[0])
+    sc_ = nt.nodes.new("ShaderNodeMix"); sc_.data_type = 'RGBA'
+    sc_.inputs[6].default_value = (*_srgb(*_DAY["paint_a"]), 1.0); sc_.inputs[7].default_value = (*_srgb(*_DAY["paint_b"]), 1.0)
+    nt.links.new(st.outputs[0], sc_.inputs["Factor"])
+    pa = nt.nodes.new("ShaderNodeAttribute"); pa.attribute_name = "Paint"
+    pm = nt.nodes.new("ShaderNodeMath"); pm.operation = 'GREATER_THAN'; pm.inputs[1].default_value = 0.5
+    nt.links.new(pa.outputs["Fac"], pm.inputs[0])
+    fin = nt.nodes.new("ShaderNodeMix"); fin.data_type = 'RGBA'
+    nt.links.new(pm.outputs[0], fin.inputs["Factor"])
+    nt.links.new(base.outputs[2], fin.inputs[6]); nt.links.new(sc_.outputs[2], fin.inputs[7])
+    nt.links.new(fin.outputs[2], bs.inputs["Base Color"])
+
+    tot_area = 0.0; painted = 0; walls = 0
+    for side in (Lv, Rv):
+        U = side[:, :2] - C[:, :2]; half = np.linalg.norm(U, axis=1)
+        U /= np.maximum(half, 1e-6)[:, None]
+        out_k = np.maximum(0.0, -np.sum(U * NL, axis=1) * kappa)          # >0 outside a corner
+        w = 7.0 + np.clip(out_k, 0.0, 0.035) * 1500.0
+        w = _loop_filter(_loop_filter(w, spread, closed, "max"), smooth, closed, "mean")
+        bw = 6.0 + 0.20 * w
+        # shrink where the outer edge would reach another part of the circuit
+        for _ in range(10):
+            reach = half + w + bw
+            P = side[:, :2] + U * (w + bw)[:, None]
+            bad = np.zeros(m, bool)
+            for i in range(m):
+                d = kd.find((P[i, 0], P[i, 1], 0.0))[2]
+                if d < reach[i] - 3.0:
+                    bad[i] = True
+            if not bad.any():
+                break
+            w[bad] *= 0.78; bw[bad] *= 0.85
+        w = _loop_filter(w, max(1, smooth // 2), closed, "mean")
+        paint = (w > 34.0).astype(float)
+        painted += int(paint.sum())
+
+        def ring(off):
+            P = side[:, :2] + U * off[:, None]
+            z = np.empty(m)
+            for i in range(m):
+                tz = _terrain_z(trees, P[i, 0], P[i, 1]) if trees else None
+                z[i] = max(side[i, 2] - 0.03, (tz + 0.06) if tz is not None else -1e9)
+            return np.c_[P, z]
+        r0 = ring(np.zeros(m)); r1 = ring(w); r2 = ring(w + bw)
+        r0[:, 2] = side[:, 2] - 0.03
+        idx = list(range(m)) + ([0] if closed else [])
+        def strip(A, B, name, mat, attr=None):
+            verts = []; faces = []; vals = []
+            for j, i in enumerate(idx):
+                verts += [tuple(A[i]), tuple(B[i])]
+                if attr is not None:
+                    vals += [0.0, attr[i]]
+                if j:
+                    q = 2 * (j - 1); faces.append((q, q + 2, q + 3, q + 1))
+            ob = _runtime_mesh(name, verts, faces, mat, coll)
+            if attr is not None:
+                at = ob.data.attributes.new("Paint", 'FLOAT', 'POINT')
+                at.data.foreach_set("value", np.array(vals, np.float32))
+            try: ob.visible_shadow = False
+            except Exception: pass
+            return ob
+        # stripes only over the outer 45 % of the painted zones
+        mid = ring(w * 0.55)
+        strip(r0, mid, "M2D_DayRunoff", m_tar)
+        strip(mid, r1, "M2D_DayRunoff", m_tar, attr=paint)
+        strip(r1, r2, "M2D_DayApron", m_beige)
+        # 1.1 m concrete wall on the outer edge
+        verts = []; faces = []
+        for j, i in enumerate(idx):
+            x, y, z = r2[i]
+            verts += [(x, y, z), (x, y, z + 1.1)]
+            if j:
+                q = 2 * (j - 1); faces.append((q, q + 2, q + 3, q + 1))
+        _runtime_mesh("M2D_DayWall", verts, faces, m_wall, coll); walls += 1
+        tot_area += float(np.sum((w + bw) * step))
+    return (f"runoff: tarmac zones {tot_area / 1e4:.1f} ha (7 m straights → ≤60 m outside corners), "
+            f"beige apron + wall, {painted} painted samples")
+
+
+def _day_tower(sc, log):
+    """The Sakhir tower: a white drum with a glazed band behind the pit building,
+    replacing the thin TV-mast box. Placed off the pit building's short end, on the
+    side away from the track."""
+    import bmesh, mathutils
+    pit = next((o for o in sc.objects if o.type == 'MESH' and o.name.split('.')[0] == "M2D_PitBuilding" and not o.hide_render), None)
+    line = _racing_line(sc)
+    if pit is None or line is None:
+        return "tower: no pit building"
+    P = np.array([list(pit.matrix_world @ v.co) for v in pit.data.vertices])
+    pu = _principal_xy(P); pv = np.array([-pu[1], pu[0]]); pc = P[:, :2].mean(0)
+    ext = (P[:, :2] - pc) @ pu; zp = float(P[:, 2].min())
+    best = None
+    for along in (ext.min() - 30.0, ext.max() + 30.0, ext.min() * 0.5, ext.max() * 0.5):
+        for across in (-45.0, -60.0, 45.0, 60.0):
+            q = pc + pu * along + pv * across
+            d = float(np.hypot(line[:, 0] - q[0], line[:, 1] - q[1]).min())
+            if d > 45.0 and (best is None or d < best[0]):
+                best = (d, q)
+    if best is None:
+        return "tower: no free spot"
+    q = best[1]
+    for o in sc.objects:
+        if o.name.split('.')[0] in ("M2D_TVMast", "M2D_TVMastTop"):
+            o.hide_render = True
+    coll = pit.users_collection[0]
+    m_w = _runtime_flat("M2D_DayTowerWhite", (*_srgb(232, 232, 230), 1.0))
+    m_g = _runtime_flat("M2D_DayTowerGlass", (*_srgb(52, 66, 80), 1.0))
+    _bsdf(m_g).inputs["Roughness"].default_value = 0.25
+    for z0, z1, r, mat in ((0.0, 22.0, 9.0, m_w), (22.0, 30.0, 11.5, m_g), (30.0, 32.0, 12.5, m_w),
+                           (32.0, 37.0, 9.5, m_g), (37.0, 38.5, 10.5, m_w)):
+        bm = bmesh.new()
+        bmesh.ops.create_cone(bm, cap_ends=True, segments=40, radius1=r, radius2=r, depth=z1 - z0,
+                              matrix=mathutils.Matrix.Translation((q[0], q[1], zp + (z0 + z1) * 0.5)))
+        me = bpy.data.meshes.new("M2D_DayTower"); bm.to_mesh(me); bm.free()
+        for p in me.polygons: p.use_smooth = abs(p.normal.z) < 0.5
+        me.materials.append(mat)
+        coll.objects.link(bpy.data.objects.new("M2D_DayTower", me))
+    return f"tower: Sakhir drum 38 m at {best[0]:.0f} m from the line"
 
 
 def _day_pass(sc, track, ground, log):
@@ -4207,8 +4366,6 @@ def _day_pass(sc, track, ground, log):
             ("M2D_PitMat", D["pit"], dict(noise_m=4.0)),
             ("M2D_Edge", D["line"], {}), ("M2D_Line", D["line"], {}), ("M2D_White", D["line"], {}),
             ("M2D_GridBox", D["line"], {}),
-            ("M2D_Runoff", D["runoff"], dict(noise_m=2.5, lo=0.90, hi=1.06, rough=1.0)),
-            ("M2D_Verge", D["verge"], dict(noise_m=5.0, lo=0.88, hi=1.10, rough=0.95)),
             ("M2D_Road", D["ring"], {}),
             ("M2D_M2D_Park", D["lot"], dict(noise_m=30.0, lo=0.95, hi=1.04)),
             ("M2D_M2D_Aero", D["lot"], {}),
@@ -4238,7 +4395,8 @@ def _day_pass(sc, track, ground, log):
                 nd.color_ramp.elements[1].color = (*_srgb(176, 64, 58), 1.0)
         ns += 1
     log.append(f"day stands: crowd 85 % on {ns} seat material(s)")
-    log.append(_day_palms(sc, log))
+    log.append(_day_runoff(sc, log))
+    log.append(_day_tower(sc, log))
     return f"day: {n} materials re-toned, {hid} noise objects hidden (marshal posts, glow, minor roads, vignette)"
 
 
