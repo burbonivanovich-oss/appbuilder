@@ -30,12 +30,13 @@ for (let t = start; t < DUR - 1; t += BEAT) {
   add(t, 0.3, (x) => Math.sin(2 * Math.PI * (45 + 80 * Math.exp(-x * 35)) * x) * Math.exp(-x * 12) * 0.55);
   add(t + BEAT / 2, 0.06, (x) => noise() * Math.exp(-x * 70) * 0.06);
 }
-// щелчки сборки: короткий транзиент + тональный «дзынь»
+// щелчки сборки: мягкий «тук» с плавной атакой и приглушённый тон
+const lp = (() => { let y = 0; return (x) => (y += 0.15 * (x - y)); })(); // простой ФНЧ для шума
 for (const f of tl.snaps) {
   const t = f / tl.fps;
-  add(t, 0.04, (x) => noise() * Math.exp(-x * 160) * 0.5);
-  add(t, 0.5, (x) => Math.sin(2 * Math.PI * 1760 * x) * Math.exp(-x * 9) * 0.12);
-  add(t, 0.25, (x) => Math.sin(2 * Math.PI * (90 + 60 * Math.exp(-x * 40)) * x) * Math.exp(-x * 18) * 0.5);
+  add(t, 0.03, (x) => lp(noise()) * Math.min(1, x * 800) * Math.exp(-x * 220) * 0.12);
+  add(t, 0.35, (x) => Math.sin(2 * Math.PI * 880 * x) * Math.min(1, x * 400) * Math.exp(-x * 14) * 0.035);
+  add(t, 0.2, (x) => Math.sin(2 * Math.PI * (70 + 30 * Math.exp(-x * 40)) * x) * Math.min(1, x * 300) * Math.exp(-x * 22) * 0.18);
 }
 // «вжух» перед каждой деталью
 for (const k of ['kassa', 'fn', 'scanner', 'ofd', 'market']) {
