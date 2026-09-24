@@ -7,7 +7,9 @@
     "studio": "remotion studio",
     "render": "remotion render KassaOFD out/kassa-ofd.mp4",
     "kit-audio": "node scripts/make-kit-audio.mjs",
-    "render:kit": "remotion render Kit out/kit.mp4"
+    "render:kit": "remotion render Kit out/kit.mp4",
+    "journey-audio": "node scripts/make-journey-audio.mjs",
+    "render:journey": "remotion render Journey out/journey.mp4"
   },
   "dependencies": {
     "@remotion/cli": "4.0.290",
