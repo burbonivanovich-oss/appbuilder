@@ -353,7 +353,7 @@ const FinalPanel: React.FC = () => {
           );
         })}
       </div>
-      <div style={{display: 'flex', alignItems: 'center', gap: 40, marginTop: 56}}>
+      <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 24, marginTop: 50}}>
         <div style={{transform: `scale(${btn})`, transformOrigin: 'left center', background: colors.blue, color: colors.white, fontFamily: font, fontWeight: 700, fontSize: 40, padding: '26px 52px', borderRadius: 20, whiteSpace: 'nowrap', boxShadow: '0 24px 60px rgba(34,145,255,0.45)'}}>
           Подобрать комплект
         </div>
