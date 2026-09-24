@@ -10,13 +10,16 @@ for (const w of ['400', '600', '800']) {
   }
 }
 
-// Цвета сняты с kontur.ru/market
+// Цвета с kontur.ru/market и официальных SVG (s.kontur.ru/common-v2/logos/logo-market-32.svg)
 export const C = {
-  red: '#DE2038', // фирменный красный Контура
-  blue: '#2291FF', // акцент Маркета
+  blue: '#2291FF', // цвет логотипа Маркета
+  sky: '#51ADFF', // иконка продукта Маркет
   blueDark: '#0059C6',
-  ink: '#1F1F1F',
-  gray: '#C4C4C4',
-  light: '#ECECEC',
+  blueTint: '#E9F4FF',
+  ink: '#222222', // графит знака Контура
+  gray: '#8A8A8A',
+  line: '#C4C4C4',
+  light: '#F2F2F2',
   white: '#FFFFFF',
+  good: '#1FAA5C',
 };
