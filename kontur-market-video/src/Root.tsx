@@ -3,12 +3,14 @@ import './fonts';
 import {KassaOFD, TOTAL} from './KassaOFD';
 import {Vertical, V_TOTAL, verticalSchema} from './vertical/Vertical';
 import {FPS} from './theme';
+import {Kit, KIT_TOTAL} from './kit/Kit';
 
 const segments = ['cafe', 'retail', 'services'] as const;
 
 export const Root: React.FC = () => (
   <>
     <Composition id="KassaOFD" component={KassaOFD} durationInFrames={TOTAL} fps={FPS} width={1920} height={1080} />
+    <Composition id="Kit" component={Kit} durationInFrames={KIT_TOTAL} fps={FPS} width={1920} height={1080} />
     <Folder name="Vertical">
       {segments.map((segment) => (
         <Composition

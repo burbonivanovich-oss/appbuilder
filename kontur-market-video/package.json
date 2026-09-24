@@ -5,7 +5,9 @@
   "scripts": {
     "fetch-fonts": "node scripts/fetch-fonts.mjs",
     "studio": "remotion studio",
-    "render": "remotion render KassaOFD out/kassa-ofd.mp4"
+    "render": "remotion render KassaOFD out/kassa-ofd.mp4",
+    "kit-audio": "node scripts/make-kit-audio.mjs",
+    "render:kit": "remotion render Kit out/kit.mp4"
   },
   "dependencies": {
     "@remotion/cli": "4.0.290",
