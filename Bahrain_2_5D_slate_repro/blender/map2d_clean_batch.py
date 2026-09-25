@@ -3977,7 +3977,7 @@ _DAY = {
 # Small objects that render as grit at ~1.6 m/px. The screenshot the look targets is
 # busy only where the racing is; these are dropped outright on the day level.
 _DAY_HIDE = ("M2D_Marshal_", "M2D_Glow", "M2D_Runoff", "M2D_Verge", "M2D_TyreWall_", "M2D_Rd_service", "M2D_Rd_residential",
-             "M2D_Rd_unclassified", "M2D_Rd_track", "M2D_Vignette", "M2D_Stream")
+             "M2D_Rd_unclassified", "M2D_Rd_track", "M2D_Vignette", "M2D_Stream", "M2D_Water")
 
 
 def _day_flat(name, rgb, noise_m=None, lo=0.92, hi=1.08, rough=None):
@@ -5233,7 +5233,7 @@ def _day_ground_contact(sc, log, inner_m=10.0, outer_m=26.0, sink=0.40, pad_m=4.
                 remap = {j: q for q, j in enumerate(idx)}
                 tris = [(remap[g.verts[0].index], remap[g.verts[i].index], remap[g.verts[i + 1].index])
                         for g in mem for i in range(1, len(g.verts) - 1)]
-                add_island(P3[idx], tris, True)
+                add_island(P3[idx], tris, False)
         else:
             tris = [(g.verts[0].index, g.verts[i].index, g.verts[i + 1].index)
                     for g in bm.faces for i in range(1, len(g.verts) - 1)]
@@ -5602,6 +5602,170 @@ def _day_lot_edges(sc, log, lane_m=4.0, kerb_m=0.8, kerb_h=0.18):
     return f"lot edges: {n} lot(s) framed — {lane_m:.0f} m perimeter lane, edge line, {kerb_m} m kerb +{kerb_h} m"
 
 
+def _poly_area_xy(P):
+    x, y = P[:, 0], P[:, 1]
+    return 0.5 * abs(np.dot(x, np.roll(y, -1)) - np.dot(y, np.roll(x, -1)))
+
+
+def _day_prune(sc, log, rect_min=0.72):
+    """Drop what reads as clutter rather than architecture:
+      * parking lots whose outline is far from a rectangle (area / oriented-box area
+        below `rect_min`) — the curved, hooked OSM lots rendered as bay patterns bent
+        round a road;
+      * small round OSM pavilions (< 3000 m², box fill ≈ π/4, aspect < 1.3), which read
+        as a stray disc on a slab."""
+    import bmesh
+    lots = 0
+    for o in sc.objects:
+        if o.type != 'MESH' or o.hide_render or not o.name.split('.')[0].startswith("M2D_Park"):
+            continue
+        W = np.array([list(o.matrix_world @ v.co) for v in o.data.vertices])
+        if len(W) < 3:
+            continue
+        area = sum(p.area for p in o.data.polygons)
+        u = _principal_xy(W); v = np.array([-u[1], u[0]])
+        box = np.ptp(W[:, :2] @ u) * np.ptp(W[:, :2] @ v)
+        if box > 0 and area / box < rect_min:
+            o.hide_render = True; lots += 1
+    rounds = 0
+    ob = next((o for o in sc.objects if o.type == 'MESH' and o.name.split('.')[0] == "M2D_Buildings"), None)
+    if ob is not None:
+        bm = bmesh.new(); bm.from_mesh(ob.data); bm.faces.ensure_lookup_table()
+        mw = ob.matrix_world; drop = []
+        for mem in _islands(bm):
+            tops = [g for g in mem if g.normal.z > 0.9]
+            if not tops:
+                continue
+            P = np.array([list(mw @ v.co) for g in mem for v in g.verts])
+            area = sum(g.calc_area() for g in tops)
+            u = _principal_xy(P); v = np.array([-u[1], u[0]])
+            lu, lv = np.ptp(P[:, :2] @ u), np.ptp(P[:, :2] @ v)
+            nv = len({v_.index for g in tops for v_ in g.verts})
+            if area < 3000 and nv >= 12 and max(lu, lv) / max(min(lu, lv), 1e-3) < 1.3 and 0.70 < area / (lu * lv) < 0.86:
+                drop.extend(mem); rounds += 1
+        if drop:
+            bmesh.ops.delete(bm, geom=list(set(drop)), context='FACES'); bm.to_mesh(ob.data)
+        bm.free()
+    return f"prune: {lots} non-rectangular lot(s) hidden, {rounds} round pavilion(s) removed"
+
+
+def _day_building_geo(sc, log):
+    """Give the OSM prisms an architecture instead of flat extrusions:
+      * parapet: every roof inset 0.4–1.6 m (by its effective width) and sunk up to
+        1 m — a rim and a recessed roof;
+      * setback storey: compact roofs (≥72 % box fill after the parapet, ≥14 m wide) over 1200 m² get an inner block (inset ~18 % of the
+        footprint's size, min 5 m) raised one 4.5 m storey, glazed on its sides;
+      * plant: roofs over 250 m² get 1–6 rooftop units (HVAC boxes) on the recessed roof.
+    Car-park canopies (their own material) are left alone."""
+    import bmesh, mathutils
+    ob = next((o for o in sc.objects if o.type == 'MESH' and o.name.split('.')[0] == "M2D_Buildings" and not o.hide_render), None)
+    if ob is None:
+        return "building geo: none"
+    me = ob.data
+    names = [m.name if m else "" for m in me.materials]
+    skip = {i for i, nm in enumerate(names) if nm.startswith("M2D_DayShade")}
+    m_roof = _runtime_flat("M2D_DayRoofGravel", (*_srgb(116, 116, 114), 1.0))
+    _noise_mix(m_roof, 5.0, tuple(c * 0.92 for c in _srgb(116, 116, 114)), tuple(c * 1.06 for c in _srgb(116, 116, 114)), detail=3.0)
+    m_glass = _runtime_flat("M2D_DayGlass", (*_srgb(70, 90, 108), 1.0))
+    _bsdf(m_glass).inputs["Roughness"].default_value = 0.25
+    m_unit = _runtime_flat("M2D_DayRoofUnit", (*_srgb(196, 198, 200), 1.0))
+    def slot(m):
+        if m.name not in [x.name for x in me.materials if x]:
+            me.materials.append(m)
+        return [x.name if x else "" for x in me.materials].index(m.name)
+    i_roof, i_glass = slot(m_roof), slot(m_glass)
+    bm = bmesh.new(); bm.from_mesh(me)
+    mw = ob.matrix_world; mwi = mw.inverted()
+    # half the OSM prisms carry inward-facing normals: their roofs read normal.z = −1
+    # and were skipped (flat boxes), and an inset would have pushed them UP
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+    # Roofs are triangulated n-gons: inset per ISLAND region (not per triangle, which
+    # drew a rim round every triangle) and without even-offset (acute corners of thin
+    # slivers shot out as long spikes).
+    bm.faces.ensure_lookup_table()
+    regions = []
+    for mem in _islands(bm):
+        rt = [g for g in mem if g.normal.z > 0.9 and g.material_index not in skip]
+        if rt:
+            regions.append(rt)
+    tops = []
+    for rt in regions:
+        # rim width from the region's effective width (2·area / perimeter): 1.6 m on
+        # a block, down to 0.4 m on a thin curved wing, where a fixed rim folded over
+        rs = set(rt)
+        area = sum(f.calc_area() for f in rt)
+        per = sum(e.calc_length() for f in rt for e in f.edges if sum(1 for g in e.link_faces if g in rs) == 1)
+        w_eff = 2.0 * area / max(per, 1e-3)
+        th = float(np.clip(0.15 * w_eff, 0.4, 1.6))
+        bmesh.ops.inset_region(bm, faces=rt, thickness=th, depth=-min(1.0, th), use_even_offset=False, use_boundary=True)
+        for f in rt:
+            f.material_index = i_roof
+        tops.append(rt)
+    # setbacks + units on the recessed roofs
+    units = []
+    n_set = 0
+    for rt in tops:
+        rt_ = [f for f in rt if f.is_valid]
+        a = sum(f.calc_area() for f in rt_)
+        if a < 1200.0 or not rt_:
+            continue
+        # compact blocks only: a ≥5 m inset on a curved or hooked outline folds over
+        P_ = np.array([list(mw @ v.co) for f in rt_ for v in f.verts])
+        u_ = _principal_xy(P_); v_ = np.array([-u_[1], u_[0]])
+        lu_, lv_ = np.ptp(P_[:, :2] @ u_), np.ptp(P_[:, :2] @ v_)
+        # fill is measured after the parapet inset, which costs rectangular blocks ~3 %
+        if a / max(lu_ * lv_, 1e-3) < 0.72 or min(lu_, lv_) < 14.0:
+            continue
+        th = max(5.0, 0.18 * math.sqrt(a))
+        bmesh.ops.inset_region(bm, faces=rt, thickness=th, depth=0.0, use_even_offset=False, use_boundary=True)
+        rt = [f for f in rt if f.is_valid]
+        if not rt:
+            continue
+        ex = bmesh.ops.extrude_face_region(bm, geom=rt)
+        nv = [e for e in ex["geom"] if isinstance(e, bmesh.types.BMVert)]
+        bmesh.ops.translate(bm, verts=nv, vec=(0.0, 0.0, 4.5 + 1.0))
+        for g in ex["geom"]:
+            if isinstance(g, bmesh.types.BMFace):
+                g.material_index = i_glass if abs(g.normal.z) < 0.5 else i_roof
+        n_set += 1
+    rng = np.random.default_rng(7)
+    for f in [g for rt in tops for g in rt]:
+        if not f.is_valid or f.calc_area() < 250.0:
+            continue
+        k = int(min(6, 1 + f.calc_area() // 600))
+        vs = [mw @ v.co for v in f.verts]
+        if len(vs) < 3:
+            continue
+        tris = [(0, i, i + 1) for i in range(1, len(vs) - 1)]
+        P3 = np.array([list(v) for v in vs])
+        S = _tri_samples(P3, tris, 4.0)
+        if len(S) < 4:
+            continue
+        # keep off the rim: only samples ≥3 m from the face boundary
+        E = np.vstack([np.linspace(P3[i, :2], P3[(i + 1) % len(P3), :2], 12) for i in range(len(P3))])
+        dd = np.array([np.hypot(*(E - s).T).min() for s in S])
+        S = S[dd > 2.5]
+        if not len(S):
+            continue
+        z = float(P3[:, 2].mean())
+        for s in S[rng.choice(len(S), size=min(k, len(S)), replace=False)]:
+            units.append((s, z))
+    bm.normal_update(); bm.to_mesh(me); bm.free()
+    if units:
+        coll = ob.users_collection[0]
+        verts, faces = [], []
+        for (x, y), z in units:
+            w_, d_, h_ = 3.2, 2.2, 1.6
+            b0 = len(verts)
+            for dz in (0.0, h_):
+                for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1)):
+                    verts.append((x + sx * w_ / 2, y + sy * d_ / 2, z + dz))
+            faces += [(b0, b0 + 1, b0 + 2, b0 + 3), (b0 + 4, b0 + 7, b0 + 6, b0 + 5), (b0, b0 + 4, b0 + 5, b0 + 1),
+                      (b0 + 1, b0 + 5, b0 + 6, b0 + 2), (b0 + 2, b0 + 6, b0 + 7, b0 + 3), (b0 + 3, b0 + 7, b0 + 4, b0)]
+        _runtime_mesh("M2D_DayRoofUnits", verts, faces, m_unit, coll)
+    return f"building geo: {len(tops)} roof regions with parapet + recessed gravel roof, {n_set} setback storeys, {len(units)} rooftop units"
+
+
 def _day_pass(sc, track, ground, log):
     """Level 10: turn the processed slate scene into a daylight broadcast aerial and
     take out the small-object noise."""
@@ -5654,11 +5818,12 @@ def _day_pass(sc, track, ground, log):
     if F is not None:
         trees = _terrain_bvh(sc)
         log.append(_day_canopies(sc, log, F))
-        log.append(_day_mosaic(sc, log, F, trees))
         log.append(_day_pond(sc, log, F, trees))
         log.append(_day_pitlane(sc, log, F))
         log.append(_day_buildings(sc, log))
+    log.append(_day_prune(sc, log))
     log.append(_day_sheds(sc, log))
+    log.append(_day_building_geo(sc, log))
     log.append(_day_parking(sc, log))
     log.append(_day_ground_contact(sc, log))
     log.append(_day_lot_edges(sc, log))
