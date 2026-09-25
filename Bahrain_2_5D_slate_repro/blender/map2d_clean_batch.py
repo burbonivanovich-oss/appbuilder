@@ -4350,6 +4350,207 @@ def _day_tower(sc, log):
     return f"tower: Sakhir drum 38 m at {best[0]:.0f} m from the line"
 
 
+def _ribbon_frame(sc):
+    """Asphalt centreline C, half widths, tangents, left normals and signed curvature."""
+    asp = next((o for o in sc.objects if o.type == 'MESH' and o.name.split('.')[0] == "M2D_Asphalt"), None)
+    if asp is None:
+        return None
+    me = asp.data; n = len(me.vertices)
+    co = np.empty(n * 3); me.vertices.foreach_get("co", co)
+    V = (np.c_[co.reshape(-1, 3), np.ones(n)] @ np.array(asp.matrix_world).T)[:, :3]
+    Lv, Rv = V[0::2], V[1::2]; C = (Lv + Rv) * 0.5; m = len(C)
+    ii = np.arange(m)
+    T = C[(ii + 1) % m, :2] - C[(ii - 1) % m, :2]; T /= np.maximum(np.linalg.norm(T, axis=1), 1e-6)[:, None]
+    step = float(np.median(np.linalg.norm(np.diff(C[:, :2], axis=0), axis=1)))
+    k = max(2, int(round(10.0 / step)))
+    th = np.arctan2(T[:, 1], T[:, 0])
+    dth = (th[(ii + k) % m] - th[(ii - k) % m] + np.pi) % (2 * np.pi) - np.pi
+    return dict(obj=asp, C=C, Lv=Lv, Rv=Rv, T=T, NL=np.c_[-T[:, 1], T[:, 0]],
+                kappa=dth / (2 * k * step), step=step, half=np.linalg.norm(Lv[:, :2] - C[:, :2], axis=1))
+
+
+def _inside_loop(C, P):
+    """Point-in-polygon (even-odd) of XY points P against the closed centreline."""
+    x, y = P[:, 0][:, None], P[:, 1][:, None]
+    x0, y0 = C[:, 0][None, :], C[:, 1][None, :]
+    x1, y1 = np.roll(C[:, 0], -1)[None, :], np.roll(C[:, 1], -1)[None, :]
+    cross = ((y0 > y) != (y1 > y)) & (x < (x1 - x0) * (y - y0) / np.where(y1 - y0 == 0, 1e-9, y1 - y0) + x0)
+    return cross.sum(1) % 2 == 1
+
+
+def _day_mosaic(sc, log, F, trees, depth_m=70.0):
+    """The painted mosaic of the reference: a field of blue / teal / green triangles
+    laid inside the loop along the longest straight that is not the pit straight,
+    kept clear of the run-off and of every other part of the circuit."""
+    import mathutils
+    C, T, kappa, step, half = F["C"], F["T"], F["kappa"], F["step"], F["half"]
+    m = len(C)
+    flat = np.abs(kappa) < 0.0025
+    runs = []; i = 0
+    while i < m:
+        if flat[i]:
+            j = i
+            while j + 1 < m and flat[j + 1]:
+                j += 1
+            runs.append((i, j)); i = j + 1
+        else:
+            i += 1
+    runs = [r for r in runs if not (r[0] <= 2 or r[1] >= m - 3)]      # skip the start/finish straight
+    if not runs:
+        return "mosaic: no straight"
+    a, b = max(runs, key=lambda r: r[1] - r[0])
+    cut = int((b - a) * 0.15); a, b = a + cut, b - cut
+    sel = np.arange(a, b + 1)
+    NL = F["NL"][sel]
+    test = C[sel, :2] + NL * 40.0
+    sgn = 1.0 if _inside_loop(C[:, :2], test).mean() > 0.5 else -1.0
+    Nn = NL * sgn
+    kd = mathutils.kdtree.KDTree(m)
+    for q, p in enumerate(C):
+        kd.insert((p[0], p[1], 0.0), q)
+    kd.balance()
+    r0 = half[sel] + 18.0
+    r1 = r0 + depth_m
+    for _ in range(12):
+        P = C[sel, :2] + Nn * r1[:, None]
+        bad = np.array([kd.find((p[0], p[1], 0.0))[2] < r1[q] - 25.0 for q, p in enumerate(P)])
+        if not bad.any():
+            break
+        r1[bad] = r0[bad] + (r1[bad] - r0[bad]) * 0.8
+    r1 = _loop_filter(r1, 6, False, "mean")
+    P0 = C[sel, :2] + Nn * r0[:, None]; P1 = C[sel, :2] + Nn * r1[:, None]
+    # a grid, not one quad across: the relief otherwise pokes through between rows
+    rows = 14
+    verts, faces = [], []
+    for q in range(len(sel)):
+        for r in range(rows + 1):
+            P = P0[q] + (P1[q] - P0[q]) * (r / rows)
+            tz = _terrain_z(trees, P[0], P[1]) if trees else None
+            verts.append((P[0], P[1], (tz if tz is not None else C[sel[q], 2]) + 0.25))
+            if q and r:
+                s_ = (q - 1) * (rows + 1) + r - 1; t_ = q * (rows + 1) + r - 1
+                faces.append((s_, t_, t_ + 1, s_ + 1))
+    mat = _runtime_flat("M2D_DayMosaic", (0.1, 0.3, 0.5, 1.0))
+    nt = mat.node_tree; bs = _bsdf(mat)
+    geo = nt.nodes.new("ShaderNodeNewGeometry")
+    mp = nt.nodes.new("ShaderNodeMapping"); mp.inputs["Scale"].default_value = (1 / 18.0, 1 / 18.0, 1 / 18.0)
+    ang = math.atan2(T[sel[0], 1], T[sel[0], 0]); mp.inputs["Rotation"].default_value = (0, 0, -ang)
+    nt.links.new(geo.outputs["Position"], mp.inputs["Vector"])
+    # triangle id: floor(u), floor(v) and which half of the cell (frac u > frac v)
+    sep = nt.nodes.new("ShaderNodeSeparateXYZ"); nt.links.new(mp.outputs["Vector"], sep.inputs["Vector"])
+    fl = nt.nodes.new("ShaderNodeVectorMath"); fl.operation = 'FLOOR'; nt.links.new(mp.outputs["Vector"], fl.inputs[0])
+    fr = nt.nodes.new("ShaderNodeVectorMath"); fr.operation = 'FRACTION'; nt.links.new(mp.outputs["Vector"], fr.inputs[0])
+    fs = nt.nodes.new("ShaderNodeSeparateXYZ"); nt.links.new(fr.outputs[0], fs.inputs["Vector"])
+    half_ = nt.nodes.new("ShaderNodeMath"); half_.operation = 'GREATER_THAN'
+    nt.links.new(fs.outputs["X"], half_.inputs[0]); nt.links.new(fs.outputs["Y"], half_.inputs[1])
+    cs = nt.nodes.new("ShaderNodeSeparateXYZ"); nt.links.new(fl.outputs[0], cs.inputs["Vector"])
+    cid = nt.nodes.new("ShaderNodeCombineXYZ")
+    nt.links.new(cs.outputs["X"], cid.inputs["X"]); nt.links.new(cs.outputs["Y"], cid.inputs["Y"])
+    nt.links.new(half_.outputs[0], cid.inputs["Z"])
+    wn = nt.nodes.new("ShaderNodeTexWhiteNoise"); wn.noise_dimensions = '3D'
+    nt.links.new(cid.outputs[0], wn.inputs["Vector"])
+    ramp = nt.nodes.new("ShaderNodeValToRGB"); ramp.color_ramp.interpolation = 'CONSTANT'
+    cols = [(24, 70, 150), (30, 120, 186), (40, 170, 190), (70, 190, 160), (120, 200, 120)]
+    els = ramp.color_ramp.elements
+    els[0].position = 0.0; els[0].color = (*_srgb(*cols[0]), 1.0)
+    els[1].position = 0.2; els[1].color = (*_srgb(*cols[1]), 1.0)
+    for q, c in enumerate(cols[2:], start=2):
+        e = els.new(q * 0.2); e.color = (*_srgb(*c), 1.0)
+    nt.links.new(wn.outputs["Value"], ramp.inputs["Fac"])
+    nt.links.new(ramp.outputs["Color"], bs.inputs["Base Color"])
+    ob = _runtime_mesh("M2D_DayMosaic", verts, faces, mat, F["obj"].users_collection[0])
+    try: ob.visible_shadow = False
+    except Exception: pass
+    area = float(np.sum((r1 - r0) * step))
+    return f"mosaic: {area / 1e4:.2f} ha of painted triangles inside the loop, samples {a}-{b}"
+
+
+def _day_pond(sc, log, F, trees, rx=26.0, ry=16.0):
+    """The small infield pond: a dark-green water ellipse with a sandy rim at the
+    infield point farthest from the circuit."""
+    C = F["C"]
+    lo, hi = C[:, :2].min(0), C[:, :2].max(0)
+    gx, gy = np.meshgrid(np.linspace(lo[0], hi[0], 90), np.linspace(lo[1], hi[1], 90))
+    G = np.c_[gx.ravel(), gy.ravel()]
+    G = G[_inside_loop(C[:, :2], G)]
+    if not len(G):
+        return "pond: no infield"
+    L = C[::4, :2]
+    d = np.array([np.hypot(L[:, 0] - g[0], L[:, 1] - g[1]).min() for g in G])
+    # skip whatever the mosaic took
+    mo = next((o for o in sc.objects if o.name.startswith("M2D_DayMosaic")), None)
+    if mo is not None:
+        Mw = _world_xy(mo)
+        d = np.where(np.array([np.hypot(Mw[:, 0] - g[0], Mw[:, 1] - g[1]).min() for g in G]) < 60.0, 0.0, d)
+    q = G[int(np.argmax(d))]
+    tz = _terrain_z(trees, q[0], q[1]) if trees else 0.0
+    coll = F["obj"].users_collection[0]
+    m_w = _runtime_flat("M2D_DayPond", (*_srgb(52, 86, 72), 1.0))
+    _bsdf(m_w).inputs["Roughness"].default_value = 0.2
+    m_r = _runtime_flat("M2D_DayPondRim", (*_srgb(170, 160, 128), 1.0))
+    for s_, mat, dz in ((1.25, m_r, 0.06), (1.0, m_w, 0.10)):
+        vs = []
+        for t in np.linspace(0, 2 * math.pi, 48, endpoint=False):
+            wob = 1.0 + 0.10 * math.sin(3 * t + 1.3) + 0.06 * math.sin(5 * t)
+            vs.append((q[0] + rx * s_ * wob * math.cos(t), q[1] + ry * s_ * wob * math.sin(t), (tz or 0.0) + dz))
+        _runtime_mesh("M2D_DayPond", vs, [tuple(range(48))], mat, coll)
+    return f"pond: at {float(d.max()):.0f} m from the line"
+
+
+def _day_canopies(sc, log, F):
+    """White cantilever roofs over the grandstands (the reference's main stand reads by
+    its long white canopy), ribbed every 12 m, on slim back columns. The pit building
+    roof gets the same ribbing."""
+    import bmesh, mathutils
+    line = F["C"][:, :2]
+    m_roof = _runtime_flat("M2D_DayCanopy", (*_srgb(238, 238, 236), 1.0))
+    nt = m_roof.node_tree; bs = _bsdf(m_roof)
+    m_col = _runtime_flat("M2D_DayColumn", (*_srgb(200, 200, 198), 1.0))
+    n = 0
+    for o in list(sc.objects):
+        base = o.name.split('.')[0]
+        if (o.type != 'MESH' or o.hide_render or not base.startswith("M2D_Stand_")
+                or base.endswith(("_RoofDeck", "_RoofTruss"))):
+            continue
+        W = np.array([list(o.matrix_world @ v.co) for v in o.data.vertices])
+        pu = _principal_xy(W); pv = np.array([-pu[1], pu[0]]); pc = W[:, :2].mean(0)
+        eu = (W[:, :2] - pc) @ pu; ev = (W[:, :2] - pc) @ pv
+        # back = the pv side farther from the track
+        fwd = pc + pv * ev.max(); bwd = pc + pv * ev.min()
+        dF = np.hypot(line[:, 0] - fwd[0], line[:, 1] - fwd[1]).min()
+        dB = np.hypot(line[:, 0] - bwd[0], line[:, 1] - bwd[1]).min()
+        back, front = (ev.max(), ev.min()) if dF > dB else (ev.min(), ev.max())
+        depth = back - front
+        v0, v1 = back + np.sign(depth) * 1.5, back - depth * 0.80
+        u0, u1 = eu.min() - 2.0, eu.max() + 2.0
+        zt = float(W[:, 2].max()) + 5.0
+        corners = [pc + pu * u + pv * v for u, v in ((u0, v0), (u1, v0), (u1, v1), (u0, v1))]
+        verts = [(c[0], c[1], zt + (1.2 if k in (0, 1) else 0.0)) for k, c in enumerate(corners)]
+        verts += [(c[0], c[1], zt - 0.6 + (1.2 if k in (0, 1) else 0.0)) for k, c in enumerate(corners)]
+        faces = [(0, 1, 2, 3), (4, 7, 6, 5), (0, 4, 5, 1), (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)]
+        ob = _runtime_mesh(f"M2D_DayCanopy_{base}", verts, faces, m_roof, o.users_collection[0])
+        ang = math.atan2(pu[1], pu[0])
+        for u in np.arange(u0 + 4.0, u1, 24.0):
+            q = pc + pu * u + pv * v0
+            _box(f"M2D_DayColumn_{n}", q[0], q[1], pu, pv, 0.8, 0.8, float(W[:, 2].min()), zt + 1.2, m_col, o.users_collection[0])
+        n += 1
+    # ribs: bands across the long axis, 12 m pitch (world X is fine: canopy colour only)
+    for mat, pitch in ((m_roof, 12.0), (bpy.data.materials.get("M2D_PitTop"), 9.0)):
+        b_ = _bsdf(mat)
+        if not b_:
+            continue
+        c = b_.inputs["Base Color"].default_value[:3]
+        mix = _noise_mix(mat, pitch, tuple(x * 0.84 for x in c), tuple(c), detail=0.0)
+        nz = next(x for x in mat.node_tree.nodes if x.type == 'TEX_NOISE' and x.outputs["Fac"].is_linked)
+        wave = mat.node_tree.nodes.new("ShaderNodeTexWave"); wave.wave_type = 'BANDS'; wave.wave_profile = 'SAW'
+        wave.inputs["Scale"].default_value = 1.0; wave.inputs["Distortion"].default_value = 0.0
+        for l in list(mat.node_tree.links):
+            if l.from_node == nz:
+                mat.node_tree.links.new(wave.outputs["Fac"], l.to_socket); mat.node_tree.links.remove(l)
+        mat.node_tree.links.new(nz.inputs["Vector"].links[0].from_socket, wave.inputs["Vector"])
+    return f"canopies: {n} stand roof(s), ribbed; pit roof ribbed"
+
+
 def _day_pass(sc, track, ground, log):
     """Level 10: turn the processed slate scene into a daylight broadcast aerial and
     take out the small-object noise."""
@@ -4397,6 +4598,12 @@ def _day_pass(sc, track, ground, log):
     log.append(f"day stands: crowd 85 % on {ns} seat material(s)")
     log.append(_day_runoff(sc, log))
     log.append(_day_tower(sc, log))
+    F = _ribbon_frame(sc)
+    if F is not None:
+        trees = _terrain_bvh(sc)
+        log.append(_day_canopies(sc, log, F))
+        log.append(_day_mosaic(sc, log, F, trees))
+        log.append(_day_pond(sc, log, F, trees))
     return f"day: {n} materials re-toned, {hid} noise objects hidden (marshal posts, glow, minor roads, vignette)"
 
 
