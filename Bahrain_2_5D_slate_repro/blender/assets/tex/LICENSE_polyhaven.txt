@@ -1,0 +1,7 @@
+Files ph_*.jpg are downscaled (1024 px) copies of CC0 textures from Poly Haven
+(https://polyhaven.com, licence: CC0 1.0 — public domain, no attribution required):
+  ph_sand_aerial_d/n   ← aerial_sand        (Rob Tuytel, 15 × 15 m)
+  ph_dirt_aerial_d     ← dirt_aerial_02     (Rob Tuytel, 20 × 20 m)
+  ph_dry_ground_d      ← dry_ground_01      (Rob Tuytel, 4 × 4 m)
+  ph_asphalt_track_d/n/r ← asphalt_track    (Dimitrios Savva, 2 × 2 m)
+  ph_asphalt_aerial_d  ← aerial_asphalt_01  (Rob Tuytel, 30 × 30 m)

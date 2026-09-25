@@ -3963,7 +3963,7 @@ _DAY_HAZE = ((0.46, 0.44, 0.40), 0.05)   # (linear haze colour, amount) for _aer
 # plate the lightest, so the ribbon reads by value first; kerbs and verge add the only
 # saturated colour near the line. Everything else stays in the sand / concrete family.
 _DAY = {
-    "sand_lo": (158, 146, 126), "sand_hi": (192, 181, 160), "rock": (138, 126, 108),
+    "sand_lo": (166, 154, 134), "sand_hi": (200, 189, 168), "rock": (138, 126, 108),
     "near": (196, 186, 166), "shrub": (98, 94, 72),                                   # compacted apron by the line
     "asphalt": (104, 106, 110), "rubber": (84, 86, 90), "pit": (96, 98, 102),
     "line": (240, 240, 240), "runoff_tar": (46, 48, 52), "apron": (224, 200, 152),
@@ -5281,6 +5281,167 @@ def _day_ground_contact(sc, log, inner_m=10.0, outer_m=26.0, sink=0.40, pad_m=4.
     return f"contact: {moved} terrain vertices levelled under {len(samples)} footprint groups, {len(pads)} concrete pads (+{pad_m:.0f} m)"
 
 
+_TEX_MEAN = {}
+
+
+def _tex_img(name, noncolor=False):
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "tex", name)
+    if not os.path.exists(path):
+        return None
+    img = bpy.data.images.load(path, check_existing=True)
+    img.colorspace_settings.name = 'Non-Color' if noncolor else 'sRGB'
+    return img
+
+
+def _tex_node(nt, geo, img, tile_m, rot_deg=0.0, offset=(0.0, 0.0)):
+    mp = nt.nodes.new("ShaderNodeMapping"); mp.inputs["Scale"].default_value = (1 / tile_m,) * 3
+    mp.inputs["Rotation"].default_value = (0, 0, math.radians(rot_deg))
+    mp.inputs["Location"].default_value = (offset[0], offset[1], 0.0)
+    nt.links.new(geo.outputs["Position"], mp.inputs["Vector"])
+    it = nt.nodes.new("ShaderNodeTexImage"); it.image = img; it.extension = 'REPEAT'; it.interpolation = 'Cubic'
+    nt.links.new(mp.outputs["Vector"], it.inputs["Vector"])
+    return it
+
+
+def _tex_detail(nt, geo, name, tile_m, strength, rot_deg=0.0, offset=(0.0, 0.0), contrast=1.0):
+    """A photo texture used as DETAIL only: its luminance divided by its own mean, so
+    the palette keeps owning the colour. Returns a scalar socket around 1.0:
+    1 + strength·((lum/mean)^contrast − 1)."""
+    img = _tex_img(name)
+    if img is None:
+        return None
+    if name not in _TEX_MEAN:
+        px = np.array(img.pixels[:], np.float32).reshape(-1, 4)[::97, :3]
+        _TEX_MEAN[name] = float((px @ np.array([0.2126, 0.7152, 0.0722], np.float32)).mean())
+    it = _tex_node(nt, geo, img, tile_m, rot_deg, offset)
+    nb = _NB(nt)
+    bw = nt.nodes.new("ShaderNodeRGBToBW"); nt.links.new(it.outputs["Color"], bw.inputs["Color"])
+    r = nb.m('DIVIDE', bw.outputs["Val"], max(_TEX_MEAN[name], 1e-3))
+    if contrast != 1.0:
+        r = nb.m('POWER', r, contrast)
+    return nb.m('MULTIPLY_ADD', nb.m('SUBTRACT', r, 1.0), strength, 1.0)
+
+
+def _mul_base(nt, b, factor):
+    src = next((l for l in nt.links if l.to_node == b and l.to_socket.name == "Base Color"), None)
+    mul = nt.nodes.new("ShaderNodeMix"); mul.data_type = 'RGBA'; mul.blend_type = 'MULTIPLY'; mul.inputs["Factor"].default_value = 1.0
+    if src is not None:
+        nt.links.new(src.from_socket, mul.inputs[6]); nt.links.remove(src)
+    else:
+        mul.inputs[6].default_value = tuple(b.inputs["Base Color"].default_value)
+    nt.links.new(factor, mul.inputs[7]); nt.links.new(mul.outputs[2], b.inputs["Base Color"])
+    return mul
+
+
+def _day_sand_pbr(sc):
+    """Desert built from CC0 aerial scans (Poly Haven), palette-tinted:
+      * aerial_sand @15 m — ripples, tyre marks, pitting; its normal map for relief;
+      * dirt_aerial_02 @60 m / 23° and @230 m / 71° — trampled patches, compacted
+        ground, the large organic blotching an aerial desert frame has;
+      * dry_ground_01 @6 m — cracked-crust flats in the hollows of a 180 m mask,
+        shifted to a paler grey-beige;
+      * off-road vehicle trails — thin meandering lines from two distorted wave fields,
+        darkened 12 %: the most recognisable 'real desert from above' cue."""
+    m = bpy.data.materials.get("M2D_TerrainVC"); b = _bsdf(m)
+    if not b:
+        return "sand pbr: no terrain"
+    nt = m.node_tree; nb = _NB(nt)
+    geo = nt.nodes.new("ShaderNodeNewGeometry")
+    # 15 m repeated every 9 px at map distance and read as a grid: 40 m and a 27 m
+    # copy at 45° instead, so the two periods never line up
+    layers = [("ph_sand_aerial_d.jpg", 40.0, 0.28, 0.0, (0.0, 0.0), 1.0),
+              ("ph_sand_aerial_d.jpg", 27.0, 0.18, 45.0, (0.3, 0.7), 1.0),
+              ("ph_dirt_aerial_d.jpg", 60.0, 0.18, 23.0, (0.37, 0.11), 1.0),
+              ("ph_dirt_aerial_d.jpg", 230.0, 0.14, 71.0, (0.61, 0.29), 1.0)]
+    k = None
+    for nm, tile, st, rot, off, con in layers:
+        f = _tex_detail(nt, geo, nm, tile, st, rot, off, con)
+        if f is None:
+            return "sand pbr: textures missing"
+        k = f if k is None else nb.m('MULTIPLY', k, f)
+    _mul_base(nt, b, k)
+    # cracked flats
+    img = _tex_img("ph_dry_ground_d.jpg")
+    it = _tex_node(nt, geo, img, 6.0, 12.0)
+    hs = nt.nodes.new("ShaderNodeHueSaturation"); hs.inputs["Saturation"].default_value = 0.35; hs.inputs["Value"].default_value = 1.35
+    nt.links.new(it.outputs["Color"], hs.inputs["Color"])
+    mk = nt.nodes.new("ShaderNodeTexNoise"); mk.inputs["Scale"].default_value = 1.0; mk.inputs["Detail"].default_value = 3.0
+    mm = nt.nodes.new("ShaderNodeMapping"); mm.inputs["Scale"].default_value = (1 / 180.0,) * 3
+    mm.inputs["Location"].default_value = (5.3, 1.7, 0.0)
+    nt.links.new(geo.outputs["Position"], mm.inputs["Vector"]); nt.links.new(mm.outputs["Vector"], mk.inputs["Vector"])
+    mr = nt.nodes.new("ShaderNodeMapRange"); mr.interpolation_type = 'SMOOTHSTEP'
+    mr.inputs["From Min"].default_value = 0.60; mr.inputs["From Max"].default_value = 0.68
+    mr.inputs["To Min"].default_value = 0.0; mr.inputs["To Max"].default_value = 0.75
+    nt.links.new(mk.outputs["Fac"], mr.inputs["Value"])
+    src = next(l for l in nt.links if l.to_node == b and l.to_socket.name == "Base Color")
+    tint = nb.mix(1.0, (*_srgb(214, 204, 184),), hs.outputs["Color"])
+    tint_n = nt.nodes.new("ShaderNodeMix"); tint_n.data_type = 'RGBA'; tint_n.blend_type = 'MULTIPLY'
+    tint_n.inputs["Factor"].default_value = 1.0; tint_n.inputs[6].default_value = (*_srgb(214, 204, 184), 1.0)
+    nt.links.new(hs.outputs["Color"], tint_n.inputs[7])
+    flats = nb.mix(mr.outputs["Result"], src.from_socket, tint_n.outputs[2])
+    nt.links.remove(src); nt.links.new(flats, b.inputs["Base Color"])
+    # vehicle trails
+    trails = None
+    for sc_m, rot, off in ((140.0, 15.0, (0.2, 0.9)), (95.0, 104.0, (1.3, 0.4))):
+        mp = nt.nodes.new("ShaderNodeMapping"); mp.inputs["Scale"].default_value = (1 / sc_m,) * 3
+        mp.inputs["Rotation"].default_value = (0, 0, math.radians(rot)); mp.inputs["Location"].default_value = (*off, 0.0)
+        nt.links.new(geo.outputs["Position"], mp.inputs["Vector"])
+        wv = nt.nodes.new("ShaderNodeTexWave"); wv.wave_type = 'BANDS'; wv.wave_profile = 'SIN'
+        wv.inputs["Scale"].default_value = 1.0; wv.inputs["Distortion"].default_value = 6.0
+        wv.inputs["Detail"].default_value = 2.0; wv.inputs["Detail Scale"].default_value = 0.6
+        nt.links.new(mp.outputs["Vector"], wv.inputs["Vector"])
+        line = nb.m('GREATER_THAN', wv.outputs["Fac"], 0.993)
+        trails = line if trails is None else nb.m('MAXIMUM', trails, line)
+    # only some of them, broken up by a 300 m mask
+    tm = nt.nodes.new("ShaderNodeTexNoise"); tm.inputs["Scale"].default_value = 1.0
+    tmm = nt.nodes.new("ShaderNodeMapping"); tmm.inputs["Scale"].default_value = (1 / 300.0,) * 3
+    nt.links.new(geo.outputs["Position"], tmm.inputs["Vector"]); nt.links.new(tmm.outputs["Vector"], tm.inputs["Vector"])
+    trails = nb.m('MULTIPLY', trails, nb.m('GREATER_THAN', tm.outputs["Fac"], 0.60))
+    _mul_base(nt, b, nb.m('MULTIPLY_ADD', trails, -0.09, 1.0))
+    # relief from the scan's normal map, fed through the existing bump
+    nimg = _tex_img("ph_sand_aerial_n.jpg", noncolor=True)
+    if nimg is not None:
+        itn = _tex_node(nt, geo, nimg, 40.0)
+        nm_ = nt.nodes.new("ShaderNodeNormalMap"); nm_.inputs["Strength"].default_value = 0.4
+        nt.links.new(itn.outputs["Color"], nm_.inputs["Color"])
+        bump = next((n for n in nt.nodes if n.type == 'BUMP' and n.outputs["Normal"].is_linked), None)
+        if bump is not None:
+            nt.links.new(nm_.outputs["Normal"], bump.inputs["Normal"])
+        else:
+            nt.links.new(nm_.outputs["Normal"], b.inputs["Normal"])
+    return "sand pbr: aerial_sand 40 m + 27 m/45° + dirt_aerial 60/230 m + dry_ground flats + vehicle trails, scan normals"
+
+
+def _asphalt_pbr(mat, grain_m=2.5, macro_m=30.0, grain=0.30, macro=0.25):
+    """Photo-scanned tarmac: asphalt_track (a race-track scan) for aggregate, normal and
+    roughness at `grain_m`; aerial_asphalt_01 at `macro_m` for tyre marks and cracks."""
+    b = _bsdf(mat)
+    if not b or any(n.name == "M2D_AsphaltPBR" for n in mat.node_tree.nodes):
+        return False
+    nt = mat.node_tree; nb = _NB(nt)
+    geo = nt.nodes.new("ShaderNodeNewGeometry"); geo.name = "M2D_AsphaltPBR"
+    f1 = _tex_detail(nt, geo, "ph_asphalt_track_d.jpg", grain_m, grain, 0.0, (0.0, 0.0), 1.0)
+    f2 = _tex_detail(nt, geo, "ph_asphalt_aerial_d.jpg", macro_m, macro, 31.0, (0.4, 0.2), 1.0)
+    if f1 is None or f2 is None:
+        return False
+    _mul_base(nt, b, nb.m('MULTIPLY', f1, f2))
+    rimg = _tex_img("ph_asphalt_track_r.jpg", noncolor=True)
+    if rimg is not None:
+        itr = _tex_node(nt, geo, rimg, grain_m)
+        for l in list(nt.links):
+            if l.to_node == b and l.to_socket.name == "Roughness":
+                nt.links.remove(l)
+        sep = nt.nodes.new("ShaderNodeSeparateColor"); nt.links.new(itr.outputs["Color"], sep.inputs["Color"])
+        nt.links.new(nb.m('MULTIPLY_ADD', sep.outputs["Red"], 0.2, 0.78), b.inputs["Roughness"])
+    nimg = _tex_img("ph_asphalt_track_n.jpg", noncolor=True)
+    if nimg is not None:
+        itn = _tex_node(nt, geo, nimg, grain_m)
+        nm_ = nt.nodes.new("ShaderNodeNormalMap"); nm_.inputs["Strength"].default_value = 0.35
+        nt.links.new(itn.outputs["Color"], nm_.inputs["Color"])
+        nt.links.new(nm_.outputs["Normal"], b.inputs["Normal"])
+    return True
+
+
 def _day_pass(sc, track, ground, log):
     """Level 10: turn the processed slate scene into a daylight broadcast aerial and
     take out the small-object noise."""
@@ -5340,10 +5501,12 @@ def _day_pass(sc, track, ground, log):
     log.append(_day_sheds(sc, log))
     log.append(_day_parking(sc, log))
     log.append(_day_ground_contact(sc, log))
-    log.append(_day_sand_detail(sc))
-    na = sum(_asphalt_detail(bpy.data.materials[mn]) for mn in
-             ("M2D_Track", "M2D_Rubber", "M2D_DayRunoff", "M2D_PitMat", "M2D_Road") if bpy.data.materials.get(mn))
-    log.append(f"asphalt: patches, cracks, aggregate on {na} material(s)")
+    log.append(_day_sand_pbr(sc))
+    tarmac = [bpy.data.materials[mn] for mn in ("M2D_Track", "M2D_Rubber", "M2D_DayRunoff", "M2D_PitMat", "M2D_Road")
+              if bpy.data.materials.get(mn)] + [m for m in bpy.data.materials if m.name.startswith("M2D_DayLot_")]
+    na = sum(_asphalt_detail(m) for m in tarmac)
+    npbr = sum(_asphalt_pbr(m) for m in tarmac)
+    log.append(f"asphalt: patches/cracks on {na}, scanned grain + tyre marks + normals on {npbr} material(s)")
     return f"day: {n} materials re-toned, {hid} noise objects hidden (marshal posts, glow, minor roads, vignette)"
 
 
