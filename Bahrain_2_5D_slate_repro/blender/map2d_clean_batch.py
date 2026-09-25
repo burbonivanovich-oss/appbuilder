@@ -4340,16 +4340,40 @@ def _day_tower(sc, log):
     P = np.array([list(pit.matrix_world @ v.co) for v in pit.data.vertices])
     pu = _principal_xy(P); pv = np.array([-pu[1], pu[0]]); pc = P[:, :2].mean(0)
     ext = (P[:, :2] - pc) @ pu; zp = float(P[:, 2].min())
+    # free spot near the pit building: ≥45 m off the line, ≥16 m from any other
+    # footprint (the first version landed on the main grandstand across the straight)
+    occ = []
+    for o in sc.objects:
+        b_ = o.name.split('.')[0]
+        if o.type == 'MESH' and not o.hide_render and b_.startswith(
+                ("M2D_Buildings", "M2D_PitBuilding", "M2D_Paddock", "M2D_Stand_", "M2D_Motorhome", "M2D_Tent",
+                 "M2D_Truck", "M2D_Park", "M2D_DayLot", "M2D_Helipad", "M2D_PitLane", "M2D_DayCanopy", "M2D_Screen")):
+            me_ = o.data; me_.calc_loop_triangles(); W_ = _world_xy(o)
+            occ.append(_tri_samples(np.c_[W_, np.zeros(len(W_))], [tuple(t.vertices) for t in me_.loop_triangles], 4.0))
+    O = np.vstack(occ)
+    kdo = mathutils.kdtree.KDTree(len(O))
+    for k_, p_ in enumerate(O):
+        kdo.insert((p_[0], p_[1], 0.0), k_)
+    kdo.balance()
     best = None
-    for along in (ext.min() - 30.0, ext.max() + 30.0, ext.min() * 0.5, ext.max() * 0.5):
-        for across in (-45.0, -60.0, 45.0, 60.0):
+    for along in np.linspace(ext.min() - 60.0, ext.max() + 60.0, 25):
+        for across in np.linspace(-120.0, 120.0, 25):
             q = pc + pu * along + pv * across
             d = float(np.hypot(line[:, 0] - q[0], line[:, 1] - q[1]).min())
-            if d > 45.0 and (best is None or d < best[0]):
-                best = (d, q)
+            if d < 45.0 or kdo.find((q[0], q[1], 0.0))[2] < 16.0:
+                continue
+            score = float(np.hypot(*(q - pc)))
+            if best is None or score < best[2]:
+                best = (d, q, score)
     if best is None:
         return "tower: no free spot"
     q = best[1]
+    # stand on the ground actually under it — the pit building's base sits at track
+    # level, and the plate here is higher, which buried the drum's foot in sand
+    trees_ = _terrain_bvh(sc)
+    tz = _terrain_z(trees_, q[0], q[1]) if trees_ else None
+    if tz is not None:
+        zp = max(zp, tz + 0.05)
     for o in sc.objects:
         if o.name.split('.')[0] in ("M2D_TVMast", "M2D_TVMastTop"):
             o.hide_render = True
@@ -5139,6 +5163,124 @@ def _day_sheds(sc, log):
     return f"sheds: {n} car-park canopies (ribbed fabric roof, open dark sides, 4.5 m)"
 
 
+def _islands(bm):
+    seen = set(); out = []
+    for f in bm.faces:
+        if f.index in seen:
+            continue
+        stack = [f]; mem = []
+        while stack:
+            g = stack.pop()
+            if g.index in seen:
+                continue
+            seen.add(g.index); mem.append(g)
+            for e in g.edges:
+                for h in e.link_faces:
+                    if h.index not in seen:
+                        stack.append(h)
+        out.append(mem)
+    return out
+
+
+def _tri_samples(P3, tris, spacing=3.0):
+    """World XY samples over triangles (list of 3 index tuples into P3)."""
+    out = []
+    for t in tris:
+        a, b_, c = P3[t[0], :2], P3[t[1], :2], P3[t[2], :2]
+        k = int(min(30, max(1, np.ceil(max(np.linalg.norm(b_ - a), np.linalg.norm(c - a)) / spacing))))
+        u, v = np.meshgrid(np.linspace(0, 1, k + 1), np.linspace(0, 1, k + 1))
+        s_ = (u + v) <= 1.0
+        out.append(a + np.outer(u[s_], b_ - a) + np.outer(v[s_], c - a))
+    return np.vstack(out) if out else np.zeros((0, 2))
+
+
+def _day_ground_contact(sc, log, inner_m=10.0, outer_m=26.0, sink=0.40, pad_m=4.0):
+    """Buildings and lots were 'sinking': the seated DEM rises above their bases, so sand
+    covers their feet and lots read as cut into the dunes. Level the terrain to each
+    footprint's base (full weight within `inner_m` — more than the ~8 m DEM spacing, so no
+    triangle between a levelled and an unlevelled vertex rises over an edge —, smooth back to the DEM by `outer_m`)
+    and lay a light concrete pad `pad_m` beyond every building so it stands on
+    hardstanding, not on sand."""
+    import bmesh, mathutils
+    samples, bases = [], []
+    pads = []                                       # (centre, u, v, lu, lv, z)
+    def add_island(P3, tris, is_building):
+        if len(P3) < 3:
+            return
+        zb = float(P3[:, 2].min())
+        S = _tri_samples(P3, tris)
+        samples.append(S); bases.append(np.full(len(S), zb))
+        if is_building:
+            u = _principal_xy(P3); v = np.array([-u[1], u[0]]); c = P3[:, :2].mean(0)
+            pu = (P3[:, :2] - c) @ u; pv = (P3[:, :2] - c) @ v
+            c = c + u * (pu.max() + pu.min()) * 0.5 + v * (pv.max() + pv.min()) * 0.5
+            pads.append((c, u, v, np.ptp(pu) + 2 * pad_m, np.ptp(pv) + 2 * pad_m, zb))
+    for o in sc.objects:
+        if o.type != 'MESH' or o.hide_render:
+            continue
+        base = o.name.split('.')[0]
+        bld = base in ("M2D_Buildings", "M2D_PitBuilding", "M2D_Paddock", "M2D_DayTower") or (
+            base.startswith("M2D_Stand_") and not base.endswith(("_RoofDeck", "_RoofTruss")))
+        flat = base.startswith(("M2D_Park", "M2D_M2D_Aero", "M2D_Aero", "M2D_Motorhome", "M2D_Tent", "M2D_Truck", "M2D_Helipad"))
+        if not (bld or flat):
+            continue
+        mw = o.matrix_world
+        bm = bmesh.new(); bm.from_mesh(o.data); bm.faces.ensure_lookup_table(); bm.verts.ensure_lookup_table()
+        P3 = np.array([list(mw @ v.co) for v in bm.verts])
+        if base in ("M2D_Buildings",):
+            for mem in _islands(bm):
+                idx = sorted({v.index for g in mem for v in g.verts})
+                remap = {j: q for q, j in enumerate(idx)}
+                tris = [(remap[g.verts[0].index], remap[g.verts[i].index], remap[g.verts[i + 1].index])
+                        for g in mem for i in range(1, len(g.verts) - 1)]
+                add_island(P3[idx], tris, True)
+        else:
+            tris = [(g.verts[0].index, g.verts[i].index, g.verts[i + 1].index)
+                    for g in bm.faces for i in range(1, len(g.verts) - 1)]
+            add_island(P3, tris, bld)
+        bm.free()
+    if not samples:
+        return "contact: nothing to seat"
+    S = np.vstack(samples); Zb = np.concatenate(bases)
+    kd = mathutils.kdtree.KDTree(len(S))
+    for q, p in enumerate(S):
+        kd.insert((p[0], p[1], 0.0), q)
+    kd.balance()
+    moved = 0
+    for o in sc.objects:
+        if o.type != 'MESH' or not o.name.startswith("M2D_Terrain"):
+            continue
+        mw = o.matrix_world; mi = mw.inverted()
+        me = o.data
+        for v in me.vertices:
+            w_ = mw @ v.co
+            _, q, d = kd.find((w_.x, w_.y, 0.0))
+            if d >= outer_m:
+                continue
+            t = 1.0 if d <= inner_m else 1.0 - (d - inner_m) / (outer_m - inner_m)
+            t = t * t * (3 - 2 * t)
+            target = Zb[q] - sink
+            nz = w_.z + (target - w_.z) * t
+            if abs(nz - w_.z) > 1e-3:
+                v.co = mi @ mathutils.Vector((w_.x, w_.y, nz)); moved += 1
+        me.update()
+    # concrete pads
+    m_pad = _runtime_flat("M2D_DayPad", (*_srgb(186, 182, 172), 1.0))
+    _noise_mix(m_pad, 6.0, tuple(c * 0.95 for c in _srgb(186, 182, 172)), tuple(c * 1.04 for c in _srgb(186, 182, 172)), detail=2.0)
+    coll = next((o.users_collection[0] for o in sc.objects if o.name.startswith("M2D_Terrain")), sc.collection)
+    verts, faces = [], []
+    for c, u, v, lu, lv, z in pads:
+        hx, hy = u * lu * 0.5, v * lv * 0.5
+        base_i = len(verts)
+        for p in (c - hx - hy, c + hx - hy, c + hx + hy, c - hx + hy):
+            verts.append((p[0], p[1], z - sink + 0.18))
+        faces.append((base_i, base_i + 1, base_i + 2, base_i + 3))
+    ob = _runtime_mesh("M2D_DayPads", verts, faces, m_pad, coll)
+    try: ob.visible_shadow = False
+    except Exception: pass
+    return f"contact: {moved} terrain vertices levelled under {len(samples)} footprint groups, {len(pads)} concrete pads (+{pad_m:.0f} m)"
+
+
 def _day_pass(sc, track, ground, log):
     """Level 10: turn the processed slate scene into a daylight broadcast aerial and
     take out the small-object noise."""
@@ -5197,6 +5339,7 @@ def _day_pass(sc, track, ground, log):
         log.append(_day_buildings(sc, log))
     log.append(_day_sheds(sc, log))
     log.append(_day_parking(sc, log))
+    log.append(_day_ground_contact(sc, log))
     log.append(_day_sand_detail(sc))
     na = sum(_asphalt_detail(bpy.data.materials[mn]) for mn in
              ("M2D_Track", "M2D_Rubber", "M2D_DayRunoff", "M2D_PitMat", "M2D_Road") if bpy.data.materials.get(mn))
