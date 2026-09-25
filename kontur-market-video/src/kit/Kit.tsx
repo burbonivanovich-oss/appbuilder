@@ -4,10 +4,25 @@ import {evolvePath} from '@remotion/paths';
 import {colors, font} from '../theme';
 import tl from './timeline.json';
 
+/*
+ * Стиль — как на текущем kontur.ru/market: студийная предметка «тёмно‑синяя стена + светлый стол»,
+ * белые жирные заголовки на синем, плоские светлые плитки с большим скруглением без теней,
+ * пилюли‑переключатели и синие стрелки ↗. В финале вся сцена сворачивается в карточку сайта.
+ */
+
 export const KIT_TOTAL = tl.total;
-const mono = '"JetBrains Mono", "DejaVu Sans Mono", ui-monospace, monospace';
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 const ease = Easing.bezier(0.65, 0, 0.35, 1);
+
+const studio = {
+  wallTop: '#12163A',
+  wallBottom: '#1D2352',
+  tableTop: '#DCD9D5',
+  tableBottom: '#C9C5C0',
+  tile: '#F4F5F7',
+  softText: 'rgba(255,255,255,0.72)',
+};
+const HORIZON = 640; // линия стола в координатах «мира»
 
 const useSp = (at: number, damping = 14, stiffness = 120) => {
   const frame = useCurrentFrame();
@@ -15,307 +30,257 @@ const useSp = (at: number, damping = 14, stiffness = 120) => {
   return spring({frame: frame - at, fps, config: {damping, stiffness}});
 };
 
-/* Камера: ключевые кадры масштаба и сдвига всего «мира» */
+/* Камера: ключевые кадры масштаба и сдвига «мира» */
 const CAM = {
-  f: [0, tl.kassa - 10, tl.kassa + 40, tl.fn, tl.fn + 50, tl.scanner + 10, tl.ofd + 10, tl.market, tl.market + 60, tl.final, tl.final + 50, tl.total],
-  s: [1.35, 1.35, 1.12, 1.12, 1.3, 1.02, 0.9, 0.9, 0.8, 0.8, 0.58, 0.6],
-  x: [0, 0, 0, 0, -180, 120, -150, -150, -120, -120, -520, -540],
-  y: [0, 0, 20, 20, 60, 0, 40, 40, 20, 20, 30, 30],
-  r: [0, 0, 0, 0, 0, 3, -2, -2, -6, -6, 0, 0],
+  f: [0, tl.kassa - 10, tl.kassa + 40, tl.fn, tl.fn + 50, tl.scanner + 10, tl.ofd + 10, tl.market, tl.market + 60, tl.final, tl.total],
+  s: [1.25, 1.25, 1.1, 1.1, 1.28, 1.0, 0.92, 0.92, 0.84, 0.84, 0.84],
+  x: [0, 0, 0, 0, -180, 120, -140, -140, -60, -60, -60],
+  y: [0, 0, 10, 10, 60, 0, 30, 30, 10, 10, 10],
 };
-const cam = (frame: number, k: 's' | 'x' | 'y' | 'r') => interpolate(frame, CAM.f, CAM[k], {...clamp, easing: ease});
+const cam = (frame: number, k: 's' | 'x' | 'y') => interpolate(frame, CAM.f, CAM[k], {...clamp, easing: ease});
 
-/* Чертёжная сетка, которая «прочерчивается» в начале */
-const Blueprint: React.FC = () => {
+/* Студийный сет: стена, стол, мягкий свет */
+const Studio: React.FC = () => {
   const frame = useCurrentFrame();
-  const cols = 24;
-  const rows = 14;
+  const light = interpolate(frame, [0, 60], [0.2, 1], clamp);
   return (
     <AbsoluteFill>
-      {Array.from({length: cols + 1}).map((_, i) => {
-        const p = interpolate(frame, [i * 1.2, i * 1.2 + 30], [0, 1], {...clamp, easing: Easing.out(Easing.cubic)});
-        return <div key={`c${i}`} style={{position: 'absolute', left: `${(i / cols) * 100}%`, top: 0, width: i % 4 ? 1 : 2, height: `${p * 100}%`, background: i % 4 ? 'rgba(34,145,255,0.08)' : 'rgba(34,145,255,0.16)'}} />;
-      })}
-      {Array.from({length: rows + 1}).map((_, i) => {
-        const p = interpolate(frame, [i * 1.5 + 6, i * 1.5 + 36], [0, 1], {...clamp, easing: Easing.out(Easing.cubic)});
-        return <div key={`r${i}`} style={{position: 'absolute', top: `${(i / rows) * 100}%`, left: 0, height: i % 4 ? 1 : 2, width: `${p * 100}%`, background: i % 4 ? 'rgba(34,145,255,0.08)' : 'rgba(34,145,255,0.16)'}} />;
-      })}
-      {Array.from({length: cols / 4}).map((_, i) => (
-        <div key={`l${i}`} style={{position: 'absolute', left: `${((i * 4) / cols) * 100 + 0.4}%`, top: 14, fontFamily: mono, fontSize: 16, color: 'rgba(34,145,255,0.5)', opacity: interpolate(frame, [30, 50], [0, 1], clamp)}}>
-          {String.fromCharCode(65 + i)}
-        </div>
-      ))}
+      <div style={{position: 'absolute', left: -800, right: -800, top: -800, height: HORIZON + 800, background: `linear-gradient(180deg, ${studio.wallTop} 40%, ${studio.wallBottom})`}} />
+      <div style={{position: 'absolute', left: -800, right: -800, top: HORIZON, bottom: -800, background: `linear-gradient(180deg, ${studio.tableTop}, ${studio.tableBottom} 60%)`}} />
+      {/* пятно света от софтбокса */}
+      <div
+        style={{
+          position: 'absolute',
+          left: 960 - 900,
+          top: HORIZON - 420,
+          width: 1800,
+          height: 900,
+          borderRadius: '50%',
+          background: 'radial-gradient(closest-side, rgba(255,255,255,0.16), rgba(255,255,255,0))',
+          opacity: light,
+        }}
+      />
     </AbsoluteFill>
   );
 };
 
-/* Выноска как на чертеже: линия с изломом + подпись */
-const Callout: React.FC<{at: number; until: number; x: number; y: number; dx: number; dy: number; title: string; sub: string; align?: 'left' | 'right'}> = ({at, until, x, y, dx, dy, title, sub, align = 'right'}) => {
+/* Деталь падает на стол: отскок + контактная тень */
+const Drop: React.FC<{at: number; from?: {x: number; y: number; r: number}; x: number; y: number; w: number; src: string}> = ({at, from = {x: 0, y: -900, r: -10}, x, y, w, src}) => {
   const frame = useCurrentFrame();
-  const fadeOut = interpolate(frame, [until, until + 12], [1, 0], clamp);
-  if (fadeOut <= 0) return null;
-  const len = align === 'right' ? 220 : -220;
-  const d = `M ${x} ${y} L ${x + dx} ${y + dy} L ${x + dx + len} ${y + dy}`;
-  const draw = interpolate(frame, [at, at + 22], [0, 1], {...clamp, easing: Easing.out(Easing.cubic)});
-  const {strokeDasharray, strokeDashoffset} = evolvePath(draw, d);
-  const text = interpolate(frame, [at + 14, at + 26], [0, 1], clamp);
-  const dot = interpolate(frame, [at, at + 6], [0, 1], clamp);
-  return (
-    <>
-      <svg width={1920} height={1080} style={{position: 'absolute', left: 0, top: 0, overflow: 'visible', opacity: fadeOut}}>
-        <circle cx={x} cy={y} r={9 * dot} fill={colors.white} stroke={colors.blue} strokeWidth={3} />
-        <path d={d} fill="none" stroke={colors.blue} strokeWidth={2.5} strokeDasharray={strokeDasharray} strokeDashoffset={strokeDashoffset} />
-      </svg>
-      <div
-        style={{
-          position: 'absolute',
-          left: align === 'right' ? x + dx : undefined,
-          right: align === 'left' ? 1920 - (x + dx) : undefined,
-          top: y + dy - 62,
-          width: 620,
-          whiteSpace: 'nowrap',
-          textAlign: align === 'right' ? 'left' : 'right',
-          opacity: text * fadeOut,
-          transform: `translateY(${(1 - text) * 12}px)`,
-        }}
-      >
-        <div style={{fontFamily: font, fontWeight: 700, fontSize: 36, color: colors.ink, letterSpacing: -0.5}}>{title}</div>
-        <div style={{fontFamily: mono, fontSize: 22, color: colors.blue, marginTop: 30}}>{sub}</div>
-      </div>
-    </>
-  );
-};
-
-/* Падение детали с отскоком и тенью */
-const Drop: React.FC<{at: number; from?: {x: number; y: number; r: number}; x: number; y: number; w: number; src: string; children?: React.ReactNode}> = ({
-  at,
-  from = {x: 0, y: -900, r: -12},
-  x,
-  y,
-  w,
-  src,
-}) => {
-  const frame = useCurrentFrame();
-  const p = useSp(at, 11, 140);
+  const p = useSp(at, 12, 140);
   if (frame < at - 2) return null;
   const px = interpolate(p, [0, 1], [from.x, 0]);
   const py = interpolate(p, [0, 1], [from.y, 0]);
   const pr = interpolate(p, [0, 1], [from.r, 0]);
-  const lift = Math.max(0, -py) / 900;
-  const float = Math.sin((frame - at) / 25) * 6 * Math.min(1, (frame - at) / 40);
+  const lift = Math.min(1, Math.max(0, -py) / 600);
   return (
     <>
       <div
         style={{
           position: 'absolute',
-          left: x - w * 0.4,
-          top: y + w * 0.3,
-          width: w * 0.8,
-          height: w * 0.1,
+          left: x - w * 0.42,
+          top: y + w * 0.22,
+          width: w * 0.84,
+          height: w * 0.12,
           borderRadius: '50%',
-          background: 'radial-gradient(closest-side, rgba(20,50,100,0.28), rgba(20,50,100,0))',
-          transform: `scale(${1 - lift * 0.6})`,
+          background: 'radial-gradient(closest-side, rgba(30,25,20,0.45), rgba(30,25,20,0))',
+          transform: `scale(${1 - lift * 0.5})`,
           opacity: 1 - lift,
         }}
       />
-      <Img src={staticFile(src)} style={{position: 'absolute', left: x - w / 2, top: y - w * 0.32, width: w, transform: `translate(${px}px, ${py + float}px) rotate(${pr}deg)`}} />
+      <Img src={staticFile(src)} style={{position: 'absolute', left: x - w / 2, top: y - w * 0.32, width: w, transform: `translate(${px}px, ${py}px) rotate(${pr}deg)`}} />
     </>
   );
 };
 
-const Flash: React.FC<{at: number; x: number; y: number; size?: number}> = ({at, x, y, size = 260}) => {
+/* Подпись на «стене»: тонкая белая линия и белый текст, как заголовки карточек сайта */
+const Label: React.FC<{at: number; until: number; x: number; y: number; tx: number; ty: number; title: string; sub: string; align?: 'left' | 'right'}> = ({at, until, x, y, tx, ty, title, sub, align = 'left'}) => {
   const frame = useCurrentFrame();
-  const t = interpolate(frame, [at, at + 18], [0, 1], clamp);
-  if (frame < at || t >= 1) return null;
+  const out = interpolate(frame, [until, until + 12], [1, 0], clamp);
+  if (frame < at || out <= 0) return null;
+  const d = `M ${x} ${y} L ${tx} ${ty}`;
+  const draw = interpolate(frame, [at, at + 18], [0, 1], {...clamp, easing: Easing.out(Easing.cubic)});
+  const e = evolvePath(draw, d);
+  const text = interpolate(frame, [at + 10, at + 24], [0, 1], clamp);
   return (
-    <div
-      style={{
-        position: 'absolute',
-        left: x - (size * t) / 2,
-        top: y - (size * t) / 2,
-        width: size * t,
-        height: size * t,
-        borderRadius: '50%',
-        border: `${6 * (1 - t)}px solid ${colors.sky}`,
-        opacity: 1 - t,
-      }}
-    />
+    <div style={{opacity: out}}>
+      <svg width={1920} height={1080} style={{position: 'absolute', left: 0, top: 0, overflow: 'visible'}}>
+        <circle cx={x} cy={y} r={7 * Math.min(1, draw * 3)} fill={colors.white} />
+        <path d={d} fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth={2} strokeDasharray={e.strokeDasharray} strokeDashoffset={e.strokeDashoffset} />
+      </svg>
+      <div
+        style={{
+          position: 'absolute',
+          left: align === 'left' ? tx + 16 : undefined,
+          right: align === 'right' ? 1920 - tx + 16 : undefined,
+          top: ty - 30,
+          textAlign: align,
+          whiteSpace: 'nowrap',
+          opacity: text,
+          transform: `translateY(${(1 - text) * 14}px)`,
+          fontFamily: font,
+        }}
+      >
+        <div style={{fontSize: 40, fontWeight: 700, color: colors.white, letterSpacing: -0.5}}>{title}</div>
+        <div style={{fontSize: 28, color: studio.softText, marginTop: 4}}>{sub}</div>
+      </div>
+    </div>
   );
 };
 
-/* ФН: подлетает, уменьшается и «входит» в кассу */
+/* ФН: подлетает по дуге и «входит» в кассу */
 const FiscalDrive: React.FC = () => {
   const frame = useCurrentFrame();
   const at = tl.fn;
   const snap = tl.snaps[1];
   const t = interpolate(frame, [at, snap], [0, 1], {...clamp, easing: Easing.inOut(Easing.cubic)});
   if (frame < at) return null;
-  const x = interpolate(t, [0, 1], [1700, 1150]);
-  const y = interpolate(t, [0, 1], [180, 470]) - Math.sin(t * Math.PI) * 120;
-  const s = interpolate(t, [0, 0.7, 1], [1, 0.9, 0.25]);
+  const x = interpolate(t, [0, 1], [1650, 1170]);
+  const y = interpolate(t, [0, 1], [230, 560]) - Math.sin(t * Math.PI) * 140;
+  const s = interpolate(t, [0, 0.7, 1], [1, 0.9, 0.2]);
   const o = interpolate(frame, [snap - 2, snap + 2], [1, 0], clamp);
-  const badge = spring({frame: frame - snap, fps: 30, config: {damping: 10}});
+  const pill = spring({frame: frame - snap, fps: 30, config: {damping: 11}});
   return (
     <>
-      <Img src={staticFile('fn.png')} style={{position: 'absolute', left: x - 170, top: y - 110, width: 340, transform: `scale(${s}) rotate(${(1 - t) * 30}deg)`, opacity: o, filter: 'drop-shadow(0 20px 20px rgba(20,50,100,0.25))'}} />
-      <div
-        style={{
-          position: 'absolute',
-          left: 1110,
-          top: 440,
-          transform: `scale(${badge})`,
-          fontFamily: font,
-          fontWeight: 700,
-          fontSize: 24,
-          color: colors.white,
-          background: colors.blue,
-          padding: '8px 18px',
-          borderRadius: 30,
-          boxShadow: '0 10px 30px rgba(34,145,255,0.4)',
-        }}
-      >
-        ФН ✓
+      <Img src={staticFile('fn.png')} style={{position: 'absolute', left: x - 160, top: y - 100, width: 320, transform: `scale(${s}) rotate(${(1 - t) * 24}deg)`, opacity: o}} />
+      <div style={{position: 'absolute', left: 1120, top: 520, transform: `scale(${pill})`, fontFamily: font, fontWeight: 500, fontSize: 26, color: colors.white, background: colors.blue, padding: '10px 22px', borderRadius: 40}}>
+        ФН внутри
       </div>
-      <Flash at={snap} x={1150} y={470} size={320} />
     </>
   );
 };
 
-/* ОФД и поток данных */
+/* ОФД: иконка продукта и белые пунктирные потоки данных */
 const OfdLink: React.FC = () => {
   const frame = useCurrentFrame();
   const at = tl.ofd;
-  const p = useSp(at, 10, 150);
+  const p = useSp(at, 11, 150);
   if (frame < at - 2) return null;
-  const main = 'M 1080 420 C 1180 260, 1320 250, 1440 300';
-  const up = 'M 1590 290 C 1660 230, 1700 210, 1770 210';
-  const down = 'M 1590 330 C 1660 390, 1700 410, 1770 410';
-  const e1 = evolvePath(interpolate(frame, [at + 12, at + 34], [0, 1], clamp), main);
-  const e2 = evolvePath(interpolate(frame, [at + 36, at + 52], [0, 1], clamp), up);
-  const e3 = evolvePath(interpolate(frame, [at + 40, at + 56], [0, 1], clamp), down);
-  const flow = -frame * 2.5;
-  const chip = (d: number) => spring({frame: frame - at - d, fps: 30, config: {damping: 11}});
+  const main = 'M 1120 520 C 1220 360, 1330 330, 1440 330';
+  const up = 'M 1600 300 C 1660 240, 1700 225, 1760 225';
+  const down = 'M 1600 360 C 1660 420, 1700 435, 1760 435';
+  const e1 = evolvePath(interpolate(frame, [at + 12, at + 32], [0, 1], clamp), main);
+  const e2 = evolvePath(interpolate(frame, [at + 34, at + 50], [0, 1], clamp), up);
+  const e3 = evolvePath(interpolate(frame, [at + 38, at + 54], [0, 1], clamp), down);
+  const pill = (d: number) => spring({frame: frame - at - d, fps: 30, config: {damping: 12}});
   return (
     <>
       <svg width={1920} height={1080} style={{position: 'absolute', left: 0, top: 0, overflow: 'visible'}}>
         {[{d: main, e: e1}, {d: up, e: e2}, {d: down, e: e3}].map((o, i) => (
           <g key={i}>
-            <path d={o.d} fill="none" stroke={colors.blue} strokeWidth={3} strokeDasharray={o.e.strokeDasharray} strokeDashoffset={o.e.strokeDashoffset} opacity={0.25} />
-            <path d={o.d} fill="none" stroke={colors.blue} strokeWidth={3} strokeDasharray="10 14" strokeDashoffset={flow} opacity={o.e.strokeDashoffset === 0 ? 1 : 0} />
+            <path d={o.d} fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth={2} strokeDasharray={o.e.strokeDasharray} strokeDashoffset={o.e.strokeDashoffset} />
+            <path d={o.d} fill="none" stroke={colors.white} strokeWidth={2.5} strokeDasharray="6 12" strokeDashoffset={-frame * 2.5} opacity={o.e.strokeDashoffset === 0 ? 1 : 0} />
           </g>
         ))}
       </svg>
-      <Img
-        src={staticFile('ofd-24.svg')}
-        style={{position: 'absolute', left: 1440, top: 230, width: 150, height: 150, borderRadius: 38, transform: `translateY(${(1 - p) * -500}px) scale(${0.6 + p * 0.4})`, boxShadow: '0 30px 60px rgba(34,145,255,0.4)'}}
-      />
+      <Img src={staticFile('ofd-24.svg')} style={{position: 'absolute', left: 1440, top: 250, width: 160, height: 160, borderRadius: 40, transform: `translateY(${(1 - p) * -500}px) scale(${0.6 + p * 0.4})`}} />
       {[
-        {t: 'ФНС ✓', y: 180, d: 50},
-        {t: 'Честный знак ✓', y: 380, d: 56},
+        {t: 'ФНС', y: 195, d: 48},
+        {t: 'Честный знак', y: 405, d: 54},
       ].map((c) => (
         <div
           key={c.t}
           style={{
             position: 'absolute',
-            left: 1780,
+            left: 1772,
             top: c.y,
-            transform: `scale(${chip(c.d)})`,
+            transform: `scale(${pill(c.d)})`,
             transformOrigin: 'left center',
             fontFamily: font,
-            fontWeight: 700,
+            fontWeight: 500,
             fontSize: 28,
+            color: colors.ink,
             background: colors.white,
-            padding: '12px 22px',
-            borderRadius: 30,
+            padding: '12px 24px',
+            borderRadius: 40,
             whiteSpace: 'nowrap',
-            boxShadow: '0 10px 30px rgba(34,145,255,0.2)',
           }}
         >
-          {c.t}
+          {c.t} <span style={{color: colors.blue}}>✓</span>
         </div>
       ))}
-      <Flash at={tl.snaps[3]} x={1515} y={305} size={300} />
     </>
   );
 };
 
-/* Экран учётной системы разворачивается за кассой */
+/* Экран учётной системы «встаёт» на стене за кассой */
 const MarketScreen: React.FC = () => {
   const frame = useCurrentFrame();
-  const at = tl.market;
-  const p = useSp(at, 16, 90);
-  if (frame < at - 2) return null;
+  const p = useSp(tl.market, 18, 90);
+  if (frame < tl.market - 2) return null;
   return (
-    <div style={{position: 'absolute', left: 680, top: 40, width: 1100, perspective: 2400, opacity: Math.min(1, p * 1.5)}}>
-      <Img
-        src={staticFile('demo-market.png')}
-        style={{
-          width: '100%',
-          borderRadius: 24,
-          boxShadow: '0 50px 120px rgba(20,60,120,0.22), 0 0 0 1px rgba(0,0,0,0.05)',
-          transformOrigin: '50% 100%',
-          transform: `rotateX(${(1 - p) * 80}deg) translateZ(-200px) scale(0.92)`,
-        }}
-      />
+    <div style={{position: 'absolute', left: 560, top: 70, width: 1060, perspective: 2400, opacity: Math.min(1, p * 1.5)}}>
+      <Img src={staticFile('demo-market.png')} style={{width: '100%', borderRadius: 28, transformOrigin: '50% 100%', transform: `rotateX(${(1 - p) * 70}deg)`}} />
     </div>
   );
 };
 
-/* Индикатор шага (экранное пространство) */
+/* Пилюли шагов — как переключатель «Бизнесу больше 1 года / меньше 1 года» на сайте */
 const STEPS = [
   {at: tl.kassa, name: 'Касса'},
-  {at: tl.fn, name: 'Фискальный накопитель'},
+  {at: tl.fn, name: 'ФН'},
   {at: tl.scanner, name: 'Сканер'},
   {at: tl.ofd, name: 'ОФД'},
-  {at: tl.market, name: 'Учётная система'},
+  {at: tl.market, name: 'Учёт'},
 ];
-const StepBar: React.FC = () => {
+const StepPills: React.FC = () => {
   const frame = useCurrentFrame();
   const idx = STEPS.filter((s) => frame >= s.at).length - 1;
-  const visible = interpolate(frame, [tl.kassa, tl.kassa + 15, tl.final, tl.final + 15], [0, 1, 1, 0], clamp);
+  const vis = interpolate(frame, [tl.kassa, tl.kassa + 15, tl.final - 10, tl.final], [0, 1, 1, 0], clamp);
   if (idx < 0) return null;
-  const s = STEPS[idx];
-  const swap = interpolate(frame, [s.at, s.at + 12], [0, 1], clamp);
   return (
-    <div style={{position: 'absolute', right: 80, top: 70, textAlign: 'right', opacity: visible}}>
-      <div style={{fontFamily: mono, fontSize: 24, color: colors.blue}}>
-        {String(idx + 1).padStart(2, '0')} / 05
-      </div>
-      <div style={{fontFamily: font, fontWeight: 700, fontSize: 40, color: colors.ink, opacity: swap, transform: `translateY(${(1 - swap) * 16}px)`}}>{s.name}</div>
-      <div style={{display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16}}>
-        {STEPS.map((_, i) => (
-          <div key={i} style={{width: i === idx ? 56 : 24, height: 8, borderRadius: 4, background: i <= idx ? colors.blue : 'rgba(34,145,255,0.2)'}} />
-        ))}
-      </div>
+    <div style={{position: 'absolute', right: 80, top: 70, display: 'flex', gap: 10, opacity: vis}}>
+      {STEPS.map((s, i) => {
+        const on = interpolate(frame, [s.at, s.at + 10], [0, 1], clamp);
+        const active = i === idx;
+        return (
+          <div
+            key={s.name}
+            style={{
+              fontFamily: font,
+              fontWeight: 500,
+              fontSize: 26,
+              padding: '12px 24px',
+              borderRadius: 40,
+              color: active ? colors.white : i < idx ? colors.ink : 'rgba(255,255,255,0.7)',
+              background: active ? colors.blue : i < idx ? colors.white : 'rgba(255,255,255,0.12)',
+              transform: `scale(${active ? 1 + (1 - on) * 0.1 : 1})`,
+            }}
+          >
+            {s.name}
+          </div>
+        );
+      })}
     </div>
   );
 };
 
-/* Заголовок: сначала крупно по центру, затем уезжает в угол */
+/* Вопрос: крупно по центру стены, затем уезжает в угол */
 const Question: React.FC = () => {
   const frame = useCurrentFrame();
   const t = interpolate(frame, [tl.kassa - 20, tl.kassa + 10], [0, 1], {...clamp, easing: ease});
-  const out = interpolate(frame, [tl.final - 10, tl.final + 5], [1, 0], clamp);
+  const out = interpolate(frame, [tl.final - 10, tl.final], [1, 0], clamp);
   const words = ['Что', 'нужно,', 'чтобы', 'открыться?'];
   return (
     <div
       style={{
         position: 'absolute',
         left: interpolate(t, [0, 1], [960, 80]),
-        top: interpolate(t, [0, 1], [470, 70]),
+        top: interpolate(t, [0, 1], [380, 74]),
         transform: `translateX(${interpolate(t, [0, 1], [-50, 0])}%)`,
         fontFamily: font,
         fontWeight: 700,
-        fontSize: interpolate(t, [0, 1], [120, 44]),
+        fontSize: interpolate(t, [0, 1], [124, 44]),
         letterSpacing: -2,
         whiteSpace: 'nowrap',
+        color: colors.white,
         opacity: out,
       }}
     >
       {words.map((w, i) => {
-        const p = spring({frame: frame - 25 - i * 5, fps: 30, config: {damping: 16}});
+        const p = spring({frame: frame - 20 - i * 5, fps: 30, config: {damping: 16}});
         return (
-          <span key={w} style={{display: 'inline-block', marginRight: '0.25em', opacity: p, transform: `translateY(${(1 - p) * 40}px)`, color: i === 3 ? colors.blue : colors.ink}}>
+          <span key={w} style={{display: 'inline-block', marginRight: '0.25em', opacity: p, transform: `translateY(${(1 - p) * 40}px)`}}>
             {w}
           </span>
         );
@@ -324,40 +289,46 @@ const Question: React.FC = () => {
   );
 };
 
-/* Финал: чек‑лист и CTA справа от уменьшенного комплекта */
+/* Стрелка ↗ как в карточках сайта */
+const Arrow: React.FC<{size?: number; color?: string}> = ({size = 56, color = colors.white}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24">
+    <path d="M6 18 L18 6 M8 6 H18 V16" fill="none" stroke={color} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+/* Финал: справа — белая колонка как на странице «Готовые комплекты» */
+const CARD = {x: 120, y: 120, w: 820, h: 840, r: 48};
 const FinalPanel: React.FC = () => {
   const frame = useCurrentFrame();
   const at = tl.final;
   const p = useSp(at + 20, 16);
-  const items = ['Касса с кассовым ПО', 'Фискальный накопитель', '2D‑сканер', 'ОФД', 'Учётная система'];
-  const btn = useSp(tl.snaps[9] + 5, 10);
+  const btn = useSp(tl.snaps[9] + 4, 12);
+  const items = ['Касса с кассовым ПО', 'Фискальный накопитель', '2D‑сканер', 'ОФД для передачи данных в ФНС', 'Учётная система Маркета'];
   if (frame < at) return null;
   return (
-    <div style={{position: 'absolute', left: 1080, top: 150, width: 760, opacity: p, transform: `translateX(${(1 - p) * 80}px)`}}>
-      <Img src={staticFile('logo-market-32.svg')} style={{height: 54}} />
-      <div style={{fontFamily: font, fontWeight: 700, fontSize: 104, letterSpacing: -3, lineHeight: 1, marginTop: 16}}>
-        Работает
+    <div style={{position: 'absolute', left: 1030, top: 150, width: 800, opacity: p, transform: `translateX(${(1 - p) * 60}px)`, fontFamily: font}}>
+      <Img src={staticFile('logo-market-32.svg')} style={{height: 46}} />
+      <div style={{fontWeight: 700, fontSize: 92, letterSpacing: -3, lineHeight: 1.02, marginTop: 36, color: colors.ink}}>
+        Готовый комплект
         <br />
-        <span style={{color: colors.blue}}>с первого дня</span>
+        под ваш бизнес
       </div>
-      <div style={{display: 'flex', flexDirection: 'column', gap: 16, marginTop: 44}}>
+      <div style={{display: 'flex', flexDirection: 'column', gap: 18, marginTop: 44}}>
         {items.map((t, i) => {
-          const s = spring({frame: frame - tl.snaps[5 + i], fps: 30, config: {damping: 12}});
+          const s = spring({frame: frame - tl.snaps[5 + i], fps: 30, config: {damping: 14}});
           return (
-            <div key={t} style={{display: 'flex', alignItems: 'center', gap: 20, fontFamily: font, fontSize: 36, fontWeight: 500, opacity: 0.3 + s * 0.7}}>
-              <div style={{width: 44, height: 44, borderRadius: 12, background: s > 0.5 ? colors.blue : 'rgba(34,145,255,0.15)', color: colors.white, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, transform: `scale(${0.7 + s * 0.3})`}}>
-                ✓
-              </div>
+            <div key={t} style={{display: 'flex', alignItems: 'center', gap: 18, fontSize: 34, color: colors.ink, opacity: 0.25 + s * 0.75}}>
+              <svg width={34} height={34} viewBox="0 0 24 24" style={{transform: `scale(${0.6 + s * 0.4})`}}>
+                <path d="M4 12.5 L9.5 18 L20 6.5" fill="none" stroke={colors.blue} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
               {t}
             </div>
           );
         })}
       </div>
-      <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 24, marginTop: 50}}>
-        <div style={{transform: `scale(${btn})`, transformOrigin: 'left center', background: colors.blue, color: colors.white, fontFamily: font, fontWeight: 700, fontSize: 40, padding: '26px 52px', borderRadius: 20, whiteSpace: 'nowrap', boxShadow: '0 24px 60px rgba(34,145,255,0.45)'}}>
-          Подобрать комплект
-        </div>
-        <div style={{fontFamily: mono, fontSize: 30, color: colors.ink, opacity: btn}}>kontur.ru/market</div>
+      <div style={{display: 'flex', gap: 16, marginTop: 56, transform: `scale(${btn})`, transformOrigin: 'left center'}}>
+        <div style={{background: colors.blue, color: colors.white, fontWeight: 500, fontSize: 36, padding: '24px 48px', borderRadius: 60, whiteSpace: 'nowrap'}}>Подобрать комплект</div>
+        <div style={{border: `2px solid ${colors.blue}`, color: colors.blue, fontWeight: 500, fontSize: 36, padding: '22px 44px', borderRadius: 60, whiteSpace: 'nowrap'}}>Тарифы</div>
       </div>
     </div>
   );
@@ -368,31 +339,47 @@ export const Kit: React.FC = () => {
   const s = cam(frame, 's');
   const x = cam(frame, 'x');
   const y = cam(frame, 'y');
-  const r = cam(frame, 'r');
-  const worldIn = interpolate(frame, [tl.kassa - 5, tl.kassa], [0, 1], clamp);
+  // финальная «сборка в карточку»: сцена сжимается клипом до карточки сайта
+  const c = interpolate(frame, [tl.final, tl.final + 30], [0, 1], {...clamp, easing: ease});
+  const inset = {
+    t: CARD.y * c,
+    l: CARD.x * c,
+    r: (1920 - CARD.x - CARD.w) * c,
+    b: (1080 - CARD.y - CARD.h) * c,
+  };
+  const cardScale = interpolate(c, [0, 1], [1, 0.62]);
+  const cardShiftX = interpolate(c, [0, 1], [0, -430]);
+  const cardText = interpolate(frame, [tl.final + 25, tl.final + 40], [0, 1], clamp);
   return (
-    <AbsoluteFill style={{background: colors.bg}}>
+    <AbsoluteFill style={{background: colors.white}}>
       <Audio src={staticFile('kit.wav')} />
-      <Blueprint />
-      {/* «мир» со всеми деталями — двигается камерой */}
-      <AbsoluteFill style={{transform: `translate(${x}px, ${y}px) scale(${s}) perspective(3000px) rotateY(${r}deg)`, transformOrigin: '50% 55%', opacity: worldIn}}>
-        <MarketScreen />
-        <Drop at={tl.kassa} x={960} y={560} w={820} src="mspos-f20-f.png" />
-        <Flash at={tl.snaps[0]} x={960} y={700} size={600} />
-        <Drop at={tl.scanner} from={{x: -700, y: -200, r: 25}} x={420} y={650} w={400} src="2d-skaner-neo-max-sd.png" />
-        <Flash at={tl.snaps[2]} x={420} y={680} size={300} />
-        <FiscalDrive />
-        <OfdLink />
-        <div style={{opacity: interpolate(frame, [tl.market, tl.market + 20], [1, 0], clamp)}}>
-          <Callout until={tl.fn} at={tl.kassa + 30} x={800} y={420} dx={-90} dy={-120} align="left" title="Смарт‑терминал" sub="касса + кассовое ПО" />
-          <Callout until={tl.fn} at={tl.kassa + 42} x={1260} y={640} dx={90} dy={110} title="Встроенный принтер" sub="чек за секунду" />
-          <Callout until={tl.scanner} at={tl.fn + 50} x={1150} y={470} dx={140} dy={-200} title="Фискальный накопитель" sub="на 15 или 36 месяцев" />
-          <Callout until={tl.ofd} at={tl.scanner + 28} x={420} y={600} dx={-60} dy={-190} align="left" title="2D‑сканер" sub="маркировка и ЕГАИС" />
-          <Callout until={tl.market} at={tl.ofd + 60} x={1515} y={380} dx={0} dy={200} title="Контур.ОФД" sub="чеки в ФНС онлайн" />
+      <AbsoluteFill style={{clipPath: `inset(${inset.t}px ${inset.r}px ${inset.b}px ${inset.l}px round ${CARD.r * c}px)`}}>
+        <AbsoluteFill style={{transform: `translate(${x * (1 - c) + cardShiftX}px, ${y * (1 - c) + 40 * c}px) scale(${s * cardScale / (c > 0 ? 1 : 1)})`, transformOrigin: '50% 60%'}}>
+          <Studio />
+          <MarketScreen />
+          <Drop at={tl.kassa} x={960} y={660} w={800} src="mspos-f20-f.png" />
+          <Drop at={tl.scanner} from={{x: -700, y: -240, r: 20}} x={420} y={720} w={380} src="2d-skaner-neo-max-sd.png" />
+          <FiscalDrive />
+          <OfdLink />
+          <div style={{opacity: interpolate(frame, [tl.market, tl.market + 15], [1, 0], clamp)}}>
+            <Label until={tl.fn} at={tl.kassa + 30} x={780} y={500} tx={560} ty={330} align="right" title="Смарт‑терминал" sub="касса и кассовое ПО" />
+            <Label until={tl.fn} at={tl.kassa + 42} x={1250} y={470} tx={1180} ty={250} align="right" title="Встроенный принтер" sub="печатает чеки" />
+            <Label until={tl.scanner} at={tl.fn + 45} x={1170} y={540} tx={1090} ty={300} align="right" title="Фискальный накопитель" sub="на 15 или 36 месяцев" />
+            <Label until={tl.ofd} at={tl.scanner + 28} x={430} y={610} tx={560} ty={330} title="2D‑сканер" sub="маркировка и ЕГАИС" />
+            <Label until={tl.market} at={tl.ofd + 58} x={1520} y={420} tx={1680} ty={580} title="Контур.ОФД" sub="чеки в ФНС онлайн" />
+          </div>
+        </AbsoluteFill>
+        {/* заголовок и стрелка карточки, как «Подобрать кассу, ФН или ОФД» на сайте */}
+        <div style={{position: 'absolute', left: CARD.x + 56, top: CARD.y + 56, opacity: cardText, fontFamily: font, color: colors.white}}>
+          <div style={{fontSize: 52, fontWeight: 700, letterSpacing: -1}}>Всё для старта</div>
+          <div style={{fontSize: 30, color: studio.softText, marginTop: 10}}>Работает с первого дня</div>
+        </div>
+        <div style={{position: 'absolute', left: CARD.x + CARD.w - 110, top: CARD.y + CARD.h - 110, opacity: cardText}}>
+          <Arrow />
         </div>
       </AbsoluteFill>
       <Question />
-      <StepBar />
+      <StepPills />
       <FinalPanel />
     </AbsoluteFill>
   );
