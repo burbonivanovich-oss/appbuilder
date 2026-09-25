@@ -1,0 +1,10 @@
+[
+ {"at": 0.6,  "ssml": "<prosody pitch=\"high\" rate=\"medium\">Что нужно, чтобы откр+ыться?</prosody>"},
+ {"at": 3.8,  "ssml": "<prosody rate=\"fast\">Касса — сразу с кассовой программой.</prosody>"},
+ {"at": 7.6,  "ssml": "<prosody rate=\"fast\">Фискальный накопитель — уже внутри.</prosody>"},
+ {"at": 10.6, "ssml": "<prosody rate=\"fast\">Сканер — для маркировки и ЕГАИС.</prosody>"},
+ {"at": 13.6, "ssml": "<prosody rate=\"fast\">ОФД — и чеки сами уходят в налоговую.</prosody>"},
+ {"at": 16.8, "ssml": "<prosody rate=\"fast\">И учёт — в Контур Маркете.</prosody>"},
+ {"at": 20.4, "ssml": "<prosody pitch=\"high\" rate=\"medium\">Готовый комплект! <break time=\"150ms\"/> Работает с первого дня.</prosody>"},
+ {"at": 23.3, "ssml": "<prosody pitch=\"medium\" rate=\"medium\">Контур Маркет.</prosody>"}
+]

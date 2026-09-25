@@ -3,6 +3,7 @@ import {AbsoluteFill, Audio, Img, interpolate, spring, staticFile, useCurrentFra
 import {evolvePath} from '@remotion/paths';
 import {colors, font} from '../theme';
 import tl from './timeline.json';
+import vo from '../../voice/kit.json';
 
 /*
  * Стиль — как на текущем kontur.ru/market: студийная предметка «тёмно‑синяя стена + светлый стол»,
@@ -334,7 +335,16 @@ const FinalPanel: React.FC = () => {
   );
 };
 
-export const Kit: React.FC = () => {
+export type KitProps = {voice: 'none' | 'xenia' | 'eugene'};
+
+// музыка приглушается под каждой репликой диктора
+const duck = (f: number) => {
+  const t = f / 30;
+  const speaking = vo.some((l) => t > l.at - 0.2 && t < l.at + 2.4);
+  return speaking ? 0.35 : 1;
+};
+
+export const Kit: React.FC<KitProps> = ({voice}) => {
   const frame = useCurrentFrame();
   const s = cam(frame, 's');
   const x = cam(frame, 'x');
@@ -352,7 +362,8 @@ export const Kit: React.FC = () => {
   const cardText = interpolate(frame, [tl.final + 25, tl.final + 40], [0, 1], clamp);
   return (
     <AbsoluteFill style={{background: colors.white}}>
-      <Audio src={staticFile('kit.wav')} />
+      <Audio src={staticFile('kit.wav')} volume={voice === 'none' ? 1 : duck} />
+      {voice !== 'none' && <Audio src={staticFile(`kit-vo-${voice}.wav`)} />}
       <AbsoluteFill style={{clipPath: `inset(${inset.t}px ${inset.r}px ${inset.b}px ${inset.l}px round ${CARD.r * c}px)`}}>
         <AbsoluteFill style={{transform: `translate(${x * (1 - c) + cardShiftX}px, ${y * (1 - c) + 40 * c}px) scale(${s * cardScale / (c > 0 ? 1 : 1)})`, transformOrigin: '50% 60%'}}>
           <Studio />

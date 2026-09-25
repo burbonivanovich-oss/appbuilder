@@ -9,7 +9,8 @@
     "kit-audio": "node scripts/make-kit-audio.mjs",
     "render:kit": "remotion render Kit out/kit.mp4",
     "journey-audio": "node scripts/make-journey-audio.mjs",
-    "render:journey": "remotion render Journey out/journey.mp4"
+    "render:journey": "remotion render Journey out/journey.mp4",
+    "vo:kit": "python3 scripts/make-vo.py voice/kit.json xenia public/kit-vo-xenia.wav 25 && python3 scripts/make-vo.py voice/kit.json eugene public/kit-vo-eugene.wav 25"
   },
   "dependencies": {
     "@remotion/cli": "4.0.290",

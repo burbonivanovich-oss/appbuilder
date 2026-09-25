@@ -11,7 +11,9 @@ const segments = ['cafe', 'retail', 'services'] as const;
 export const Root: React.FC = () => (
   <>
     <Composition id="KassaOFD" component={KassaOFD} durationInFrames={TOTAL} fps={FPS} width={1920} height={1080} />
-    <Composition id="Kit" component={Kit} durationInFrames={KIT_TOTAL} fps={FPS} width={1920} height={1080} />
+    <Composition id="Kit" component={Kit} defaultProps={{voice: 'none' as const}} durationInFrames={KIT_TOTAL} fps={FPS} width={1920} height={1080} />
+    <Composition id="Kit-xenia" component={Kit} defaultProps={{voice: 'xenia' as const}} durationInFrames={KIT_TOTAL} fps={FPS} width={1920} height={1080} />
+    <Composition id="Kit-eugene" component={Kit} defaultProps={{voice: 'eugene' as const}} durationInFrames={KIT_TOTAL} fps={FPS} width={1920} height={1080} />
     <Composition id="Journey" component={Journey} durationInFrames={JOURNEY_TOTAL} fps={FPS} width={1920} height={1080} />
     <Folder name="Vertical">
       {segments.map((segment) => (
