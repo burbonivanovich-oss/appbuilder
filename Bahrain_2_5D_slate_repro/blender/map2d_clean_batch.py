@@ -4898,6 +4898,247 @@ def _day_widen_pit(sc, log, extra_m=5.0, keep_gap_m=3.0):
     return f"pit widen: track-side edge moved up to {max(moved):.1f} m (mean {np.mean(moved):.1f} m)"
 
 
+class _NB:
+    """Tiny node-graph builder for scalar maths in material node trees."""
+    def __init__(self, nt):
+        self.nt = nt
+
+    def m(self, op, a, b=None, c=None):
+        n = self.nt.nodes.new("ShaderNodeMath"); n.operation = op
+        for k, v in enumerate((a, b, c)):
+            if v is None:
+                continue
+            if isinstance(v, (int, float)):
+                n.inputs[k].default_value = v
+            else:
+                self.nt.links.new(v, n.inputs[k])
+        return n.outputs[0]
+
+    def band(self, x, lo, hi):
+        return self.m('MULTIPLY', self.m('GREATER_THAN', x, lo), self.m('LESS_THAN', x, hi))
+
+    def mix(self, fac, a, b):
+        n = self.nt.nodes.new("ShaderNodeMix"); n.data_type = 'RGBA'
+        for sock, v in ((n.inputs["Factor"], fac), (n.inputs[6], a), (n.inputs[7], b)):
+            if isinstance(v, (tuple, list)):
+                sock.default_value = (*v, 1.0) if len(v) == 3 else v
+            elif isinstance(v, (int, float)):
+                sock.default_value = v
+            else:
+                self.nt.links.new(v, sock)
+        return n.outputs[2]
+
+    def hash2(self, x, y, salt):
+        cx = self.nt.nodes.new("ShaderNodeCombineXYZ")
+        self.nt.links.new(x, cx.inputs["X"]); self.nt.links.new(y, cx.inputs["Y"]); cx.inputs["Z"].default_value = salt
+        wn = self.nt.nodes.new("ShaderNodeTexWhiteNoise"); wn.noise_dimensions = '3D'
+        self.nt.links.new(cx.outputs[0], wn.inputs["Vector"])
+        return wn.outputs["Value"]
+
+
+def _asphalt_detail(mat, patch_m=14.0, crack_m=7.0):
+    """Tarmac seen from 200 m: repair patches (voronoi cells ±5 %), hairline cracks along
+    cell edges, sub-metre aggregate, and matching roughness. Chained after whatever
+    already feeds Base Color."""
+    b = _bsdf(mat)
+    if not b or any(n.name == "M2D_AsphaltDetail" for n in mat.node_tree.nodes):
+        return False
+    nt = mat.node_tree; nb = _NB(nt)
+    src = next((l for l in nt.links if l.to_node == b and l.to_socket.name == "Base Color"), None)
+    base = src.from_socket if src else None
+    geo = nt.nodes.new("ShaderNodeNewGeometry"); geo.name = "M2D_AsphaltDetail"
+    def mapped(scale_m):
+        mp = nt.nodes.new("ShaderNodeMapping"); mp.inputs["Scale"].default_value = (1 / scale_m,) * 3
+        nt.links.new(geo.outputs["Position"], mp.inputs["Vector"]); return mp.outputs["Vector"]
+    vp = nt.nodes.new("ShaderNodeTexVoronoi"); nt.links.new(mapped(patch_m), vp.inputs["Vector"])
+    patch = nb.m('MULTIPLY_ADD', vp.outputs["Distance"], 0.0, 1.0)
+    sp = nt.nodes.new("ShaderNodeSeparateColor"); nt.links.new(vp.outputs["Color"], sp.inputs["Color"])
+    patch = nb.m('MULTIPLY_ADD', sp.outputs["Red"], 0.10, 0.95)          # 0.95–1.05 per cell
+    vc = nt.nodes.new("ShaderNodeTexVoronoi"); vc.feature = 'DISTANCE_TO_EDGE'
+    nt.links.new(mapped(crack_m), vc.inputs["Vector"])
+    crack = nb.m('MULTIPLY_ADD', nb.m('LESS_THAN', vc.outputs["Distance"], 0.012), -0.18, 1.0)
+    ag = nt.nodes.new("ShaderNodeTexNoise"); ag.inputs["Scale"].default_value = 1.0; ag.inputs["Detail"].default_value = 6.0
+    nt.links.new(mapped(0.35), ag.inputs["Vector"])
+    agg = nb.m('MULTIPLY_ADD', ag.outputs["Fac"], 0.16, 0.92)
+    k = nb.m('MULTIPLY', nb.m('MULTIPLY', patch, crack), agg)
+    mul = nt.nodes.new("ShaderNodeMix"); mul.data_type = 'RGBA'; mul.blend_type = 'MULTIPLY'; mul.inputs["Factor"].default_value = 1.0
+    if base is not None:
+        nt.links.new(base, mul.inputs[6]); nt.links.remove(src)
+    else:
+        mul.inputs[6].default_value = tuple(b.inputs["Base Color"].default_value)
+    nt.links.new(k, mul.inputs[7]); nt.links.new(mul.outputs[2], b.inputs["Base Color"])
+    for l in list(nt.links):
+        if l.to_node == b and l.to_socket.name == "Roughness":
+            nt.links.remove(l)
+    nt.links.new(nb.m('MULTIPLY_ADD', ag.outputs["Fac"], 0.12, 0.80), b.inputs["Roughness"])
+    return True
+
+
+def _day_sand_detail(sc):
+    """Sand at two real scales. The authored gravel texture is a ~3 m close-up; stretched
+    over 300 m it was a smear. Now: 20 m tile (visible grit when zoomed) and a 70 m tile
+    rotated 37° (breaks the repeat), both as overlay, plus wind ripples — an anisotropic
+    noise 220 × 18 m — and a bump from the texture."""
+    m = bpy.data.materials.get("M2D_TerrainVC"); b = _bsdf(m)
+    if not b:
+        return "sand: no terrain"
+    nt = m.node_tree; nb = _NB(nt)
+    src = next((l for l in nt.links if l.to_node == b and l.to_socket.name == "Base Color"), None)
+    if src is None:
+        return "sand: base not linked"
+    col = src.from_socket; nt.links.remove(src)
+    tex = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "tex", "terrain_arid_v1.png")
+    img = bpy.data.images.load(tex, check_existing=True)
+    geo = nt.nodes.new("ShaderNodeNewGeometry")
+    bw_out = None
+    for tile, rot, f in ((20.0, 0.0, 0.55), (70.0, 37.0, 0.40)):
+        mp = nt.nodes.new("ShaderNodeMapping"); mp.inputs["Scale"].default_value = (1 / tile,) * 3
+        mp.inputs["Rotation"].default_value = (0, 0, math.radians(rot))
+        nt.links.new(geo.outputs["Position"], mp.inputs["Vector"])
+        it = nt.nodes.new("ShaderNodeTexImage"); it.image = img; it.extension = 'REPEAT'; it.interpolation = 'Cubic'
+        nt.links.new(mp.outputs["Vector"], it.inputs["Vector"])
+        # the texture is warm; overlaying it as-is pushed the grey-beige plate orange
+        hs = nt.nodes.new("ShaderNodeHueSaturation"); hs.inputs["Saturation"].default_value = 0.25
+        nt.links.new(it.outputs["Color"], hs.inputs["Color"])
+        ov = nt.nodes.new("ShaderNodeMixRGB"); ov.blend_type = 'OVERLAY'; ov.inputs[0].default_value = f
+        nt.links.new(col, ov.inputs[1]); nt.links.new(hs.outputs["Color"], ov.inputs[2]); col = ov.outputs[0]
+        if bw_out is None:
+            bw = nt.nodes.new("ShaderNodeRGBToBW"); nt.links.new(it.outputs["Color"], bw.inputs["Color"]); bw_out = bw.outputs["Val"]
+    rp = nt.nodes.new("ShaderNodeMapping"); rp.inputs["Scale"].default_value = (1 / 220.0, 1 / 18.0, 1 / 60.0)
+    rp.inputs["Rotation"].default_value = (0, 0, math.radians(20))
+    nt.links.new(geo.outputs["Position"], rp.inputs["Vector"])
+    rn = nt.nodes.new("ShaderNodeTexNoise"); rn.inputs["Scale"].default_value = 1.0; rn.inputs["Detail"].default_value = 4.0
+    nt.links.new(rp.outputs["Vector"], rn.inputs["Vector"])
+    rk = nb.m('MULTIPLY_ADD', rn.outputs["Fac"], 0.12, 0.94)
+    mul = nt.nodes.new("ShaderNodeMix"); mul.data_type = 'RGBA'; mul.blend_type = 'MULTIPLY'; mul.inputs["Factor"].default_value = 1.0
+    nt.links.new(col, mul.inputs[6]); nt.links.new(rk, mul.inputs[7])
+    nt.links.new(mul.outputs[2], b.inputs["Base Color"])
+    bump = next((n for n in nt.nodes if n.type == 'BUMP'), None)
+    if bump is not None and bw_out is not None:
+        for l in list(nt.links):
+            if l.to_node == bump and l.to_socket.name == "Height":
+                nt.links.remove(l)
+        nt.links.new(bw_out, bump.inputs["Height"])
+        bump.inputs["Strength"].default_value = 0.35; bump.inputs["Distance"].default_value = 0.15
+    return "sand: gravel texture 20 m + 70 m/37°, wind ripples 220×18 m, texture bump"
+
+
+def _day_parking(sc, log):
+    """Parking lots as the aerial shows them: tarmac, white bay lines in double rows
+    (2.5 × 5 m bays, 6 m aisles), about half the bays occupied by cars in muted
+    colours, a light kerb band at the edge. Shader-only, per lot aligned to its
+    principal axis; no geometry, so no extra noise at map distance."""
+    n = 0
+    for o in sc.objects:
+        base = o.name.split('.')[0]
+        if o.type != 'MESH' or o.hide_render or not base.startswith("M2D_Park"):
+            continue
+        W = np.array([list(o.matrix_world @ v.co) for v in o.data.vertices])
+        if len(W) < 3:
+            continue
+        u = _principal_xy(W); ang = math.atan2(u[1], u[0]); c = W[:, :2].mean(0)
+        m = _runtime_flat(f"M2D_DayLot_{n}", (*_srgb(84, 86, 90), 1.0))
+        nt = m.node_tree; b = _bsdf(m); nb = _NB(nt)
+        geo = nt.nodes.new("ShaderNodeNewGeometry")
+        mp = nt.nodes.new("ShaderNodeMapping"); mp.inputs["Location"].default_value = (-c[0], -c[1], 0.0)
+        nt.links.new(geo.outputs["Position"], mp.inputs["Vector"])
+        mr = nt.nodes.new("ShaderNodeMapping"); mr.vector_type = 'VECTOR'; mr.inputs["Rotation"].default_value = (0, 0, -ang)
+        nt.links.new(mp.outputs["Vector"], mr.inputs["Vector"])
+        sp = nt.nodes.new("ShaderNodeSeparateXYZ"); nt.links.new(mr.outputs["Vector"], sp.inputs["Vector"])
+        U, V = sp.outputs["X"], sp.outputs["Y"]
+        vv = nb.m('WRAP', V, 16.0, 0.0)                              # 0..16 m row module
+        uu = nb.m('WRAP', U, 2.5, 0.0)                               # 0..2.5 m bay
+        in_row = nb.m('LESS_THAN', vv, 10.0)
+        sep = nb.m('MULTIPLY', nb.m('LESS_THAN', uu, 0.14), in_row)
+        edge = nb.m('MAXIMUM', nb.m('LESS_THAN', vv, 0.14), nb.band(vv, 9.86, 10.14))
+        mid = nb.band(vv, 4.93, 5.07)
+        line = nb.m('MAXIMUM', nb.m('MAXIMUM', sep, edge), mid)
+        bay_u = nb.m('FLOOR', nb.m('DIVIDE', U, 2.5)); bay_v = nb.m('FLOOR', nb.m('DIVIDE', V, 5.0))
+        occ = nb.m('LESS_THAN', nb.hash2(bay_u, bay_v, 3.0 + n), 0.55)
+        car_u = nb.band(uu, 0.45, 2.05)
+        car_v = nb.m('MAXIMUM', nb.band(vv, 0.5, 4.5), nb.band(vv, 5.5, 9.5))
+        car = nb.m('MULTIPLY', nb.m('MULTIPLY', occ, car_u), car_v)
+        rp = nt.nodes.new("ShaderNodeValToRGB"); rp.color_ramp.interpolation = 'CONSTANT'
+        tones = [(222, 222, 224), (40, 42, 46), (150, 152, 158), (196, 198, 202), (110, 30, 34), (40, 62, 110), (90, 92, 96)]
+        els = rp.color_ramp.elements
+        els[0].position = 0.0; els[0].color = (*_srgb(*tones[0]), 1.0)
+        els[1].position = 1 / len(tones); els[1].color = (*_srgb(*tones[1]), 1.0)
+        for q, t in enumerate(tones[2:], start=2):
+            e = els.new(q / len(tones)); e.color = (*_srgb(*t), 1.0)
+        nt.links.new(nb.hash2(bay_u, bay_v, 17.0 + n), rp.inputs["Fac"])
+        col = nb.mix(line, (*_srgb(84, 86, 90),), (*_srgb(236, 236, 236),))
+        col = nb.mix(car, col, rp.outputs["Color"])
+        nt.links.new(col, b.inputs["Base Color"])
+        _asphalt_detail(m, patch_m=20.0, crack_m=9.0)
+        for i in range(len(o.data.materials)):
+            o.data.materials[i] = m
+        n += 1
+    return f"parking: {n} lot(s) with bay lines, aisles, ~55 % occupied (shader)"
+
+
+def _day_sheds(sc, log):
+    """Car-park shade canopies. OSM draws them as long thin building prisms, which read
+    as grey slabs in rows. Any island < 18 m wide and > 4× as long becomes a canopy:
+    light fabric roof ribbed every 3 m across its length, sides dark (open, in shade)."""
+    import bmesh
+    ob = next((o for o in sc.objects if o.type == 'MESH' and o.name.split('.')[0] == "M2D_Buildings" and not o.hide_render), None)
+    if ob is None:
+        return "sheds: no OSM buildings"
+    me = ob.data
+    bm = bmesh.new(); bm.from_mesh(me); bm.faces.ensure_lookup_table()
+    mw = ob.matrix_world
+    seen = set(); shed_faces = []; angs = []; n = 0
+    for f in bm.faces:
+        if f.index in seen:
+            continue
+        stack = [f]; mem = []
+        while stack:
+            g = stack.pop()
+            if g.index in seen:
+                continue
+            seen.add(g.index); mem.append(g)
+            for e in g.edges:
+                for h in e.link_faces:
+                    if h.index not in seen:
+                        stack.append(h)
+        P = np.array([list(mw @ v.co) for g in mem for v in g.verts])
+        u = _principal_xy(P); v = np.array([-u[1], u[0]])
+        lu = np.ptp(P[:, :2] @ u); lv = np.ptp(P[:, :2] @ v)
+        if lv < 18.0 and lu > 4.0 * lv and lu * lv > 300.0:
+            shed_faces.append(mem); angs.append(math.atan2(u[1], u[0])); n += 1
+    if not n:
+        bm.free()
+        return "sheds: none"
+    ang = float(np.median(angs))
+    m_top = _runtime_flat("M2D_DayShade", (*_srgb(232, 230, 224), 1.0))
+    nt = m_top.node_tree; nb = _NB(nt); bs = _bsdf(m_top)
+    geo = nt.nodes.new("ShaderNodeNewGeometry")
+    mr = nt.nodes.new("ShaderNodeMapping"); mr.inputs["Rotation"].default_value = (0, 0, -ang)
+    nt.links.new(geo.outputs["Position"], mr.inputs["Vector"])
+    sp = nt.nodes.new("ShaderNodeSeparateXYZ"); nt.links.new(mr.outputs["Vector"], sp.inputs["Vector"])
+    rib = nb.m('LESS_THAN', nb.m('WRAP', sp.outputs["X"], 3.0, 0.0), 0.35)
+    nt.links.new(nb.mix(rib, (*_srgb(232, 230, 224),), (*_srgb(186, 186, 184),)), bs.inputs["Base Color"])
+    m_side = _runtime_flat("M2D_DayShadeSide", (*_srgb(58, 60, 64), 1.0))
+    me.materials.append(m_top); it = len(me.materials) - 1
+    me.materials.append(m_side); isd = len(me.materials) - 1
+    for mem in shed_faces:
+        zs = [ (mw @ v.co).z for g in mem for v in g.verts ]
+        zb, zt = min(zs), max(zs)
+        for g in mem:
+            g.material_index = it if abs(g.normal.z) > 0.9 else isd
+            # flatten to a canopy: 4.5 m high, whatever OSM extruded
+            for v in g.verts:
+                wz = (mw @ v.co).z
+                if wz > zb + 0.5:
+                    v.co.z += (zb + 4.5 - wz)
+    bm.to_mesh(me); bm.free()
+    # their baked shadow twins would still show the old tall prism
+    for o in sc.objects:
+        if o.name.split('.')[0] == "M2D_BuildSh":
+            o.hide_render = True
+    return f"sheds: {n} car-park canopies (ribbed fabric roof, open dark sides, 4.5 m)"
+
+
 def _day_pass(sc, track, ground, log):
     """Level 10: turn the processed slate scene into a daylight broadcast aerial and
     take out the small-object noise."""
@@ -4954,6 +5195,12 @@ def _day_pass(sc, track, ground, log):
         log.append(_day_pond(sc, log, F, trees))
         log.append(_day_pitlane(sc, log, F))
         log.append(_day_buildings(sc, log))
+    log.append(_day_sheds(sc, log))
+    log.append(_day_parking(sc, log))
+    log.append(_day_sand_detail(sc))
+    na = sum(_asphalt_detail(bpy.data.materials[mn]) for mn in
+             ("M2D_Track", "M2D_Rubber", "M2D_DayRunoff", "M2D_PitMat", "M2D_Road") if bpy.data.materials.get(mn))
+    log.append(f"asphalt: patches, cracks, aggregate on {na} material(s)")
     return f"day: {n} materials re-toned, {hid} noise objects hidden (marshal posts, glow, minor roads, vignette)"
 
 
@@ -5125,8 +5372,23 @@ def main():
         pass  # non-EEVEE engine; leave sampling alone
     if os.environ.get("M2D_ZOOM"):
         # preview only: "x,y,lens_factor" — aim the same camera at a world point, zoomed
-        zx, zy, zf = (float(v) for v in os.environ["M2D_ZOOM"].split(","))
+        zs = os.environ["M2D_ZOOM"]
         cam = sc.camera
+        if zs.startswith("px:"):
+            # "px:X,Y,k": a pixel of the 1600×900 frame → the ground point under it
+            px, py, zf = (float(v) for v in zs[3:].split(","))
+            from bpy_extras.object_utils import world_to_camera_view  # noqa: F401
+            fr = cam.data.view_frame(scene=sc)
+            tl, bl_ = fr[3], fr[2]
+            fx, fy = px / RES[0], py / RES[1]
+            local = fr[0] * 0 + mathutils.Vector((fr[2].x + (fr[0].x - fr[2].x) * fx,
+                                                  fr[0].y + (fr[2].y - fr[0].y) * fy, fr[0].z))
+            dvec = (cam.matrix_world.to_3x3() @ local).normalized()
+            t = -cam.location.z / dvec.z
+            hit = cam.location + dvec * t
+            zx, zy = hit.x, hit.y
+        else:
+            zx, zy, zf = (float(v) for v in zs.split(","))
         d = mathutils.Vector((zx, zy, 0.0)) - cam.location
         cam.rotation_euler = d.to_track_quat('-Z', 'Y').to_euler()
         cam.data.lens *= zf
