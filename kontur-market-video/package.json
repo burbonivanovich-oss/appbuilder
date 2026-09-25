@@ -12,7 +12,9 @@
     "render:journey": "remotion render Journey out/journey.mp4",
     "vo:kit": "python3 scripts/make-vo.py voice/kit.json xenia public/kit-vo-xenia.wav 25 && python3 scripts/make-vo.py voice/kit.json eugene public/kit-vo-eugene.wav 25",
     "autopres:vo": "python3 scripts/autopres-vo.py src/autopres/ofd-stats.json",
-    "autopres:render": "remotion render AutoPres-ofd-stats out/autopres-ofd-stats.mp4"
+    "autopres:render": "remotion render AutoPres-ofd-stats out/autopres-ofd-stats.mp4",
+    "signals:vo": "python3 scripts/signals-vo.py",
+    "signals:render": "remotion render Signals out/signals.mp4"
   },
   "dependencies": {
     "@remotion/cli": "4.0.290",
