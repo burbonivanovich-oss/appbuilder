@@ -5546,6 +5546,62 @@ def _day_track_surface(sc, log):
             f"braking zones {int((brake > 0.3).sum() * step)} m, marbles, dusty edges, paving joints 180 m")
 
 
+def _day_lot_edges(sc, log, lane_m=4.0, kerb_m=0.8, kerb_h=0.18):
+    """A lot is not a decal: bays stop short of the edge behind a perimeter driving
+    lane, and a raised concrete kerb frames it. Per boundary edge of each lot mesh:
+    a `lane_m` inward strip (plain tarmac + white edge line) over the bay pattern,
+    and a `kerb_m` kerb just outside, `kerb_h` proud of the lot, casting a hairline."""
+    import bmesh, mathutils
+    m_lane = _runtime_flat("M2D_DayLotLane", (*_srgb(84, 86, 90), 1.0))
+    _asphalt_detail(m_lane, patch_m=20.0, crack_m=9.0); _asphalt_pbr(m_lane)
+    m_line = _runtime_flat("M2D_DayLotLine", (*_srgb(236, 236, 236), 1.0))
+    m_kerb = _runtime_flat("M2D_DayLotKerb", (*_srgb(200, 198, 192), 1.0))
+    n = 0
+    for o in list(sc.objects):
+        if o.type != 'MESH' or o.hide_render or not o.name.split('.')[0].startswith("M2D_Park"):
+            continue
+        mw = o.matrix_world
+        bm = bmesh.new(); bm.from_mesh(o.data)
+        # merge coincident verts so interior triangle edges are not mistaken for the rim
+        bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=0.05)
+        lane_v, lane_f, line_v, line_f, kerb_v, kerb_f = [], [], [], [], [], []
+        for e in bm.edges:
+            if len(e.link_faces) != 1:
+                continue
+            a = mw @ e.verts[0].co; b = mw @ e.verts[1].co
+            c = mw @ e.link_faces[0].calc_center_median()
+            t = (b - a).xy; L = t.length
+            if L < 0.5:
+                continue
+            t /= L
+            nrm = mathutils.Vector((-t.y, t.x))
+            if nrm.dot((c - a).xy) < 0:
+                nrm = -nrm                                       # inward
+            def quad(vs, fs, o0, o1, z0, z1, ext=0.0):
+                p = a.xy - t * ext; q = b.xy + t * ext
+                k = len(vs)
+                vs += [(p.x + nrm.x * o0, p.y + nrm.y * o0, a.z + z0), (q.x + nrm.x * o0, q.y + nrm.y * o0, b.z + z0),
+                       (q.x + nrm.x * o1, q.y + nrm.y * o1, b.z + z1), (p.x + nrm.x * o1, p.y + nrm.y * o1, a.z + z1)]
+                fs.append((k, k + 1, k + 2, k + 3))
+            quad(lane_v, lane_f, 0.0, lane_m, 0.04, 0.04)
+            quad(line_v, line_f, lane_m - 0.25, lane_m, 0.06, 0.06)
+            # kerb: top and outer face
+            quad(kerb_v, kerb_f, 0.0, -kerb_m, kerb_h, kerb_h, ext=kerb_m)
+            quad(kerb_v, kerb_f, -kerb_m, -kerb_m, kerb_h, -0.3, ext=kerb_m)
+        bm.free()
+        coll = o.users_collection[0]
+        for nm, vs, fs, mt, shadow in (("M2D_DayLotLane", lane_v, lane_f, m_lane, False),
+                                       ("M2D_DayLotLine", line_v, line_f, m_line, False),
+                                       ("M2D_DayLotKerb", kerb_v, kerb_f, m_kerb, True)):
+            if fs:
+                ob = _runtime_mesh(nm, vs, fs, mt, coll)
+                if not shadow:
+                    try: ob.visible_shadow = False
+                    except Exception: pass
+        n += 1
+    return f"lot edges: {n} lot(s) framed — {lane_m:.0f} m perimeter lane, edge line, {kerb_m} m kerb +{kerb_h} m"
+
+
 def _day_pass(sc, track, ground, log):
     """Level 10: turn the processed slate scene into a daylight broadcast aerial and
     take out the small-object noise."""
@@ -5605,6 +5661,7 @@ def _day_pass(sc, track, ground, log):
     log.append(_day_sheds(sc, log))
     log.append(_day_parking(sc, log))
     log.append(_day_ground_contact(sc, log))
+    log.append(_day_lot_edges(sc, log))
     log.append(_day_track_surface(sc, log))
     log.append(_day_sand_pbr(sc))
     tarmac = [bpy.data.materials[mn] for mn in ("M2D_DayTrackSurface", "M2D_Track", "M2D_Rubber", "M2D_DayRunoff", "M2D_PitMat", "M2D_Road")
