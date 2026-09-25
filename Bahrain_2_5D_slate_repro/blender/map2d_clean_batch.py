@@ -3965,7 +3965,7 @@ _DAY_HAZE = ((0.46, 0.44, 0.40), 0.05)   # (linear haze colour, amount) for _aer
 _DAY = {
     "sand_lo": (166, 154, 134), "sand_hi": (200, 189, 168), "rock": (138, 126, 108),
     "near": (196, 186, 166), "shrub": (98, 94, 72),                                   # compacted apron by the line
-    "asphalt": (104, 106, 110), "rubber": (84, 86, 90), "pit": (96, 98, 102),
+    "asphalt": (114, 116, 120), "rubber": (84, 86, 90), "pit": (96, 98, 102),
     "line": (240, 240, 240), "runoff_tar": (46, 48, 52), "apron": (224, 200, 152),
     "wall": (206, 206, 204), "paint_a": (188, 48, 42), "paint_b": (232, 232, 230), "runoff": (214, 192, 150), "verge": (96, 138, 64),
     "road": (116, 112, 106), "ring": (150, 146, 138), "lot": (118, 116, 112),
@@ -5442,6 +5442,110 @@ def _asphalt_pbr(mat, grain_m=2.5, macro_m=30.0, grain=0.30, macro=0.25):
     return True
 
 
+def _day_track_surface(sc, log):
+    """The racing surface as it looks from a helicopter.
+
+    Per-vertex attributes on the ribbon (pairs L/R): TrkS = metres along the lap,
+    TrkV = −1 (left edge) … +1 (right edge), TrkLine = where the racing line sits
+    across the width, TrkBrake = braking-zone weight. The line is solved from
+    curvature: apex on the inside (−tanh of the local curvature), outside on entry and
+    exit (the curvature 70 m either side, opposite sign). On that:
+      * rubbered line — a dark band, streaked along the direction of travel;
+      * braking marks — black lock-up streaks in the last ~90 m before each corner;
+      * marbles — dark speckle just outside the line through the corners;
+      * clean, dusty edges — lighter outer 15 % of the width;
+      * paving — two faint longitudinal seams and transverse joints every ~180 m
+        with a slightly different tone per section."""
+    asp = next((o for o in sc.objects if o.type == 'MESH' and o.name.split('.')[0] == "M2D_Asphalt"), None)
+    F = _ribbon_frame(sc)
+    if asp is None or F is None:
+        return "track surface: no ribbon"
+    C, kappa, step = F["C"], F["kappa"], F["step"]; m = len(C)
+    ks = _loop_filter(kappa, max(1, int(20.0 / step)), True, "mean")
+    sh = max(1, int(70.0 / step))
+    A = 55.0
+    apex = np.tanh(A * ks)
+    around = np.tanh(A * 0.5 * (np.roll(ks, sh) + np.roll(ks, -sh)))
+    line = np.clip(-0.62 * apex + 0.45 * around, -0.7, 0.7)
+    line = _loop_filter(line, max(1, int(15.0 / step)), True, "mean")
+    # braking: corner ahead (curvature rises within the next 90 m) while here is straighter
+    ahead = _loop_filter(np.abs(ks), max(1, int(15.0 / step)), True, "max")
+    look = max(1, int(90.0 / step))
+    fut = np.max(np.stack([np.roll(ahead, -k) for k in range(0, look, max(1, look // 12))]), 0)
+    brake = np.clip((fut - np.abs(ks)) / 0.012, 0.0, 1.0)
+    brake = _loop_filter(brake, max(1, int(10.0 / step)), True, "mean")
+    S = np.r_[0, np.cumsum(np.linalg.norm(np.diff(C[:, :2], axis=0), axis=1))]
+    me = asp.data
+    def attr(name, vals):
+        a = me.attributes.get(name) or me.attributes.new(name, 'FLOAT', 'POINT')
+        a.data.foreach_set("value", np.asarray(vals, np.float32))
+    n = len(me.vertices)
+    attr("TrkS", np.repeat(S, 2)[:n])
+    attr("TrkV", np.tile([-1.0, 1.0], m)[:n])
+    attr("TrkLine", np.repeat(line, 2)[:n])
+    attr("TrkBrake", np.repeat(brake, 2)[:n])
+    for o in sc.objects:
+        if o.name.split('.')[0] == "M2D_RubberBand":
+            o.hide_render = True
+
+    mat = _runtime_flat("M2D_DayTrackSurface", (*_srgb(*_DAY["asphalt"]), 1.0))
+    nt = mat.node_tree; b = _bsdf(mat); nb = _NB(nt)
+    def at(name):
+        n_ = nt.nodes.new("ShaderNodeAttribute"); n_.attribute_name = name; return n_.outputs["Fac"]
+    s_, v_, ln, br = at("TrkS"), at("TrkV"), at("TrkLine"), at("TrkBrake")
+    def noise2(u, v, su, sv, detail=2.0, salt=0.0):
+        cx = nt.nodes.new("ShaderNodeCombineXYZ")
+        nt.links.new(nb.m('DIVIDE', u, su), cx.inputs["X"]); nt.links.new(nb.m('MULTIPLY', v, sv), cx.inputs["Y"])
+        cx.inputs["Z"].default_value = salt
+        nz = nt.nodes.new("ShaderNodeTexNoise"); nz.inputs["Scale"].default_value = 1.0; nz.inputs["Detail"].default_value = detail
+        nt.links.new(cx.outputs[0], nz.inputs["Vector"]); return nz.outputs["Fac"]
+    d = nb.m('ABSOLUTE', nb.m('SUBTRACT', v_, ln))
+    # rubbered line: core 0–0.16 of half-width, fading by 0.42, streaked along travel
+    rub = nt.nodes.new("ShaderNodeMapRange"); rub.interpolation_type = 'SMOOTHSTEP'
+    rub.inputs["From Min"].default_value = 0.14; rub.inputs["From Max"].default_value = 0.42
+    rub.inputs["To Min"].default_value = 1.0; rub.inputs["To Max"].default_value = 0.0
+    nt.links.new(d, rub.inputs["Value"])
+    streak = nb.m('MULTIPLY_ADD', noise2(s_, v_, 25.0, 9.0, 3.0, 1.0), 0.6, 0.7)
+    rubber = nb.m('MULTIPLY', rub.outputs["Result"], streak)
+    # braking lock-ups: thin long black streaks inside the line in the braking zone
+    lock = nb.m('GREATER_THAN', noise2(s_, v_, 6.0, 26.0, 1.0, 7.0), 0.61)
+    lock = nb.m('MULTIPLY', nb.m('MULTIPLY', lock, br), nb.m('LESS_THAN', d, 0.45))
+    # marbles: outside the line (0.45–0.8 away) through corners (where the line is off-centre)
+    offc = nb.m('MINIMUM', nb.m('MULTIPLY', nb.m('ABSOLUTE', ln), 2.5), 1.0)
+    band = nb.band(d, 0.45, 0.85)
+    speck = nb.m('GREATER_THAN', noise2(s_, v_, 0.8, 40.0, 0.0, 3.0), 0.68)
+    marbles = nb.m('MULTIPLY', nb.m('MULTIPLY', band, speck), offc)
+    # dusty edges
+    edge = nt.nodes.new("ShaderNodeMapRange"); edge.interpolation_type = 'SMOOTHSTEP'
+    edge.inputs["From Min"].default_value = 0.80; edge.inputs["From Max"].default_value = 0.97
+    edge.inputs["To Min"].default_value = 0.0; edge.inputs["To Max"].default_value = 1.0
+    nt.links.new(nb.m('ABSOLUTE', v_), edge.inputs["Value"])
+    # paving: seams at |v|≈0.34, joints + section tone every ~180 m
+    seam = nb.band(nb.m('ABSOLUTE', nb.m('SUBTRACT', nb.m('ABSOLUTE', v_), 0.34)), -1.0, 0.012)
+    sec = nb.m('FLOOR', nb.m('DIVIDE', nb.m('ADD', s_, nb.m('MULTIPLY', v_, 6.0)), 180.0))
+    wn = nt.nodes.new("ShaderNodeTexWhiteNoise"); wn.noise_dimensions = '1D'; nt.links.new(sec, wn.inputs["W"])
+    sec_tone = nb.m('MULTIPLY_ADD', wn.outputs["Value"], 0.08, 0.96)
+    joint = nb.m('LESS_THAN', nb.m('WRAP', nb.m('ADD', s_, nb.m('MULTIPLY', v_, 6.0)), 180.0, 0.0), 0.25)
+    # compose: k multiplies the base asphalt tone
+    k = sec_tone
+    k = nb.m('MULTIPLY', k, nb.m('MULTIPLY_ADD', rubber, -0.40, 1.0))
+    k = nb.m('MULTIPLY', k, nb.m('MULTIPLY_ADD', lock, -0.60, 1.0))
+    k = nb.m('MULTIPLY', k, nb.m('MULTIPLY_ADD', marbles, -0.35, 1.0))
+    k = nb.m('MULTIPLY', k, nb.m('MULTIPLY_ADD', edge.outputs["Result"], 0.12, 1.0))
+    k = nb.m('MULTIPLY', k, nb.m('MULTIPLY_ADD', seam, 0.10, 1.0))
+    k = nb.m('MULTIPLY', k, nb.m('MULTIPLY_ADD', joint, -0.12, 1.0))
+    base = nt.nodes.new("ShaderNodeMix"); base.data_type = 'RGBA'; base.blend_type = 'MULTIPLY'; base.inputs["Factor"].default_value = 1.0
+    base.inputs[6].default_value = (*_srgb(*_DAY["asphalt"]), 1.0)
+    nt.links.new(k, base.inputs[7]); nt.links.new(base.outputs[2], b.inputs["Base Color"])
+    # rubber is smoother (sheen along the line), dust rougher
+    nt.links.new(nb.m('MULTIPLY_ADD', rubber, -0.18, nb.m('MULTIPLY_ADD', edge.outputs["Result"], 0.08, 0.86)), b.inputs["Roughness"])
+    for i in range(len(me.materials)):
+        if me.materials[i] and me.materials[i].name == "M2D_Track":
+            me.materials[i] = mat
+    return (f"track surface: racing line (apex ±{np.abs(line).max():.2f} of half-width), "
+            f"braking zones {int((brake > 0.3).sum() * step)} m, marbles, dusty edges, paving joints 180 m")
+
+
 def _day_pass(sc, track, ground, log):
     """Level 10: turn the processed slate scene into a daylight broadcast aerial and
     take out the small-object noise."""
@@ -5501,8 +5605,9 @@ def _day_pass(sc, track, ground, log):
     log.append(_day_sheds(sc, log))
     log.append(_day_parking(sc, log))
     log.append(_day_ground_contact(sc, log))
+    log.append(_day_track_surface(sc, log))
     log.append(_day_sand_pbr(sc))
-    tarmac = [bpy.data.materials[mn] for mn in ("M2D_Track", "M2D_Rubber", "M2D_DayRunoff", "M2D_PitMat", "M2D_Road")
+    tarmac = [bpy.data.materials[mn] for mn in ("M2D_DayTrackSurface", "M2D_Track", "M2D_Rubber", "M2D_DayRunoff", "M2D_PitMat", "M2D_Road")
               if bpy.data.materials.get(mn)] + [m for m in bpy.data.materials if m.name.startswith("M2D_DayLot_")]
     na = sum(_asphalt_detail(m) for m in tarmac)
     npbr = sum(_asphalt_pbr(m) for m in tarmac)
