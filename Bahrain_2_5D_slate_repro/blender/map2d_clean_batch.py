@@ -4212,6 +4212,19 @@ def _day_runoff(sc, log):
     kd.balance()
     trees = _terrain_bvh(sc)
     coll = asp.users_collection[0]
+    # The pit lane runs 11–18 m off the start straight: run-off must stop short of it,
+    # otherwise the tarmac and apron are drawn over the lane and it disappears.
+    kd_pit = None
+    pl = sc.objects.get("M2D_PitLane")
+    if pl is not None and not pl.hide_render:
+        Wp = _world_xy(pl); Ap, Bp = Wp[0::2], Wp[1::2]
+        pts = [Ap[:-1] + (Ap[1:] - Ap[:-1]) * t + ((Bp[:-1] + (Bp[1:] - Bp[:-1]) * t) - (Ap[:-1] + (Ap[1:] - Ap[:-1]) * t)) * u
+               for t in np.linspace(0, 1, 6) for u in np.linspace(0, 1, 4)]
+        Pp = np.vstack(pts)
+        kd_pit = mathutils.kdtree.KDTree(len(Pp))
+        for q, p in enumerate(Pp):
+            kd_pit.insert((p[0], p[1], 0.0), q)
+        kd_pit.balance()
 
     m_tar = _runtime_flat("M2D_DayRunoff", (*_srgb(*_DAY["runoff_tar"]), 1.0))
     m_beige = _runtime_flat("M2D_DayApron", (*_srgb(*_DAY["apron"]), 1.0))
@@ -4251,7 +4264,7 @@ def _day_runoff(sc, log):
         w = _loop_filter(_loop_filter(w, spread, closed, "max"), smooth, closed, "mean")
         bw = 6.0 + 0.20 * w
         # shrink where the outer edge would reach another part of the circuit
-        for _ in range(10):
+        for _ in range(16):
             reach = half + w + bw
             P = side[:, :2] + U * (w + bw)[:, None]
             bad = np.zeros(m, bool)
@@ -4259,6 +4272,12 @@ def _day_runoff(sc, log):
                 d = kd.find((P[i, 0], P[i, 1], 0.0))[2]
                 if d < reach[i] - 3.0:
                     bad[i] = True
+                elif kd_pit is not None:
+                    # outer edge, and the mid-point of the band, must stay off the lane
+                    for f_ in (1.0, 0.5):
+                        Q_ = side[i, :2] + U[i] * (w[i] + bw[i]) * f_
+                        if kd_pit.find((Q_[0], Q_[1], 0.0))[2] < 3.5:
+                            bad[i] = True
             if not bad.any():
                 break
             w[bad] *= 0.78; bw[bad] *= 0.85
@@ -4551,6 +4570,334 @@ def _day_canopies(sc, log, F):
     return f"canopies: {n} stand roof(s), ribbed; pit roof ribbed"
 
 
+def _strip_mesh(name, A, B, mat, coll, shadow=False):
+    """Quad strip between two matching polylines A, B (N×3)."""
+    verts, faces = [], []
+    for j in range(len(A)):
+        verts += [tuple(A[j]), tuple(B[j])]
+        if j:
+            q = 2 * (j - 1); faces.append((q, q + 2, q + 3, q + 1))
+    ob = _runtime_mesh(name, verts, faces, mat, coll)
+    if not shadow:
+        try: ob.visible_shadow = False
+        except Exception: pass
+    return ob
+
+
+def _offset_line(P, off):
+    """Offset an XY(Z) polyline sideways by `off` metres (left positive)."""
+    T = np.gradient(P[:, :2], axis=0); T /= np.maximum(np.linalg.norm(T, axis=1), 1e-6)[:, None]
+    N = np.c_[-T[:, 1], T[:, 0]]
+    Q = P.copy(); Q[:, :2] = P[:, :2] + N * np.atleast_1d(off)[:, None] if np.ndim(off) else P[:, :2] + N * off
+    return Q
+
+
+def _day_pitlane(sc, log, F):
+    """Make the pit lane read as a pit lane: dedicated entry and exit ramps curving off
+    and back onto the racing surface, a white blend line with a hatched gore at each,
+    white edge lines, a solid pit wall on the track side, a dashed fast-lane line and
+    box markings on the garage side, and a lighter concrete-grey surface."""
+    import mathutils
+    pl = sc.objects.get("M2D_PitLane")
+    if pl is None or pl.hide_render:
+        return "pit lane: none"
+    n = len(pl.data.vertices)
+    co = np.empty(n * 3); pl.data.vertices.foreach_get("co", co)
+    V = (np.c_[co.reshape(-1, 3), np.ones(n)] @ np.array(pl.matrix_world).T)[:, :3]
+    A, B = V[0::2], V[1::2]; P = (A + B) * 0.5
+    w = float(np.median(np.linalg.norm(A[:, :2] - B[:, :2], axis=1)))
+    C, T, step = F["C"], F["T"], F["step"]; m = len(C)
+    coll = pl.users_collection[0]
+    # which pit-lane side faces the track
+    dA = np.hypot(*(C[:, :2][None, :, :] - A[::10, None, :2]).transpose(2, 0, 1)).min(1).mean()
+    dB = np.hypot(*(C[:, :2][None, :, :] - B[::10, None, :2]).transpose(2, 0, 1)).min(1).mean()
+    trk, gar = (A, B) if dA < dB else (B, A)
+
+    m_pit = bpy.data.materials.get("M2D_PitMat")
+    _day_flat("M2D_PitMat", (92, 96, 104), noise_m=4.0, lo=0.95, hi=1.05)
+    m_w = _runtime_flat("M2D_DayPitLine", (*_srgb(245, 245, 245), 1.0))
+    m_wall = _runtime_flat("M2D_DayPitWall", (*_srgb(222, 222, 220), 1.0))
+    m_top = _runtime_flat("M2D_DayPitWallTop", (*_srgb(200, 40, 40), 1.0))
+    m_gore = _runtime_flat("M2D_DayGore", (*_srgb(132, 132, 134), 1.0))
+    # gore: white diagonal hatching on pit-lane grey
+    nt = m_gore.node_tree; bs = _bsdf(m_gore)
+    geo = nt.nodes.new("ShaderNodeNewGeometry"); mp = nt.nodes.new("ShaderNodeMapping")
+    mp.inputs["Rotation"].default_value = (0, 0, math.radians(45)); mp.inputs["Scale"].default_value = (1 / 5.0,) * 3
+    nt.links.new(geo.outputs["Position"], mp.inputs["Vector"])
+    wv = nt.nodes.new("ShaderNodeTexWave"); wv.wave_type = 'BANDS'; wv.wave_profile = 'SAW'
+    wv.inputs["Scale"].default_value = 1.0; wv.inputs["Distortion"].default_value = 0.0
+    nt.links.new(mp.outputs["Vector"], wv.inputs["Vector"])
+    gt = nt.nodes.new("ShaderNodeMath"); gt.operation = 'GREATER_THAN'; gt.inputs[1].default_value = 0.5
+    nt.links.new(wv.outputs["Fac"], gt.inputs[0])
+    mx = nt.nodes.new("ShaderNodeMix"); mx.data_type = 'RGBA'
+    mx.inputs[6].default_value = (*_srgb(52, 54, 58), 1.0); mx.inputs[7].default_value = (*_srgb(250, 250, 250), 1.0)
+    nt.links.new(gt.outputs[0], mx.inputs["Factor"]); nt.links.new(mx.outputs[2], bs.inputs["Base Color"])
+
+    def zlift(Q, dz):
+        Q = Q.copy(); Q[:, 2] += dz; return Q
+
+    # ── edge lines, fast-lane dashes, box markings ───────────────────────────
+    for side, nm in ((trk, "trk"), (gar, "gar")):
+        inn = side[:, :2] + (P[:, :2] - side[:, :2]) / np.maximum(np.linalg.norm(P[:, :2] - side[:, :2], axis=1), 1e-6)[:, None] * 0.35
+        L1 = np.c_[side[:, :2], side[:, 2] + 0.03]; L2 = np.c_[inn, side[:, 2] + 0.03]
+        _strip_mesh(f"M2D_DayPitEdge_{nm}", L1, L2, m_w, coll)
+    fast = P[:, :2] + (trk[:, :2] - P[:, :2]) * 0.15          # fast / working lane divide
+    seglen = np.r_[0, np.cumsum(np.linalg.norm(np.diff(P[:, :2], axis=0), axis=1))]
+    on = (seglen % 12.0) < 6.0
+    for k in range(1, len(P)):
+        if on[k] and on[k - 1]:
+            d = P[k, :2] - P[k - 1, :2]; d /= max(np.linalg.norm(d), 1e-6); nrm = np.array([-d[1], d[0]])
+            q = (fast[k] + fast[k - 1]) * 0.5
+            _box("M2D_DayPitDash", q[0], q[1], d, nrm, float(np.linalg.norm(fast[k] - fast[k - 1])), 0.3,
+                 float(P[k, 2]) + 0.03, float(P[k, 2]) + 0.05, m_w, coll)
+    boxes = 0
+    for k in range(len(P)):
+        if int(seglen[k] // 10.0) != int(seglen[k - 1] // 10.0) if k else False:
+            d = P[min(k + 1, len(P) - 1), :2] - P[k - 1, :2]; d /= max(np.linalg.norm(d), 1e-6)
+            g = gar[k, :2]; v = (P[k, :2] - g); v /= max(np.linalg.norm(v), 1e-6)
+            q = g + v * (w * 0.22)
+            _box("M2D_DayPitBox", q[0], q[1], d, v, 0.3, w * 0.4, float(P[k, 2]) + 0.03, float(P[k, 2]) + 0.05, m_w, coll)
+            boxes += 1
+    # ── pit wall on the track side ────────────────────────────────────────────
+    d_out = (trk[:, :2] - P[:, :2]); d_out /= np.maximum(np.linalg.norm(d_out, axis=1), 1e-6)[:, None]
+    W0 = trk[:, :2] + d_out * 0.4; W1 = trk[:, :2] + d_out * 1.3
+    verts, faces = [], []
+    for k in range(len(P)):
+        z = float(trk[k, 2])
+        verts += [(W0[k, 0], W0[k, 1], z), (W1[k, 0], W1[k, 1], z), (W0[k, 0], W0[k, 1], z + 1.3), (W1[k, 0], W1[k, 1], z + 1.3)]
+        if k:
+            a = 4 * (k - 1)
+            faces += [(a + 2, a + 3, a + 7, a + 6), (a, a + 4, a + 6, a + 2), (a + 1, a + 3, a + 7, a + 5)]
+    wo = _runtime_mesh("M2D_DayPitWall", verts, faces, m_wall, coll)
+    top = np.c_[(W0 + W1) * 0.5, trk[:, 2] + 1.32]
+    _strip_mesh("M2D_DayPitWallTop", _offset_line(top, 0.5), _offset_line(top, -0.5), m_top, coll)
+    for o in sc.objects:
+        if o.name.split('.')[0] == "M2D_PitSep":
+            o.hide_render = True
+
+    # ── entry / exit: where the lane converges on the track, hatch the gap ─────
+    kd = mathutils.kdtree.KDTree(m)
+    for i_, p in enumerate(C):
+        kd.insert((p[0], p[1], 0.0), i_)
+    kd.balance()
+    dist = np.array([kd.find((p[0], p[1], 0.0))[2] for p in P])
+    par = dist >= dist.max() - 2.5                        # the parallel section
+    ks = np.where(par)[0]; k_in, k_out = int(ks.min()), int(ks.max())
+    gore = 0
+    for rng in (range(0, k_in + 1), range(k_out, len(P))):
+        rng = list(rng)
+        if len(rng) < 2:
+            continue
+        G = trk[rng].copy()
+        E = []
+        for k in rng:
+            ii_ = kd.find((trk[k, 0], trk[k, 1], 0.0))[1]
+            e = F["Lv"][ii_] if np.linalg.norm(F["Lv"][ii_, :2] - trk[k, :2]) < np.linalg.norm(F["Rv"][ii_, :2] - trk[k, :2]) else F["Rv"][ii_]
+            E.append(e)
+        E = np.array(E); E[:, 2] = np.minimum(E[:, 2], G[:, 2]) - 0.005
+        _strip_mesh("M2D_DayGore", zlift(G, 0.02), zlift(E, 0.02), m_gore, coll); gore += len(rng)
+    # wall only along the parallel section
+    for o in list(sc.objects):
+        if o.name.split('.')[0] in ("M2D_DayPitWall", "M2D_DayPitWallTop"):
+            bpy.data.objects.remove(o, do_unlink=True)
+    sl = slice(k_in, k_out + 1)
+    verts, faces = [], []
+    for q, k in enumerate(range(k_in, k_out + 1)):
+        z = float(trk[k, 2])
+        verts += [(W0[k, 0], W0[k, 1], z), (W1[k, 0], W1[k, 1], z), (W0[k, 0], W0[k, 1], z + 1.3), (W1[k, 0], W1[k, 1], z + 1.3)]
+        if q:
+            a = 4 * (q - 1)
+            faces += [(a + 2, a + 3, a + 7, a + 6), (a, a + 4, a + 6, a + 2), (a + 1, a + 3, a + 7, a + 5)]
+    _runtime_mesh("M2D_DayPitWall", verts, faces, m_wall, coll)
+    _strip_mesh("M2D_DayPitWallTop", _offset_line(top[sl], 0.5), _offset_line(top[sl], -0.5), m_top, coll)
+    # speed-limit lines across the lane at both ends of the parallel section
+    m_y = _runtime_flat("M2D_DayPitLimit", (*_srgb(240, 200, 40), 1.0))
+    for k in (k_in, k_out):
+        d = P[min(k + 1, len(P) - 1), :2] - P[max(k - 1, 0), :2]; d /= max(np.linalg.norm(d), 1e-6)
+        v = gar[k, :2] - trk[k, :2]; wl = float(np.linalg.norm(v)); v /= max(wl, 1e-6)
+        q = (trk[k, :2] + gar[k, :2]) * 0.5 + v * 1.5
+        _box("M2D_DayPitLimit", q[0], q[1], d, v, 1.2, wl + 3.0, float(P[k, 2]) + 0.04, float(P[k, 2]) + 0.06, m_y, coll)
+    # working lane: widen the lane 3 m towards the garages
+    Gw = gar.copy(); gv = gar[:, :2] - trk[:, :2]; gv /= np.maximum(np.linalg.norm(gv, axis=1), 1e-6)[:, None]
+    Gw[:, :2] = gar[:, :2] + gv * 3.0
+    _strip_mesh("M2D_DayPitWork", zlift(gar, -0.005), zlift(Gw, -0.005), bpy.data.materials.get("M2D_PitMat"), coll)
+    notes = [f"gore hatch {gore} samples", f"parallel {k_in}-{k_out}"]
+    return f"pit lane: entry/exit ({', '.join(notes)}), wall 1.3 m, edge lines, fast-lane dashes, {boxes} box marks"
+
+
+def _axis_u(nt, ang, scale_m):
+    """World position rotated so X runs along a building's long axis, divided by scale."""
+    geo = nt.nodes.new("ShaderNodeNewGeometry"); mp = nt.nodes.new("ShaderNodeMapping")
+    mp.inputs["Rotation"].default_value = (0, 0, -ang); mp.inputs["Scale"].default_value = (1 / scale_m,) * 3
+    nt.links.new(geo.outputs["Position"], mp.inputs["Vector"])
+    sp = nt.nodes.new("ShaderNodeSeparateXYZ"); nt.links.new(mp.outputs["Vector"], sp.inputs["Vector"])
+    return sp, geo
+
+
+def _day_buildings(sc, log):
+    """Facades that read as architecture at 1.6 m/px, all in the shader:
+      * pit building: team garages facing the lane — 12 m bays, dark door 0–4.5 m, a
+        team-colour fascia band above, a glazed hospitality band at the top;
+      * grandstands: vertical fins every 4 m on the sides;
+      * OSM buildings: dark window bands every 3.6 m on the sides, gravel roofs with a
+        faint panel grid."""
+    notes = []
+    def bld_axis(o):
+        W = np.array([list(o.matrix_world @ v.co) for v in o.data.vertices])
+        u = _principal_xy(W); return math.atan2(u[1], u[0]), float(W[:, 2].min())
+
+    pit = sc.objects.get("M2D_PitBuilding")
+    if pit is not None and not pit.hide_render:
+        ang, z0 = bld_axis(pit)
+        m = _runtime_flat("M2D_DayPitFacade", (*_srgb(236, 236, 234), 1.0))
+        nt = m.node_tree; bs = _bsdf(m)
+        sp, geo = _axis_u(nt, ang, 12.0)
+        bay = nt.nodes.new("ShaderNodeMath"); bay.operation = 'FRACT'; nt.links.new(sp.outputs["X"], bay.inputs[0])
+        door = nt.nodes.new("ShaderNodeMath"); door.operation = 'LESS_THAN'; door.inputs[1].default_value = 0.78
+        nt.links.new(bay.outputs[0], door.inputs[0])
+        gz = nt.nodes.new("ShaderNodeSeparateXYZ"); nt.links.new(geo.outputs["Position"], gz.inputs["Vector"])
+        zr = nt.nodes.new("ShaderNodeMath"); zr.operation = 'SUBTRACT'; zr.inputs[1].default_value = z0
+        nt.links.new(gz.outputs["Z"], zr.inputs[0])
+        def band(lo, hi):
+            a = nt.nodes.new("ShaderNodeMath"); a.operation = 'GREATER_THAN'; a.inputs[1].default_value = lo
+            b = nt.nodes.new("ShaderNodeMath"); b.operation = 'LESS_THAN'; b.inputs[1].default_value = hi
+            nt.links.new(zr.outputs[0], a.inputs[0]); nt.links.new(zr.outputs[0], b.inputs[0])
+            mm = nt.nodes.new("ShaderNodeMath"); mm.operation = 'MULTIPLY'
+            nt.links.new(a.outputs[0], mm.inputs[0]); nt.links.new(b.outputs[0], mm.inputs[1]); return mm.outputs[0]
+        low = band(-1.0, 4.5); fas = band(4.5, 5.6); glz = band(5.9, 7.2)
+        dm = nt.nodes.new("ShaderNodeMath"); dm.operation = 'MULTIPLY'
+        nt.links.new(low, dm.inputs[0]); nt.links.new(door.outputs[0], dm.inputs[1])
+        # team colour per bay (pair of bays share a team)
+        fl = nt.nodes.new("ShaderNodeMath"); fl.operation = 'FLOOR'; nt.links.new(sp.outputs["X"], fl.inputs[0])
+        hf = nt.nodes.new("ShaderNodeMath"); hf.operation = 'DIVIDE'; hf.inputs[1].default_value = 2.0
+        nt.links.new(fl.outputs[0], hf.inputs[0])
+        fl2 = nt.nodes.new("ShaderNodeMath"); fl2.operation = 'FLOOR'; nt.links.new(hf.outputs[0], fl2.inputs[0])
+        wn = nt.nodes.new("ShaderNodeTexWhiteNoise"); wn.noise_dimensions = '1D'
+        nt.links.new(fl2.outputs[0], wn.inputs["W"])
+        rp = nt.nodes.new("ShaderNodeValToRGB"); rp.color_ramp.interpolation = 'CONSTANT'
+        team = [(200, 30, 40), (20, 40, 120), (0, 150, 140), (240, 130, 20), (30, 100, 220), (0, 110, 70),
+                (230, 230, 230), (30, 30, 35), (120, 170, 230), (180, 20, 60)]
+        els = rp.color_ramp.elements
+        els[0].position = 0.0; els[0].color = (*_srgb(*team[0]), 1.0)
+        els[1].position = 0.1; els[1].color = (*_srgb(*team[1]), 1.0)
+        for q, c in enumerate(team[2:], start=2):
+            e = els.new(q / len(team)); e.color = (*_srgb(*c), 1.0)
+        nt.links.new(wn.outputs["Value"], rp.inputs["Fac"])
+        col = nt.nodes.new("ShaderNodeMix"); col.data_type = 'RGBA'
+        col.inputs[6].default_value = (*_srgb(236, 236, 234), 1.0); col.inputs[7].default_value = (*_srgb(44, 46, 50), 1.0)
+        nt.links.new(dm.outputs[0], col.inputs["Factor"])
+        c2 = nt.nodes.new("ShaderNodeMix"); c2.data_type = 'RGBA'
+        nt.links.new(fas, c2.inputs["Factor"]); nt.links.new(col.outputs[2], c2.inputs[6]); nt.links.new(rp.outputs["Color"], c2.inputs[7])
+        c3 = nt.nodes.new("ShaderNodeMix"); c3.data_type = 'RGBA'
+        nt.links.new(glz, c3.inputs["Factor"]); nt.links.new(c2.outputs[2], c3.inputs[6])
+        c3.inputs[7].default_value = (*_srgb(58, 78, 96), 1.0)
+        nt.links.new(c3.outputs[2], bs.inputs["Base Color"])
+        me = pit.data
+        for i, ms in enumerate(pit.material_slots):
+            if ms.material and ms.material.name in ("M2D_BSide", "M2D_PitGlass"):
+                me.materials[i] = m
+        notes.append("pit: garages + team fascia + glazing")
+
+    # grandstand sides: fins
+    m_st = _runtime_flat("M2D_DayStandSide", (*_srgb(214, 214, 212), 1.0))
+    n_st = 0
+    for o in sc.objects:
+        base = o.name.split('.')[0]
+        if o.type != 'MESH' or o.hide_render or not base.startswith("M2D_Stand_") or base.endswith(("_RoofDeck", "_RoofTruss")):
+            continue
+        for i, ms in enumerate(o.material_slots):
+            if ms.material and ms.material.name == "M2D_BSide":
+                o.data.materials[i] = m_st
+        n_st += 1
+    nt = m_st.node_tree; bs = _bsdf(m_st)
+    geo = nt.nodes.new("ShaderNodeNewGeometry"); mp = nt.nodes.new("ShaderNodeMapping"); mp.inputs["Scale"].default_value = (1 / 4.0,) * 3
+    nt.links.new(geo.outputs["Position"], mp.inputs["Vector"])
+    for ax in ("X", "Y"):
+        pass
+    wv = nt.nodes.new("ShaderNodeTexWave"); wv.wave_type = 'BANDS'; wv.bands_direction = 'DIAGONAL'
+    wv.wave_profile = 'SAW'; wv.inputs["Scale"].default_value = 1.0; wv.inputs["Distortion"].default_value = 0.0
+    nt.links.new(mp.outputs["Vector"], wv.inputs["Vector"])
+    g = nt.nodes.new("ShaderNodeMath"); g.operation = 'GREATER_THAN'; g.inputs[1].default_value = 0.7
+    nt.links.new(wv.outputs["Fac"], g.inputs[0])
+    mx = nt.nodes.new("ShaderNodeMix"); mx.data_type = 'RGBA'
+    mx.inputs[6].default_value = (*_srgb(214, 214, 212), 1.0); mx.inputs[7].default_value = (*_srgb(120, 124, 130), 1.0)
+    nt.links.new(g.outputs[0], mx.inputs["Factor"]); nt.links.new(mx.outputs[2], bs.inputs["Base Color"])
+    notes.append(f"stands: finned sides on {n_st}")
+
+    # OSM fabric: window bands + roof grid
+    m = bpy.data.materials.get("M2D_BSideOSM"); bs = _bsdf(m)
+    if bs:
+        nt = m.node_tree
+        c = bs.inputs["Base Color"].default_value[:3]
+        geo = nt.nodes.new("ShaderNodeNewGeometry"); sp = nt.nodes.new("ShaderNodeSeparateXYZ")
+        nt.links.new(geo.outputs["Position"], sp.inputs["Vector"])
+        dv = nt.nodes.new("ShaderNodeMath"); dv.operation = 'DIVIDE'; dv.inputs[1].default_value = 3.6
+        nt.links.new(sp.outputs["Z"], dv.inputs[0])
+        fr = nt.nodes.new("ShaderNodeMath"); fr.operation = 'FRACT'; nt.links.new(dv.outputs[0], fr.inputs[0])
+        a = nt.nodes.new("ShaderNodeMath"); a.operation = 'GREATER_THAN'; a.inputs[1].default_value = 0.35
+        b = nt.nodes.new("ShaderNodeMath"); b.operation = 'LESS_THAN'; b.inputs[1].default_value = 0.75
+        nt.links.new(fr.outputs[0], a.inputs[0]); nt.links.new(fr.outputs[0], b.inputs[0])
+        mm = nt.nodes.new("ShaderNodeMath"); mm.operation = 'MULTIPLY'
+        nt.links.new(a.outputs[0], mm.inputs[0]); nt.links.new(b.outputs[0], mm.inputs[1])
+        mx = nt.nodes.new("ShaderNodeMix"); mx.data_type = 'RGBA'
+        mx.inputs[6].default_value = (*c, 1.0); mx.inputs[7].default_value = (*_srgb(62, 76, 90), 1.0)
+        nt.links.new(mm.outputs[0], mx.inputs["Factor"]); nt.links.new(mx.outputs[2], bs.inputs["Base Color"])
+        notes.append("OSM: window bands 3.6 m")
+    m = bpy.data.materials.get("M2D_BTopOSM"); bs = _bsdf(m)
+    if bs:
+        nt = m.node_tree
+        src = next((l.from_socket for l in nt.links if l.to_node == bs and l.to_socket.name == "Base Color"), None)
+        br = nt.nodes.new("ShaderNodeTexBrick"); br.inputs["Scale"].default_value = 1.0
+        geo = nt.nodes.new("ShaderNodeNewGeometry"); mp = nt.nodes.new("ShaderNodeMapping"); mp.inputs["Scale"].default_value = (1 / 8.0,) * 3
+        nt.links.new(geo.outputs["Position"], mp.inputs["Vector"]); nt.links.new(mp.outputs["Vector"], br.inputs["Vector"])
+        br.inputs["Color1"].default_value = (1, 1, 1, 1); br.inputs["Color2"].default_value = (1, 1, 1, 1)
+        br.inputs["Mortar"].default_value = (0.86, 0.86, 0.86, 1); br.inputs["Mortar Size"].default_value = 0.02
+        mul = nt.nodes.new("ShaderNodeMix"); mul.data_type = 'RGBA'; mul.blend_type = 'MULTIPLY'; mul.inputs["Factor"].default_value = 1.0
+        if src is not None:
+            nt.links.new(src, mul.inputs[6])
+        else:
+            mul.inputs[6].default_value = tuple(bs.inputs["Base Color"].default_value)
+        nt.links.new(br.outputs["Color"], mul.inputs[7]); nt.links.new(mul.outputs[2], bs.inputs["Base Color"])
+        notes.append("roof panel grid 8 m")
+    return "buildings: " + "; ".join(notes)
+
+
+def _day_widen_pit(sc, log, extra_m=5.0, keep_gap_m=3.0):
+    """Map legibility: at 1.6 m/px the 7 m lane is 4 px and vanishes beside the white
+    pit building. Push its track-side edge up to `extra_m` towards the circuit, never
+    closer than `keep_gap_m` to the track edge (so the ends still merge cleanly)."""
+    pl = sc.objects.get("M2D_PitLane"); F = _ribbon_frame(sc)
+    if pl is None or F is None:
+        return "pit widen: skipped"
+    import mathutils
+    me = pl.data; n = len(me.vertices)
+    mw = pl.matrix_world; mi = mw.inverted()
+    W = np.array([list(mw @ v.co) for v in me.vertices])
+    A, B = W[0::2], W[1::2]
+    C = F["C"]; half = F["half"]
+    kd = mathutils.kdtree.KDTree(len(C))
+    for i, p in enumerate(C):
+        kd.insert((p[0], p[1], 0.0), i)
+    kd.balance()
+    dA = np.mean([kd.find((p[0], p[1], 0.0))[2] for p in A]); dB = np.mean([kd.find((p[0], p[1], 0.0))[2] for p in B])
+    tr_off = 0 if dA < dB else 1
+    moved = []
+    for k in range(len(A)):
+        t = W[2 * k + tr_off]; g = W[2 * k + 1 - tr_off]
+        _, i, d = kd.find((t[0], t[1], 0.0))
+        gap = d - half[i]
+        mv = float(np.clip(gap - keep_gap_m, 0.0, extra_m))
+        u = (t[:2] - g[:2]); u /= max(np.linalg.norm(u), 1e-6)
+        t2 = t.copy(); t2[:2] += u * mv
+        me.vertices[2 * k + tr_off].co = mi @ mathutils.Vector(t2)
+        moved.append(mv)
+    me.update()
+    for o in sc.objects:                                   # the old separator line sits in the new lane
+        if o.name.split('.')[0] == "M2D_PitSep":
+            o.hide_render = True
+    return f"pit widen: track-side edge moved up to {max(moved):.1f} m (mean {np.mean(moved):.1f} m)"
+
+
 def _day_pass(sc, track, ground, log):
     """Level 10: turn the processed slate scene into a daylight broadcast aerial and
     take out the small-object noise."""
@@ -4596,6 +4943,7 @@ def _day_pass(sc, track, ground, log):
                 nd.color_ramp.elements[1].color = (*_srgb(176, 64, 58), 1.0)
         ns += 1
     log.append(f"day stands: crowd 85 % on {ns} seat material(s)")
+    log.append(_day_widen_pit(sc, log))
     log.append(_day_runoff(sc, log))
     log.append(_day_tower(sc, log))
     F = _ribbon_frame(sc)
@@ -4604,6 +4952,8 @@ def _day_pass(sc, track, ground, log):
         log.append(_day_canopies(sc, log, F))
         log.append(_day_mosaic(sc, log, F, trees))
         log.append(_day_pond(sc, log, F, trees))
+        log.append(_day_pitlane(sc, log, F))
+        log.append(_day_buildings(sc, log))
     return f"day: {n} materials re-toned, {hid} noise objects hidden (marshal posts, glow, minor roads, vignette)"
 
 
@@ -4773,6 +5123,17 @@ def main():
         sc.eevee.taa_render_samples = SAMPLES
     except AttributeError:
         pass  # non-EEVEE engine; leave sampling alone
+    if os.environ.get("M2D_ZOOM"):
+        # preview only: "x,y,lens_factor" — aim the same camera at a world point, zoomed
+        zx, zy, zf = (float(v) for v in os.environ["M2D_ZOOM"].split(","))
+        cam = sc.camera
+        d = mathutils.Vector((zx, zy, 0.0)) - cam.location
+        cam.rotation_euler = d.to_track_quat('-Z', 'Y').to_euler()
+        cam.data.lens *= zf
+        for n_ in ("M2D_TiltBlur", "M2D_TiltFeather"):
+            ng_ = getattr(sc, "compositing_node_group", None) or getattr(sc, "node_tree", None)
+            if ng_ and n_ in ng_.nodes:
+                ng_.nodes[n_].mute = True
     sc.render.filepath = out_png
     bpy.ops.render.render(write_still=True, scene=sc.name)
     print("CLEAN_OK", track, out_png, flush=True)
