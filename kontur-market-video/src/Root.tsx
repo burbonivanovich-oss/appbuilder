@@ -23,6 +23,9 @@ export const Root: React.FC = () => (
       {(['full', 'short30', 'module-audit', 'module-cz', 'module-comp'] as const).map((cut) => (
         <Composition key={cut} id={cut === 'full' ? 'Signals' : `Signals-${cut}`} component={Signals} defaultProps={{cut}} durationInFrames={signalsDuration(cut)} fps={FPS} width={1920} height={1080} />
       ))}
+      {(['short30', 'module-audit', 'module-cz', 'module-comp'] as const).map((cut) => (
+        <Composition key={`v-${cut}`} id={`Signals-${cut}-9x16`} component={Signals} defaultProps={{cut, vertical: true}} durationInFrames={signalsDuration(cut)} fps={FPS} width={1080} height={1920} />
+      ))}
     </Folder>
     <Folder name="AutoPres">
       <Composition

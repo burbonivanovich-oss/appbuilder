@@ -52,7 +52,7 @@ export const Pill: React.FC<{children: React.ReactNode; color?: string; bg?: str
 
 export const Footnote: React.FC<{text: string; at: number; color?: string}> = ({text, at, color = GRAY}) => {
   const o = useAppear(at, 12);
-  return <div style={{position: 'absolute', left: 120, right: 120, bottom: 52, fontFamily: font, fontSize: 22, lineHeight: 1.35, color, opacity: o}}>{text}</div>;
+  return <div style={{position: 'absolute', left: 120, right: 120, bottom: 52, fontFamily: font, fontSize: 24, lineHeight: 1.35, color, opacity: o}}>{text}</div>;
 };
 
 /* Курсор, который плавно едет по точкам и «кликает» */

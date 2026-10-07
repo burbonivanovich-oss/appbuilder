@@ -7,9 +7,10 @@ import mCz from './cuts/module-cz.timing.json';
 import mComp from './cuts/module-comp.timing.json';
 import {CUT_SCENES, SCENES, SceneProps, toFrames} from './scenes';
 import {clamp} from './ui';
+import {CUT_SCENES_V} from './vertical';
 
 type Timing = {total: number; scenes: {id: string; start: number; dur: number; vo: number; cues: Record<string, number>}[]};
-export type SignalsProps = {cut: 'full' | 'short30' | 'module-audit' | 'module-cz' | 'module-comp'};
+export type SignalsProps = {cut: 'full' | 'short30' | 'module-audit' | 'module-cz' | 'module-comp'; vertical?: boolean};
 
 const CUTS: Record<SignalsProps['cut'], {timing: Timing; vo: string; scenes: Record<string, React.FC<SceneProps>>}> = {
   full: {timing: fullTiming as unknown as Timing, vo: 'signals/vo', scenes: SCENES},
@@ -27,8 +28,9 @@ const Shell: React.FC<{dur: number; children: React.ReactNode}> = ({dur, childre
   return <AbsoluteFill style={{opacity: o}}>{children}</AbsoluteFill>;
 };
 
-export const Signals: React.FC<SignalsProps> = ({cut}) => {
-  const {timing, vo, scenes} = CUTS[cut];
+export const Signals: React.FC<SignalsProps> = ({cut, vertical}) => {
+  const {timing, vo} = CUTS[cut];
+  const scenes = vertical ? CUT_SCENES_V : CUTS[cut].scenes;
   const total = toFrames(timing.total);
   return (
     <AbsoluteFill style={{background: '#fff'}}>

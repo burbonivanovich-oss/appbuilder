@@ -389,7 +389,7 @@ export const Econ: React.FC<SceneProps> = ({cue}) => {
 };
 
 /* Значок ИИ: синяя плашка с «искрой», как иконка ИИ в интерфейсе Маркета */
-const Spark: React.FC<{size: number; rot?: number}> = ({size, rot = 0}) => (
+export const Spark: React.FC<{size: number; rot?: number}> = ({size, rot = 0}) => (
   <div style={{width: size, height: size, borderRadius: size * 0.26, background: colors.blue, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
     <svg width={size * 0.6} height={size * 0.6} viewBox="0 0 24 24" style={{transform: `rotate(${rot}deg)`}}>
       <path d="M12 1.5 L14.3 9.7 L22.5 12 L14.3 14.3 L12 22.5 L9.7 14.3 L1.5 12 L9.7 9.7 Z" fill="#fff" />

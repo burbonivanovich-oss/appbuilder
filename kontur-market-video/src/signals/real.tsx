@@ -1,5 +1,5 @@
 import React, {createContext, useContext} from 'react';
-import {AbsoluteFill, Img, interpolate, spring, staticFile, useCurrentFrame, Easing} from 'remotion';
+import {AbsoluteFill, Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig, Easing} from 'remotion';
 import {colors, font} from '../theme';
 import {FPS, clamp, ease} from './ui';
 
@@ -28,12 +28,14 @@ const pick = (frame: number, raw: Key[], k: 's' | 'x' | 'y') => {
 
 export const ScreenView: React.FC<{src: string; w: number; h: number; cam: Key[]; children?: React.ReactNode}> = ({src, w, h, cam, children}) => {
   const frame = useCurrentFrame();
-  const K = (DW / w) * pick(frame, cam, 's');
+  const {width, height} = useVideoConfig();
+  // в вертикали экран крупнее кадра: камера сама держит в центре нужный блок
+  const K = ((height > width ? 1950 : DW) / w) * pick(frame, cam, 's');
   const x = pick(frame, cam, 'x');
   const y = pick(frame, cam, 'y');
   return (
     <AbsoluteFill style={{background: '#EEF1F5', overflow: 'hidden'}}>
-      <div style={{position: 'absolute', left: 0, top: 0, width: w, height: h, transformOrigin: '0 0', transform: `translate(${960 - x * K}px, ${540 - y * K}px) scale(${K})`}}>
+      <div style={{position: 'absolute', left: 0, top: 0, width: w, height: h, transformOrigin: '0 0', transform: `translate(${width / 2 - x * K}px, ${height / 2 - y * K}px) scale(${K})`}}>
         <div style={{position: 'absolute', inset: 0, borderRadius: 40, overflow: 'hidden', background: '#fff', boxShadow: `0 0 0 ${3 / K}px #DDE3EA`}}>
           <Img src={staticFile(`signals/ui/${src}`)} style={{width: w, height: h, display: 'block'}} />
           <ScaleCtx.Provider value={K}>{children}</ScaleCtx.Provider>
