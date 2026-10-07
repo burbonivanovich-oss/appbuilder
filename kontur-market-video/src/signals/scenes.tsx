@@ -2,7 +2,7 @@ import React from 'react';
 import {AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame, Easing} from 'remotion';
 import {evolvePath} from '@remotion/paths';
 import {colors, font} from '../theme';
-import {AuditScreen, CompScreen, CzScreen, DupesScreen, HubScreen, Mascot} from './real';
+import {AuditScreen, CompScreen, CzScreen, DupesScreen, HubScreen} from './real';
 import {Anchor, Camera, Cursor, FPS, Focus, Footnote, GRAY, GREEN, INK, Icon, LINE, MarketWindow, Pill, RED, SignalCard, TILE, YELLOW, clamp, ease, useAppear, usePop} from './ui';
 
 export type SceneProps = {cue: (k: string) => number; dur: number; beats: number[]};
@@ -388,6 +388,15 @@ export const Econ: React.FC<SceneProps> = ({cue}) => {
   );
 };
 
+/* Значок ИИ: синяя плашка с «искрой», как иконка ИИ в интерфейсе Маркета */
+const Spark: React.FC<{size: number; rot?: number}> = ({size, rot = 0}) => (
+  <div style={{width: size, height: size, borderRadius: size * 0.26, background: colors.blue, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+    <svg width={size * 0.6} height={size * 0.6} viewBox="0 0 24 24" style={{transform: `rotate(${rot}deg)`}}>
+      <path d="M12 1.5 L14.3 9.7 L22.5 12 L14.3 14.3 L12 22.5 L9.7 14.3 L1.5 12 L9.7 9.7 Z" fill="#fff" />
+    </svg>
+  </div>
+);
+
 /* Финал: заявка на сайте */
 export const Cta: React.FC<SceneProps> = ({cue}) => {
   const k = cue('оставляйте') || cue('Оставляйте');
@@ -395,7 +404,6 @@ export const Cta: React.FC<SceneProps> = ({cue}) => {
   return (
     <AbsoluteFill style={{background: colors.blue}}>
       <div style={{position: 'absolute', left: 120, top: 150, display: 'flex', alignItems: 'center', gap: 28, opacity: useAppear(2)}}>
-        <Mascot size={150} />
         <div style={{fontFamily: font, fontSize: 48, fontWeight: 700, color: '#fff'}}>ИИ Бизнес сигналы</div>
       </div>
       <Anchor lines={[{text: 'Оставляйте заявку', at: 8, color: '#fff'}, {text: 'на сайте', at: 16, color: '#fff'}]} size={120} y={360} />
@@ -408,23 +416,37 @@ export const Cta: React.FC<SceneProps> = ({cue}) => {
   );
 };
 
-/* Заставка: «ИИ Бизнес сигналы» от Контур.Маркета */
+/* Заставка: «ИИ Бизнес сигналы» от Контур.Маркета — графика без персонажа */
 export const Intro: React.FC<SceneProps> = () => {
   const frame = useCurrentFrame();
-  const m = usePop(4, 11);
-  const ring = interpolate(frame, [8, 40], [0, 1], {...clamp, easing: Easing.out(Easing.cubic)});
-  const circle = 'M 960 120 A 230 230 0 1 1 959.9 120';
+  const m = usePop(6, 12);
+  const ring = interpolate(frame, [4, 34], [0, 1], {...clamp, easing: Easing.out(Easing.cubic)});
+  const circle = 'M 960 170 A 190 190 0 1 1 959.9 170';
   const e = evolvePath(ring, circle);
+  const title = useAppear(16, 20);
   const logo = useAppear(30);
+  const chips = [
+    {t: 'Аудит точки', x: 520, y: 250},
+    {t: 'Честный Знак', x: 1400, y: 230},
+    {t: 'Конкуренты', x: 1430, y: 470},
+  ];
   return (
     <AbsoluteFill style={W}>
       <svg width={1920} height={1080} style={{position: 'absolute'}}>
         <path d={circle} fill="none" stroke={colors.blue} strokeWidth={5} strokeDasharray={e.strokeDasharray} strokeDashoffset={e.strokeDashoffset} />
       </svg>
-      <div style={{position: 'absolute', left: 960 - 160, top: 230, transform: `scale(${m}) translateY(${Math.sin(frame / 12) * 6}px)`}}>
-        <Mascot size={320} />
+      <div style={{position: 'absolute', left: 960 - 110, top: 250, transform: `scale(${m})`}}>
+        <Spark size={220} rot={frame * 0.6} />
       </div>
-      <div style={{position: 'absolute', left: 0, right: 0, top: 640, textAlign: 'center', fontFamily: font, fontWeight: 700, fontSize: 124, letterSpacing: -2.5, color: INK, clipPath: `inset(-10% ${(1 - useAppear(14, 20)) * 50}% -10% ${(1 - useAppear(14, 20)) * 50}%)`}}>
+      {chips.map((c, i) => {
+        const p = usePop(14 + i * 6, 13);
+        return (
+          <div key={c.t} style={{position: 'absolute', left: c.x, top: c.y + Math.sin(frame / 18 + i) * 6, transform: `scale(${p})`}}>
+            <Pill color={INK} bg={TILE} size={30}>{c.t}</Pill>
+          </div>
+        );
+      })}
+      <div style={{position: 'absolute', left: 0, right: 0, top: 640, textAlign: 'center', fontFamily: font, fontWeight: 700, fontSize: 124, letterSpacing: -2.5, color: INK, clipPath: `inset(-10% ${(1 - title) * 50}% -10% ${(1 - title) * 50}%)`}}>
         ИИ Бизнес сигналы
       </div>
       <div style={{position: 'absolute', left: 0, right: 0, top: 830, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 22, opacity: logo, transform: `translateY(${(1 - logo) * 20}px)`}}>
@@ -449,8 +471,8 @@ export const Price: React.FC<SceneProps> = ({cue}) => {
       <div style={{position: 'absolute', left: 120, top: 650, transform: `scale(${b})`, transformOrigin: 'left center'}}>
         <Pill color="#fff" bg={colors.blue} size={56}>Скидка до 32% — до 30 ноября</Pill>
       </div>
-      <div style={{position: 'absolute', right: 160, top: 300}}>
-        <Mascot size={420} />
+      <div style={{position: 'absolute', right: 200, top: 330}}>
+        <Spark size={340} />
       </div>
     </AbsoluteFill>
   );
