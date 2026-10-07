@@ -391,8 +391,8 @@ export const Econ: React.FC<SceneProps> = ({cue}) => {
 /* Значок ИИ: синяя плашка с «искрой», как иконка ИИ в интерфейсе Маркета */
 export const Spark: React.FC<{size: number; rot?: number}> = ({size}) => (
   <div style={{width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-    {/* значок ИИ из интерфейса Контур.Маркета (панель «Сигналы»), исходник 48×48 */}
-    <Img src={staticFile('signals/ai-icon.png')} style={{width: size * 0.8, height: size * 0.8}} />
+    {/* значок ИИ из интерфейса Контур.Маркета (панель «Сигналы») */}
+    <Img src={staticFile('signals/ai-icon.svg')} style={{width: size * 0.8, height: size * 0.8}} />
   </div>
 );
 
