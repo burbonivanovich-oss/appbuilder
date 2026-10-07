@@ -7,7 +7,7 @@ import {Kit, KIT_TOTAL} from './kit/Kit';
 import {Journey, JOURNEY_TOTAL} from './journey/Journey';
 import {AutoPres, autoPresDuration, type Scenario, type Timing} from './autopres/AutoPres';
 import ofdStats from './autopres/ofd-stats.json';
-import {Signals, SIGNALS_TOTAL} from './signals/Signals';
+import {Signals, signalsDuration} from './signals/Signals';
 import ofdStatsTiming from './autopres/ofd-stats.timing.json';
 
 const segments = ['cafe', 'retail', 'services'] as const;
@@ -19,7 +19,11 @@ export const Root: React.FC = () => (
     <Composition id="Kit-xenia" component={Kit} defaultProps={{voice: 'xenia' as const}} durationInFrames={KIT_TOTAL} fps={FPS} width={1920} height={1080} />
     <Composition id="Kit-eugene" component={Kit} defaultProps={{voice: 'eugene' as const}} durationInFrames={KIT_TOTAL} fps={FPS} width={1920} height={1080} />
     <Composition id="Journey" component={Journey} durationInFrames={JOURNEY_TOTAL} fps={FPS} width={1920} height={1080} />
-    <Composition id="Signals" component={Signals} durationInFrames={SIGNALS_TOTAL} fps={FPS} width={1920} height={1080} />
+    <Folder name="Signals">
+      {(['full', 'short30', 'module-audit', 'module-cz', 'module-comp'] as const).map((cut) => (
+        <Composition key={cut} id={cut === 'full' ? 'Signals' : `Signals-${cut}`} component={Signals} defaultProps={{cut}} durationInFrames={signalsDuration(cut)} fps={FPS} width={1920} height={1080} />
+      ))}
+    </Folder>
     <Folder name="AutoPres">
       <Composition
         id="AutoPres-ofd-stats"

@@ -2,15 +2,16 @@ import React from 'react';
 import {AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame, Easing} from 'remotion';
 import {evolvePath} from '@remotion/paths';
 import {colors, font} from '../theme';
+import {AuditScreen, CompScreen, CzScreen, DupesScreen, HubScreen, Mascot} from './real';
 import {Anchor, Camera, Cursor, FPS, Focus, Footnote, GRAY, GREEN, INK, Icon, LINE, MarketWindow, Pill, RED, SignalCard, TILE, YELLOW, clamp, ease, useAppear, usePop} from './ui';
 
-export type SceneProps = {cue: (k: string) => number; dur: number};
+export type SceneProps = {cue: (k: string) => number; dur: number; beats: number[]};
 const W: React.CSSProperties = {background: '#fff'};
 
 /* 0:00 — данные есть, ясности нет */
 const DATA = [
   {t: 'Продажи', v: '412 чеков', icon: 'market-register-classic', x: 260, y: 360},
-  {t: 'Остатки', v: '1 284 SKU', icon: 'delivery-box-iso', x: 1380, y: 330},
+  {t: 'Остатки', v: '1 284 позиции', icon: 'delivery-box-iso', x: 1380, y: 330},
   {t: 'Списания', v: '−6 800 ₽', icon: 'doc-arrow-sync', x: 420, y: 720},
   {t: 'Цены', v: '38 изменений', icon: 'money-wallet-a', x: 1180, y: 700},
   {t: 'Маркировка', v: '9 120 кодов', icon: 'check-circle-cut', x: 820, y: 520},
@@ -190,7 +191,7 @@ export const Trust: React.FC<SceneProps> = ({cue}) => {
           transform: `scale(${0.7 + toWin * 0.3})`,
         }}
       >
-        <Img src={staticFile('demo-market.png')} style={{width: '100%', display: 'block'}} />
+        <Img src={staticFile('signals/ui/hub.png')} style={{width: '100%', display: 'block'}} />
       </div>
       <div style={{position: 'absolute', left: 1400, top: 300, opacity: useAppear(cue('передавать'))}}>
         <Pill color="#fff" bg={colors.blue} size={26}>Без сторонних сервисов</Pill>
@@ -222,8 +223,8 @@ export const Modules: React.FC<SceneProps> = ({cue}) => (
   </AbsoluteFill>
 );
 
-/* 1:12 — аудит торговой точки: сигнал → причина → что проверить */
-export const Audit: React.FC<SceneProps> = ({cue}) => {
+/* 1:12 — аудит торговой точки: график падает → реальный экран «Прибыль» */
+export const Audit: React.FC<SceneProps> = ({cue, dur}) => {
   const frame = useCurrentFrame();
   const ex = cue('Например');
   const chartOut = interpolate(frame, [ex - 12, ex + 6], [1, 0], clamp);
@@ -231,14 +232,11 @@ export const Audit: React.FC<SceneProps> = ({cue}) => {
   const d = 'M ' + pts.map((p) => p.join(' ')).join(' L ');
   const draw = interpolate(frame, [6, 70], [0, 1], {...clamp, easing: Easing.inOut(Easing.cubic)});
   const e = evolvePath(draw, d);
-  const win = useAppear(ex, 18);
-  const s1 = cue('снижение');
-  const s2 = cue('товары');
-  const s3 = cue('предлагает');
+  const win = useAppear(ex - 6, 14);
   return (
     <AbsoluteFill style={W}>
-      <Anchor lines={[{text: 'Сигнал → Причина → Что проверить', at: 4}]} size={64} />
       <div style={{position: 'absolute', inset: 0, opacity: chartOut}}>
+        <Anchor lines={[{text: 'Сигнал → Причина → Что проверить', at: 4}]} size={64} />
         <svg width={1920} height={1080} style={{position: 'absolute'}}>
           <line x1={300} x2={1640} y1={760} y2={760} stroke={LINE} strokeWidth={3} />
           <path d={d} fill="none" stroke={colors.blue} strokeWidth={8} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={e.strokeDasharray} strokeDashoffset={e.strokeDashoffset} />
@@ -247,157 +245,34 @@ export const Audit: React.FC<SceneProps> = ({cue}) => {
           <SignalCard w={380} title="Прибыль снизилась" sub="−12% к прошлой неделе" />
         </div>
       </div>
-      <div style={{opacity: win, position: 'absolute', inset: 0}}>
-        <Camera keys={[{at: ex, s: 1, cx: 960, cy: 640}, {at: s1, s: 1, cx: 960, cy: 640}, {at: s1 + 15, s: 1.2, cx: 1110, cy: 500}, {at: s2, s: 1.2, cx: 1110, cy: 500}, {at: s2 + 15, s: 1.2, cx: 1110, cy: 680}, {at: s3, s: 1.2, cx: 1110, cy: 680}, {at: s3 + 15, s: 1.2, cx: 1110, cy: 800}]}>
-          <MarketWindow title="Аудит торговой точки" tabs={['Аудит точки', 'Сверка с ЧЗ', 'Конкуренты']} activeTab={0} y={250} h={800}>
-            <div style={{display: 'flex', flexDirection: 'column', gap: 22, fontFamily: font}}>
-              <div style={{background: TILE, borderRadius: 22, padding: '24px 28px'}}>
-                <div style={{fontSize: 20, color: GRAY}}>Сигнал · Магазин на Ленина · 16–22 сентября</div>
-                <div style={{fontSize: 40, fontWeight: 700, color: INK, marginTop: 6}}>
-                  Прибыль снизилась на <span style={{color: RED}}>12%</span> к прошлой неделе
-                </div>
-              </div>
-              <div style={{background: TILE, borderRadius: 22, padding: '22px 28px'}}>
-                <div style={{fontSize: 24, fontWeight: 700, color: INK}}>Возможная причина</div>
-                {[['Молочная продукция', '−8 400 ₽', 'выросла закупочная цена'], ['Хлеб и выпечка', '−3 100 ₽', 'меньше продаж утром'], ['Напитки', '−1 200 ₽', 'рост списаний']].map(([c, v, why]) => (
-                  <div key={c} style={{display: 'grid', gridTemplateColumns: '1fr 160px 1fr', fontSize: 24, padding: '10px 0', borderBottom: `1px solid ${LINE}`}}>
-                    <span style={{color: INK}}>{c}</span>
-                    <span style={{color: RED, fontWeight: 700}}>{v}</span>
-                    <span style={{color: GRAY}}>{why}</span>
-                  </div>
-                ))}
-              </div>
-              <div style={{background: '#EAF4FF', borderRadius: 22, padding: '22px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-                <div>
-                  <div style={{fontSize: 24, fontWeight: 700, color: INK}}>Что проверить</div>
-                  <div style={{fontSize: 24, color: INK, marginTop: 4}}>Цены и закупочные условия по молочной продукции</div>
-                </div>
-                <Pill color="#fff" bg={colors.blue} size={22}>Перейти к проверке</Pill>
-              </div>
-            </div>
-          </MarketWindow>
-          <Focus x={494} y={420} w={1232} h={126} at={s1} until={s2} />
-          <Focus x={494} y={568} w={1232} h={228} at={s2} until={s3} />
-          <Focus x={494} y={818} w={1232} h={110} at={s3} />
-          <Cursor path={[{x: 1300, y: 950, at: s3 - 6}, {x: 1590, y: 873, at: s3 + 30, click: true}]} />
-        </Camera>
-      </div>
+      {frame >= ex - 8 && (
+        <div style={{position: 'absolute', inset: 0, opacity: win}}>
+          <AuditScreen beats={[cue('снижение'), cue('товары'), cue('предлагает')]} dur={dur} />
+        </div>
+      )}
     </AbsoluteFill>
   );
 };
 
-/* 1:37 — дубли товарных карточек */
-const Product: React.FC<{name: string; sub: string; style?: React.CSSProperties}> = ({name, sub, style}) => (
-  <div style={{width: 520, background: '#fff', border: `2px solid ${LINE}`, borderRadius: 20, padding: '18px 24px', fontFamily: font, ...style}}>
-    <div style={{fontSize: 28, fontWeight: 700, color: INK}}>{name}</div>
-    <div style={{fontSize: 20, color: GRAY, marginTop: 4}}>{sub}</div>
-  </div>
+/* 1:37 — дубли товарных карточек (реальный экран + выезжающая панель) */
+export const Dupes: React.FC<SceneProps> = ({cue, dur}) => (
+  <AbsoluteFill style={W}>
+    <DupesScreen beats={[cue('дубли'), cue('подтверждает'), cue('отклоняет')]} dur={dur} />
+    <div style={{position: 'absolute', left: 80, bottom: 60, opacity: useAppear(cue('ручной'))}}>
+      <Pill color="#fff" bg={colors.blue} size={36}>Решение — за вами</Pill>
+    </div>
+  </AbsoluteFill>
 );
-export const Dupes: React.FC<SceneProps> = ({cue}) => {
-  const frame = useCurrentFrame();
-  const a = cue('дубли');
-  const ok = cue('подтверждает') + 14;
-  const no = cue('отклоняет') + 14;
-  const merge = interpolate(frame, [ok, ok + 16], [0, 1], {...clamp, easing: ease});
-  const split = interpolate(frame, [no, no + 16], [0, 1], {...clamp, easing: ease});
-  const p1 = useAppear(a, 14);
-  const p2 = useAppear(cue('подтверждает') - 10, 14);
-  return (
-    <AbsoluteFill style={W}>
-      <MarketWindow title="Возможные дубли товаров" tabs={['Аудит точки', 'Сверка с ЧЗ', 'Конкуренты']} activeTab={0} y={140} h={880}>
-        <div style={{position: 'relative', height: '100%', fontFamily: font}}>
-          {/* пара 1 — подтверждаем */}
-          <div style={{position: 'absolute', left: 0, top: 10, opacity: p1}}>
-            <Product name="Молоко 3,2% 930 мл «Ферма»" sub="Артикул 10234 · 128 продаж" style={{transform: `translateX(${merge * 290}px)`}} />
-            <Product name="Молоко 3.2% 0,93 л Ферма" sub="Артикул 10877 · 41 продажа" style={{position: 'absolute', left: 580, top: 0, transform: `translateX(${-merge * 290}px)`, opacity: 1 - merge}} />
-            <div style={{position: 'absolute', left: 0, top: 130, display: 'flex', gap: 14, alignItems: 'center', opacity: 1 - merge}}>
-              <Pill color={GRAY} bg={TILE} size={22}>Совпадение 94%</Pill>
-              <Pill color="#fff" bg={colors.blue} size={22}>Подтвердить</Pill>
-              <Pill color={INK} bg="#fff" size={22} style={{border: `2px solid ${LINE}`}}>Отклонить</Pill>
-            </div>
-            <div style={{position: 'absolute', left: 290, top: 130, opacity: merge}}>
-              <Pill color="#fff" bg={GREEN} size={22}>Объединено ✓</Pill>
-            </div>
-          </div>
-          {/* пара 2 — отклоняем */}
-          <div style={{position: 'absolute', left: 0, top: 290, opacity: p2}}>
-            <Product name="Кефир 1% 900 мл" sub="Артикул 20411 · 76 продаж" style={{transform: `translateX(${-split * 20}px)`}} />
-            <Product name="Кефир 2,5% 900 мл" sub="Артикул 20412 · 58 продаж" style={{position: 'absolute', left: 580, top: 0, transform: `translateX(${split * 40}px)`}} />
-            <div style={{position: 'absolute', left: 0, top: 130, display: 'flex', gap: 14, alignItems: 'center', opacity: 1 - split}}>
-              <Pill color={GRAY} bg={TILE} size={22}>Совпадение 81%</Pill>
-              <Pill color="#fff" bg={colors.blue} size={22}>Подтвердить</Pill>
-              <Pill color={INK} bg="#fff" size={22} style={{border: `2px solid ${LINE}`}}>Отклонить</Pill>
-            </div>
-            <div style={{position: 'absolute', left: 0, top: 130, opacity: split}}>
-              <Pill color={INK} bg={TILE} size={22}>Разные товары ✕</Pill>
-            </div>
-          </div>
-        </div>
-      </MarketWindow>
-      <Cursor path={[{x: 1500, y: 900, at: cue('подтверждает') - 12}, {x: 800, y: 470, at: ok, click: true}, {x: 990, y: 750, at: no, click: true}]} />
-      <div style={{position: 'absolute', left: 1180, top: 760, opacity: useAppear(cue('ручной'))}}>
-        <Anchor lines={[{text: 'Решение — за вами', at: cue('ручной')}]} x={0} y={0} size={44} />
-      </div>
-    </AbsoluteFill>
-  );
-};
 
-/* 1:49 — сверка с Честным Знаком */
-const CODES = [
-  {code: '0104601234567890 21aB7xQ', item: 'Молоко 3,2% 930 мл', st: 'В обороте', c: GREEN, cue: 'коды'},
-  {code: '0104601234567891 21kL2mP', item: 'Молоко 3,2% 930 мл', st: 'Не введён в оборот', c: RED, cue: 'коды'},
-  {code: '0104607770001112 21zQ9wE', item: 'Творог 5% 200 г', st: 'Срок истекает через 2 дня', c: YELLOW, cue: 'срок'},
-  {code: '0104607770001113 21rT4yU', item: 'Творог 5% 200 г', st: 'Срок годности истёк', c: RED, cue: 'срок'},
-  {code: '0104609990003334 21pO8iA', item: 'Сыр 45% 200 г', st: 'Без движения 45 дней', c: YELLOW, cue: 'залежавшиеся'},
-];
-export const Marking: React.FC<SceneProps> = ({cue, dur}) => {
-  const frame = useCurrentFrame();
-  const det = cue('проверку') + 14;
-  const panel = interpolate(frame, [det, det + 16], [0, 1], {...clamp, easing: ease});
-  const banner = useAppear(dur - 70);
-  return (
-    <AbsoluteFill style={W}>
-      <MarketWindow title="Сверка с Честным Знаком" tabs={['Аудит точки', 'Сверка с ЧЗ', 'Конкуренты']} activeTab={1} y={120} h={900}>
-        <div style={{fontFamily: font}}>
-          <div style={{display: 'flex', gap: 12, marginBottom: 18}}>
-            <Pill color={INK} bg={TILE} size={22}>Товарная группа: Молочная продукция ▾</Pill>
-            <Pill color={INK} bg={TILE} size={22}>Все статусы ▾</Pill>
-          </div>
-          {CODES.map((r, i) => {
-            const p = useAppear(cue(r.cue) + (i % 2) * 6, 12);
-            const sel = i === 3 && frame >= det;
-            return (
-              <div key={r.code} style={{display: 'grid', gridTemplateColumns: '420px 1fr 330px', alignItems: 'center', fontSize: 23, padding: '16px 18px', borderRadius: 14, background: sel ? '#EAF4FF' : 'transparent', borderBottom: `1px solid ${LINE}`, opacity: p, transform: `translateY(${(1 - p) * 16}px)`}}>
-                <span style={{fontFamily: 'DejaVu Sans Mono, monospace', fontSize: 20, color: GRAY}}>{r.code}</span>
-                <span style={{color: INK}}>{r.item}</span>
-                <Pill color={r.c === GREEN ? GREEN : r.c === RED ? RED : '#8A5A00'} bg={r.c === GREEN ? '#E3F6EC' : r.c === RED ? '#FDE8E8' : '#FFF3D6'} size={20}>
-                  {r.st}
-                </Pill>
-              </div>
-            );
-          })}
-        </div>
-        {/* детали кода */}
-        <div style={{position: 'absolute', right: -44, top: -170, bottom: -30, width: 520, background: '#fff', borderLeft: `2px solid ${LINE}`, padding: 36, fontFamily: font, transform: `translateX(${(1 - panel) * 560}px)`}}>
-          <div style={{fontSize: 30, fontWeight: 700, color: INK}}>Код маркировки</div>
-          {[['Товар', 'Творог 5% 200 г'], ['Код', '…21rT4yU'], ['Срок годности', '21.09.2026'], ['Статус', 'Срок истёк'], ['Остаток', 'на полке, 1 шт']].map(([k, v]) => (
-            <div key={k} style={{marginTop: 20}}>
-              <div style={{fontSize: 20, color: GRAY}}>{k}</div>
-              <div style={{fontSize: 26, color: k === 'Статус' ? RED : INK, fontWeight: 500}}>{v}</div>
-            </div>
-          ))}
-          <div style={{marginTop: 34}}>
-            <Pill color="#fff" bg={colors.blue} size={22}>Снять с продажи и проверить</Pill>
-          </div>
-        </div>
-      </MarketWindow>
-      <Cursor path={[{x: 1400, y: 950, at: cue('проверку') - 10}, {x: 1000, y: 575, at: det, click: true}]} />
-      <div style={{position: 'absolute', left: 150, top: 40, opacity: banner}}>
-        <Pill color={INK} bg={TILE} size={24}>С 1 сентября 2026 — автоштрафы по данным Честного Знака</Pill>
-      </div>
-    </AbsoluteFill>
-  );
-};
+/* 1:49 — сверка с Честным Знаком (реальный экран, подсказка выезжает в панели) */
+export const Marking: React.FC<SceneProps> = ({cue, dur}) => (
+  <AbsoluteFill style={W}>
+    <CzScreen beats={[cue('коды'), cue('срок'), cue('залежавшиеся'), cue('проверку')]} dur={dur} />
+    <div style={{position: 'absolute', left: 80, bottom: 60, opacity: useAppear(dur - 70)}}>
+      <Pill color={INK} bg="#fff" size={28} style={{boxShadow: '0 10px 30px rgba(0,0,0,0.12)'}}>С 1 сентября 2026 — автоштрафы по данным Честного Знака</Pill>
+    </div>
+  </AbsoluteFill>
+);
 
 /* 2:15 — автоштрафы */
 export const Fines: React.FC<SceneProps> = ({cue}) => {
@@ -426,52 +301,25 @@ export const Fines: React.FC<SceneProps> = ({cue}) => {
   );
 };
 
-/* 2:29 — сравнение с конкурентами */
-export const Market: React.FC<SceneProps> = ({cue}) => {
+/* 2:29 — сравнение с конкурентами: реальный экран → расчёт */
+export const Market: React.FC<SceneProps> = ({cue, dur}) => {
   const frame = useCurrentFrame();
-  const map = useAppear(cue('рынок'));
-  const tags = cue('Если');
-  const calc = cue('продаётся');
   const res = cue('потенциальная');
+  const calc = res - 70;
+  const shrink = interpolate(frame, [calc - 14, calc + 10], [0, 1], {...clamp, easing: ease});
   const low = Math.round(interpolate(frame, [res, res + 40], [0, 9000], {...clamp, easing: Easing.out(Easing.cubic)}));
   const high = Math.round(interpolate(frame, [res, res + 40], [0, 22500], {...clamp, easing: Easing.out(Easing.cubic)}));
-  const pins = [
-    {x: 420, y: 560, t: 'Ваш магазин', price: '100 ₽', us: true},
-    {x: 250, y: 380, t: 'Конкурент А', price: '115 ₽'},
-    {x: 640, y: 420, t: 'Конкурент Б', price: '115 ₽'},
-    {x: 610, y: 760, t: 'Конкурент В', price: '118 ₽'},
-  ];
   return (
-    <AbsoluteFill style={W}>
-      <Anchor lines={[{text: 'Рынок вокруг магазина', at: 4}]} size={64} />
-      {/* схема района */}
-      <div style={{position: 'absolute', left: 120, top: 260, width: 760, height: 700, borderRadius: 40, background: TILE, overflow: 'hidden', opacity: map}}>
-        {[140, 330, 520].map((y) => <div key={y} style={{position: 'absolute', left: 0, right: 0, top: y, height: 26, background: '#fff'}} />)}
-        {[180, 460].map((x) => <div key={x} style={{position: 'absolute', top: 0, bottom: 0, left: x, width: 26, background: '#fff'}} />)}
+    <AbsoluteFill style={{background: '#EEF1F5'}}>
+      <div style={{position: 'absolute', inset: 0, transformOrigin: '60px 540px', transform: `scale(${1 - shrink * 0.48})`, borderRadius: shrink * 40, overflow: 'hidden'}}>
+        <CompScreen beats={[cue('рынок'), cue('Если'), cue('продаётся') - 40]} dur={dur} />
       </div>
-      {pins.map((p, i) => {
-        const s = usePop(cue('рынок') + i * 6, 12);
-        const tag = usePop(tags + i * 5, 12);
-        return (
-          <div key={p.t} style={{position: 'absolute', left: p.x, top: p.y}}>
-            <div style={{width: 34, height: 34, borderRadius: 17, background: p.us ? colors.blue : GRAY, border: '5px solid #fff', transform: `scale(${s}) translate(-50%,-50%)`}} />
-            <div style={{position: 'absolute', left: 30, top: -44, transform: `scale(${tag})`, transformOrigin: 'left bottom', fontFamily: font, whiteSpace: 'nowrap'}}>
-              <div style={{fontSize: 20, color: GRAY}}>{p.t}</div>
-              <Pill color={p.us ? '#fff' : INK} bg={p.us ? colors.blue : '#fff'} size={30}>{p.price}</Pill>
-            </div>
-          </div>
-        );
-      })}
-      <div style={{position: 'absolute', left: 150, top: 880, opacity: useAppear(res + 10)}}>
-        <Pill color="#fff" bg={colors.blue} size={24}>Рекомендация: проверьте цену на молоко 3,2%</Pill>
-      </div>
-      {/* расчёт */}
-      <div style={{position: 'absolute', left: 980, top: 300, fontFamily: font}}>
-        <div style={{fontSize: 30, color: GRAY, opacity: useAppear(calc)}}>Разница × продажи × дни</div>
-        <div style={{fontSize: 76, fontWeight: 700, color: INK, letterSpacing: -2, marginTop: 10, opacity: useAppear(calc + 6)}}>15 ₽ × 20–50 шт. × 30</div>
-        <div style={{height: 4, width: 780, background: LINE, margin: '40px 0', opacity: useAppear(res)}} />
-        <div style={{fontSize: 30, color: GRAY, opacity: useAppear(res)}}>Потенциально на одном SKU в месяц*</div>
-        <div style={{fontSize: 100, fontWeight: 700, color: colors.blue, letterSpacing: -3, marginTop: 6, opacity: useAppear(res), fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap'}}>
+      <div style={{position: 'absolute', left: 1060, top: 300, fontFamily: font, opacity: shrink}}>
+        <div style={{fontSize: 30, color: GRAY}}>Разница × продажи × дни</div>
+        <div style={{fontSize: 70, fontWeight: 700, color: INK, letterSpacing: -2, marginTop: 10}}>15 ₽ × 20–50 шт. × 30</div>
+        <div style={{height: 4, width: 760, background: LINE, margin: '40px 0', opacity: useAppear(res)}} />
+        <div style={{fontSize: 30, color: GRAY, opacity: useAppear(res)}}>Потенциально на одной позиции в месяц*</div>
+        <div style={{fontSize: 92, fontWeight: 700, color: colors.blue, letterSpacing: -3, marginTop: 6, opacity: useAppear(res), fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap'}}>
           {low.toLocaleString('ru-RU')}–{high.toLocaleString('ru-RU')} ₽
         </div>
       </div>
@@ -530,50 +378,164 @@ export const Econ: React.FC<SceneProps> = ({cue}) => {
       </div>
       <div style={{position: 'absolute', left: 120, top: 720, width: 900, background: colors.blue, color: '#fff', borderRadius: 32, padding: '30px 44px', fontFamily: font, display: 'flex', justifyContent: 'space-between', alignItems: 'center', transform: `scale(${d})`, transformOrigin: 'left center'}}>
         <span style={{fontSize: 38, fontWeight: 500}}>ИИ Бизнес сигналы</span>
-        <span style={{fontSize: 60, fontWeight: 700}}>15 000 ₽</span>
+        <span style={{fontSize: 60, fontWeight: 700}}>22 000 ₽</span>
       </div>
-      <Footnote at={cue('Стоимость')} text="* Расчётные сценарии; не являются гарантией эффекта или окупаемости. Стоимость и условия подключения требуют подтверждения перед публикацией." />
+      <div style={{position: 'absolute', left: 1060, top: 750, transform: `scale(${usePop(cue('скидка'), 12)})`, transformOrigin: 'left center'}}>
+        <Pill color={colors.blue} bg="#EAF4FF" size={40}>Скидка до 32% — до 30 ноября</Pill>
+      </div>
+      <Footnote at={cue('Стоимость')} text="* Расчётные сценарии; не являются гарантией эффекта или окупаемости." />
     </AbsoluteFill>
   );
 };
 
-/* 3:12 — финальный синий экран */
+/* Финал: заявка на сайте */
 export const Cta: React.FC<SceneProps> = ({cue}) => {
-  const items = [
-    {t: 'Определим нужный сценарий', at: cue('определим')},
-    {t: 'Покажем логику сигналов', at: cue('покажем')},
-    {t: 'Уточним условия подключения', at: cue('уточним')},
-  ];
+  const k = cue('оставляйте') || cue('Оставляйте');
+  const btn = usePop(k + 4, 12);
   return (
     <AbsoluteFill style={{background: colors.blue}}>
-      <Anchor lines={[{text: 'Разберите одну задачу', at: 4, color: '#fff'}, {text: 'вашего магазина', at: 12, color: '#fff'}]} size={96} y={120} />
-      <div style={{position: 'absolute', left: 120, top: 400, opacity: useAppear(cue('20'))}}>
-        <Pill color={colors.blue} bg="#fff" size={34}>Демонстрация 20–30 минут</Pill>
+      <div style={{position: 'absolute', left: 120, top: 150, display: 'flex', alignItems: 'center', gap: 28, opacity: useAppear(2)}}>
+        <Mascot size={150} />
+        <div style={{fontFamily: font, fontSize: 48, fontWeight: 700, color: '#fff'}}>ИИ Бизнес сигналы</div>
       </div>
-      <div style={{position: 'absolute', left: 120, top: 530, display: 'flex', flexDirection: 'column', gap: 22, fontFamily: font}}>
-        {items.map((it) => {
-          const p = useAppear(it.at);
-          return (
-            <div key={it.t} style={{display: 'flex', gap: 20, alignItems: 'center', fontSize: 44, color: '#fff', opacity: p, transform: `translateX(${(1 - p) * -30}px)`}}>
-              <svg width={40} height={40} viewBox="0 0 24 24">
-                <path d="M4 12.5 L9.5 18 L20 6.5" fill="none" stroke="#fff" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              {it.t}
-            </div>
-          );
-        })}
-      </div>
-      <div style={{position: 'absolute', right: 140, top: 400, width: 380, height: 380, borderRadius: 32, border: '4px dashed rgba(255,255,255,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: font, fontSize: 28, color: 'rgba(255,255,255,0.85)', padding: 30}}>
-        QR-код / ссылка
-        <br />
-        после утверждения
+      <Anchor lines={[{text: 'Оставляйте заявку', at: 8, color: '#fff'}, {text: 'на сайте', at: 16, color: '#fff'}]} size={120} y={360} />
+      <div style={{position: 'absolute', left: 120, top: 700, display: 'flex', gap: 30, alignItems: 'center', transform: `scale(${btn})`, transformOrigin: 'left center'}}>
+        <div style={{background: '#fff', color: colors.blue, fontFamily: font, fontWeight: 700, fontSize: 44, padding: '26px 56px', borderRadius: 60}}>Оставить заявку</div>
+        <div style={{fontFamily: font, fontSize: 44, color: '#fff'}}>kontur.ru/market</div>
       </div>
       <Img src={staticFile('logo-market-32.svg')} style={{position: 'absolute', left: 120, bottom: 70, height: 50, filter: 'brightness(0) invert(1)'}} />
     </AbsoluteFill>
   );
 };
 
+/* Заставка: «ИИ Бизнес сигналы» от Контур.Маркета */
+export const Intro: React.FC<SceneProps> = () => {
+  const frame = useCurrentFrame();
+  const m = usePop(4, 11);
+  const ring = interpolate(frame, [8, 40], [0, 1], {...clamp, easing: Easing.out(Easing.cubic)});
+  const circle = 'M 960 120 A 230 230 0 1 1 959.9 120';
+  const e = evolvePath(ring, circle);
+  const logo = useAppear(30);
+  return (
+    <AbsoluteFill style={W}>
+      <svg width={1920} height={1080} style={{position: 'absolute'}}>
+        <path d={circle} fill="none" stroke={colors.blue} strokeWidth={5} strokeDasharray={e.strokeDasharray} strokeDashoffset={e.strokeDashoffset} />
+      </svg>
+      <div style={{position: 'absolute', left: 960 - 160, top: 230, transform: `scale(${m}) translateY(${Math.sin(frame / 12) * 6}px)`}}>
+        <Mascot size={320} />
+      </div>
+      <div style={{position: 'absolute', left: 0, right: 0, top: 640, textAlign: 'center', fontFamily: font, fontWeight: 700, fontSize: 124, letterSpacing: -2.5, color: INK, clipPath: `inset(-10% ${(1 - useAppear(14, 20)) * 50}% -10% ${(1 - useAppear(14, 20)) * 50}%)`}}>
+        ИИ Бизнес сигналы
+      </div>
+      <div style={{position: 'absolute', left: 0, right: 0, top: 830, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 22, opacity: logo, transform: `translateY(${(1 - logo) * 20}px)`}}>
+        <span style={{fontFamily: font, fontSize: 40, color: GRAY}}>от</span>
+        <Img src={staticFile('logo-market-32.svg')} style={{height: 62}} />
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+/* Цена (короткие версии) */
+export const Price: React.FC<SceneProps> = ({cue}) => {
+  const a = usePop(cue('22') - 4, 13);
+  const b = usePop(cue('скидка'), 12);
+  return (
+    <AbsoluteFill style={W}>
+      <Anchor lines={[{text: 'ИИ Бизнес сигналы', at: 2}]} size={64} />
+      <div style={{position: 'absolute', left: 120, top: 300, fontFamily: font, transform: `scale(${a})`, transformOrigin: 'left center'}}>
+        <div style={{fontSize: 36, color: GRAY}}>Модификатор Контур.Маркета</div>
+        <div style={{fontSize: 200, fontWeight: 700, color: INK, letterSpacing: -6, lineHeight: 1.05}}>22 000 ₽</div>
+      </div>
+      <div style={{position: 'absolute', left: 120, top: 650, transform: `scale(${b})`, transformOrigin: 'left center'}}>
+        <Pill color="#fff" bg={colors.blue} size={56}>Скидка до 32% — до 30 ноября</Pill>
+      </div>
+      <div style={{position: 'absolute', right: 160, top: 300}}>
+        <Mascot size={420} />
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+/* Крючки для версий по модулям */
+export const HookAudit: React.FC<SceneProps> = ({cue}) => {
+  const frame = useCurrentFrame();
+  const pts = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => [260 + i * 200, 820 - [90, 130, 110, 160, 150, 100, 20, -60][i]]);
+  const d = 'M ' + pts.map((p) => p.join(' ')).join(' L ');
+  const e = evolvePath(interpolate(frame, [0, 40], [0, 1], {...clamp, easing: Easing.inOut(Easing.cubic)}), d);
+  return (
+    <AbsoluteFill style={W}>
+      <Anchor lines={[{text: 'Прибыль изменилась.', at: 2}, {text: 'Почему?', at: cue('почему') - 6, color: colors.blue}]} size={100} />
+      <svg width={1920} height={1080} style={{position: 'absolute'}}>
+        <path d={d} fill="none" stroke={colors.blue} strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={e.strokeDasharray} strokeDashoffset={e.strokeDashoffset} />
+      </svg>
+    </AbsoluteFill>
+  );
+};
+export const HookCz: React.FC<SceneProps> = ({cue, dur}) => {
+  const chips = [['Срок годности истёк', RED, '#FDE8E8'], ['Не введён в оборот', RED, '#FDE8E8'], ['Долго на балансе', '#8A5A00', '#FFF3D6']];
+  return (
+    <AbsoluteFill style={W}>
+      <Anchor lines={[{text: 'С 1 сентября 2026 —', at: 2}, {text: 'автоштрафы по данным', at: cue('автоштрафы') - 4, color: colors.blue}, {text: 'Честного Знака', at: cue('автоштрафы') + 4, color: colors.blue}]} size={88} />
+      <div style={{position: 'absolute', left: 120, top: 560, display: 'flex', gap: 20}}>
+        {chips.map(([t, c, bg], i) => (
+          <div key={t} style={{transform: `scale(${usePop(14 + i * 8, 12)})`}}>
+            <Pill color={c} bg={bg} size={40}>{t}</Pill>
+          </div>
+        ))}
+      </div>
+      <Footnote at={dur - 50} text="Источник: Роспотребнадзор, разъяснение от 19.08.2026. Сверка помогает выявить риск, но не гарантирует отсутствие штрафов." />
+    </AbsoluteFill>
+  );
+};
+export const HookComp: React.FC<SceneProps> = ({cue}) => {
+  const tags = [['Ваш магазин', '100 ₽', true], ['Конкурент А', '115 ₽', false], ['Конкурент Б', '92 ₽', false]] as const;
+  return (
+    <AbsoluteFill style={W}>
+      <Anchor lines={[{text: 'Где ваши цены', at: 2}, {text: 'выше рынка, а где ниже?', at: cue('выше') - 4, color: colors.blue}]} size={96} />
+      <div style={{position: 'absolute', left: 120, top: 560, display: 'flex', gap: 36}}>
+        {tags.map(([n, p, us], i) => (
+          <div key={n} style={{transform: `scale(${usePop(10 + i * 8, 12)})`, fontFamily: font, background: us ? colors.blue : TILE, color: us ? '#fff' : INK, borderRadius: 32, padding: '30px 40px'}}>
+            <div style={{fontSize: 30, opacity: 0.8}}>{n}</div>
+            <div style={{fontSize: 80, fontWeight: 700}}>{p}</div>
+          </div>
+        ))}
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+/* Экранные сцены для коротких версий: ключевые моменты берутся из cues по порядку */
+const AnchorOver: React.FC<{text: string}> = ({text}) => (
+  <div style={{position: 'absolute', left: 60, top: 50, opacity: useAppear(4)}}>
+    <Pill color="#fff" bg={colors.blue} size={34}>{text}</Pill>
+  </div>
+);
+export const HubCut: React.FC<SceneProps> = ({beats, dur}) => (
+  <AbsoluteFill>
+    <HubScreen beats={beats} dur={dur} />
+  </AbsoluteFill>
+);
+export const AuditCut: React.FC<SceneProps> = ({beats, dur}) => (
+  <AbsoluteFill>
+    <AuditScreen beats={beats} dur={dur} />
+    <AnchorOver text="Аудит торговой точки" />
+  </AbsoluteFill>
+);
+export const CzCut: React.FC<SceneProps> = ({beats, dur}) => (
+  <AbsoluteFill>
+    <CzScreen beats={beats.length >= 3 ? beats : [beats[0] ?? 6, (beats[0] ?? 6) + 30, dur * 0.6, dur * 0.75]} dur={dur} />
+    <AnchorOver text="Сверка с Честным Знаком" />
+  </AbsoluteFill>
+);
+export const CompCut: React.FC<SceneProps> = ({beats, dur}) => (
+  <AbsoluteFill>
+    <CompScreen beats={beats.length >= 2 ? [beats[0], beats[1], dur * 0.72] : [6, beats[0] ?? dur * 0.4, dur * 0.7]} dur={dur} />
+    <AnchorOver text="Сравнение с конкурентами" />
+  </AbsoluteFill>
+);
+
 export const SCENES: Record<string, React.FC<SceneProps>> = {
+  intro: Intro,
   data: Data,
   owner: Owner,
   who: Who,
@@ -588,5 +550,18 @@ export const SCENES: Record<string, React.FC<SceneProps>> = {
   recap: Recap,
   econ: Econ,
   cta: Cta,
+};
+/* Сцены коротких версий (тот же id может значить другое, поэтому отдельная карта) */
+export const CUT_SCENES: Record<string, React.FC<SceneProps>> = {
+  intro: Intro,
+  hub: HubCut,
+  audit: AuditCut,
+  cz: CzCut,
+  comp: CompCut,
+  price: Price,
+  cta: Cta,
+  'hook-audit': HookAudit,
+  'hook-cz': HookCz,
+  'hook-comp': HookComp,
 };
 export const toFrames = (sec: number) => Math.round(sec * FPS);
