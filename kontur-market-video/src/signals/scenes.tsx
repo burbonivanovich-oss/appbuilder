@@ -389,11 +389,10 @@ export const Econ: React.FC<SceneProps> = ({cue}) => {
 };
 
 /* Значок ИИ: синяя плашка с «искрой», как иконка ИИ в интерфейсе Маркета */
-export const Spark: React.FC<{size: number; rot?: number}> = ({size, rot = 0}) => (
-  <div style={{width: size, height: size, borderRadius: size * 0.26, background: colors.blue, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-    <svg width={size * 0.6} height={size * 0.6} viewBox="0 0 24 24" style={{transform: `rotate(${rot}deg)`}}>
-      <path d="M12 1.5 L14.3 9.7 L22.5 12 L14.3 14.3 L12 22.5 L9.7 14.3 L1.5 12 L9.7 9.7 Z" fill="#fff" />
-    </svg>
+export const Spark: React.FC<{size: number; rot?: number}> = ({size}) => (
+  <div style={{width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+    {/* значок ИИ из интерфейса Контур.Маркета (панель «Сигналы»), исходник 48×48 */}
+    <Img src={staticFile('signals/ai-icon.png')} style={{width: size * 0.8, height: size * 0.8}} />
   </div>
 );
 
@@ -436,7 +435,7 @@ export const Intro: React.FC<SceneProps> = () => {
         <path d={circle} fill="none" stroke={colors.blue} strokeWidth={5} strokeDasharray={e.strokeDasharray} strokeDashoffset={e.strokeDashoffset} />
       </svg>
       <div style={{position: 'absolute', left: 960 - 110, top: 250, transform: `scale(${m})`}}>
-        <Spark size={220} rot={frame * 0.6} />
+        <Spark size={220} />
       </div>
       {chips.map((c, i) => {
         const p = usePop(14 + i * 6, 13);

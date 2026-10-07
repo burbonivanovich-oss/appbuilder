@@ -33,7 +33,7 @@ export const IntroV: React.FC<SceneProps> = () => {
         <path d={circle} fill="none" stroke={colors.blue} strokeWidth={5} strokeDasharray={e.strokeDasharray} strokeDashoffset={e.strokeDashoffset} />
       </svg>
       <div style={{position: 'absolute', left: 540 - 120, top: 440, transform: `scale(${m})`}}>
-        <Spark size={240} rot={frame * 0.6} />
+        <Spark size={240} />
       </div>
       {chips.map((c, i) => (
         <div key={c.t} style={{position: 'absolute', left: c.x, top: c.y + Math.sin(frame / 18 + i) * 6, transform: `scale(${usePop(14 + i * 6, 13)})`}}>
