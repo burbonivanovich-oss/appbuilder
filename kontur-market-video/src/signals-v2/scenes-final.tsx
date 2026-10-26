@@ -1,6 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, Img, staticFile, useCurrentFrame} from 'remotion';
-import {AiIcon, C, CountUp, Cursor, Dot, Footnote, Ico, Reveal, Sfx, ease, font, hoverP, lerp, pressP, s2f, spr} from './kit';
+import {AiIcon, C, CountUp, Cursor, Dot, Footnote, Head, Ico, Reveal, SAFE, Sfx, ease, font, hoverP, lerp, pressP, s2f, spr} from './kit';
 import type {SceneProps} from './SignalsV2';
 
 /* ------------------------------- перебивка -------------------------------- */
@@ -12,6 +12,7 @@ const MODULES = [
 ];
 const DIV_OUT = s2f(1.35) - 8;
 
+/* Перебивка по шаблону гайда: синий экран, светлая строка + белая строка, Medium */
 export const Divider: React.FC<{light: string; title: string; chapter: string}> = ({light, title, chapter}) => {
   const f = useCurrentFrame();
   const inP = lerp(f, 0, 12, 0, 1, ease);
@@ -21,24 +22,20 @@ export const Divider: React.FC<{light: string; title: string; chapter: string}> 
     <AbsoluteFill style={{background: C.blue, transform: `translateY(${(1 - inP) * 100 - outP * 100}%)`, fontFamily: font, overflow: 'hidden'}}>
       <Sfx at={0} name="swipe" />
       <Sfx at={DIV_OUT} name="whoosh" />
-      <div style={{position: 'absolute', left: 120, top: 64, display: 'flex', alignItems: 'center', gap: 14, opacity: lerp(f, 6, 18)}}>
-        <div style={{width: 46, height: 46, borderRadius: 14, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-          <AiIcon size={28} />
-        </div>
-        <span style={{fontSize: 30, fontWeight: 500, color: '#fff'}}>ИИ Бизнес сигналы</span>
-      </div>
-      <div style={{position: 'absolute', left: 120, top: 360}}>
-        <Reveal at={4} style={{fontSize: 64, fontWeight: 500, color: C.onBlue, letterSpacing: -1}}>{light}</Reveal>
-        <Reveal at={9} style={{fontSize: 120, fontWeight: 700, color: '#fff', letterSpacing: -3, lineHeight: 1.05, marginTop: 6}}>
+      <div style={{position: 'absolute', left: SAFE, top: 324, fontWeight: 500, fontSize: 112, lineHeight: 1.18, letterSpacing: -2.6}}>
+        <Reveal at={4} style={{color: C.onBlue}}>
+          {light}
+        </Reveal>
+        <Reveal at={9} style={{color: '#fff'}}>
           {title}
         </Reveal>
       </div>
       {isModule && (
-        <div style={{position: 'absolute', left: 120, bottom: 90, display: 'flex', gap: 16, opacity: lerp(f, 12, 24)}}>
+        <div style={{position: 'absolute', left: SAFE, top: 1080 - SAFE - 56, display: 'flex', gap: 16, opacity: lerp(f, 12, 24)}}>
           {MODULES.map((m, i) => {
             const on = m.id === chapter;
             return (
-              <div key={m.id} style={{display: 'flex', alignItems: 'center', gap: 12, padding: '14px 26px', borderRadius: 999, fontSize: 26, fontWeight: 500, background: on ? '#fff' : 'transparent', color: on ? C.blue : C.onBlue, border: on ? 'none' : `2px solid rgba(169, 212, 255, 0.55)`}}>
+              <div key={m.id} style={{display: 'flex', alignItems: 'center', gap: 12, height: 56, padding: '0 26px', boxSizing: 'border-box', borderRadius: 999, fontSize: 25, fontWeight: 500, background: on ? '#fff' : 'transparent', color: on ? C.blue : C.onBlue, border: on ? 'none' : `2px solid rgba(169, 212, 255, 0.55)`}}>
                 <span style={{opacity: 0.7}}>{i + 1}</span>
                 {m.t}
               </div>
@@ -53,28 +50,46 @@ export const Divider: React.FC<{light: string; title: string; chapter: string}> 
 /* ------------------- финальный кадр отдельных частей ---------------------- */
 
 export const END_CARD = s2f(2.8);
+/* Аутро по шаблону гайда: синий экран, призыв и адрес по центру, реалистичный курсор нажимает кнопку */
+const Outro: React.FC<{btnAt: number; click: number; siteAt: number; logoAt: number; sub?: boolean; hideCursor?: number}> = ({btnAt, click, siteAt, logoAt, sub, hideCursor}) => {
+  const f = useCurrentFrame();
+  const btn = spr(f, btnAt, 13);
+  const BTN_TOP = sub ? 560 : 520;
+  const BTN_H = 110;
+  return (
+    <>
+      <div style={{position: 'absolute', left: 0, right: 0, top: sub ? 250 : 300, height: 140, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 26, fontFamily: font}}>
+        <div style={{width: 112, height: 112, borderRadius: 32, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', transform: `scale(${spr(f, 2, 12)})`}}>
+          <AiIcon size={68} />
+        </div>
+        <Reveal at={6} style={{fontSize: 112, fontWeight: 500, color: '#fff', letterSpacing: -2.6, lineHeight: 1.1}}>
+          ИИ Бизнес сигналы
+        </Reveal>
+      </div>
+      {sub && (
+        <div style={{position: 'absolute', left: 0, right: 0, top: 410, display: 'flex', justifyContent: 'center', fontFamily: font}}>
+          <Reveal at={14} style={{fontSize: 44, color: C.onBlue}}>
+            Потери, риски и точки роста — с причиной и подсказкой
+          </Reveal>
+        </div>
+      )}
+      <div style={{position: 'absolute', left: 0, right: 0, top: BTN_TOP, display: 'flex', justifyContent: 'center'}}>
+        <div style={{height: BTN_H, display: 'flex', alignItems: 'center', boxSizing: 'border-box', transform: `scale(${btn * (1 - pressP(f, click) * 0.04)})`, background: hoverP(f, click - 8) > 0.5 ? '#F2F8FF' : '#fff', color: C.blue, fontFamily: font, fontSize: 44, fontWeight: 500, padding: '0 64px', borderRadius: 999}}>Оставить заявку</div>
+      </div>
+      <div style={{position: 'absolute', left: 0, right: 0, top: BTN_TOP + BTN_H + 36, textAlign: 'center', fontFamily: font, fontSize: 44, color: '#fff', opacity: lerp(f, siteAt - 4, siteAt + 10)}}>kontur.ru/market</div>
+      <Cursor path={[{x: 1260, y: 980, at: btnAt + 8}, {x: 1010, y: BTN_TOP + BTN_H / 2 + 6, at: click, click: true}]} size={48} hideAt={hideCursor} />
+      <Sfx at={click} name="click" />
+      <Img src={staticFile('logo-market-32.svg')} style={{position: 'absolute', left: 960 - 115, top: 1080 - SAFE + 40, height: 46, filter: 'brightness(0) invert(1)', opacity: lerp(f, logoAt, logoAt + 14)}} />
+    </>
+  );
+};
 export const EndCard: React.FC = () => {
   const f = useCurrentFrame();
   const inP = lerp(f, 0, 14, 0, 1, ease);
-  const btn = spr(f, 16, 14);
   return (
     <AbsoluteFill style={{background: C.blue, fontFamily: font, transform: `translateY(${(1 - inP) * 100}%)`}}>
       <Sfx at={0} name="swipe" />
-      <div style={{position: 'absolute', left: 120, top: 330}}>
-        <div style={{display: 'flex', alignItems: 'center', gap: 22}}>
-          <div style={{width: 84, height: 84, borderRadius: 24, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-            <AiIcon size={52} />
-          </div>
-          <Reveal at={6} style={{fontSize: 92, fontWeight: 700, color: '#fff', letterSpacing: -2}}>
-            ИИ Бизнес сигналы
-          </Reveal>
-        </div>
-        <div style={{display: 'flex', alignItems: 'center', gap: 32, marginTop: 56, transform: `scale(${btn})`, transformOrigin: 'left center'}}>
-          <div style={{background: '#fff', color: C.blue, fontSize: 40, fontWeight: 700, padding: '24px 52px', borderRadius: 999}}>Оставить заявку</div>
-          <div style={{fontSize: 40, color: '#fff'}}>kontur.ru/market</div>
-        </div>
-      </div>
-      <Img src={staticFile('logo-market-32.svg')} style={{position: 'absolute', left: 120, bottom: 72, height: 46, filter: 'brightness(0) invert(1)', opacity: lerp(f, 10, 24)}} />
+      <Outro btnAt={12} click={46} siteAt={20} logoAt={16} hideCursor={76} />
     </AbsoluteFill>
   );
 };
@@ -90,7 +105,7 @@ export const Econ: React.FC<SceneProps> = ({cue, enter}) => {
   const price = cue('Стоимость');
   const sale = cue('скидка');
   // фаза 1: неделя (5 блоков по часу) → месяц (4 недели = 20 ч) → блоки собираются в сигнал
-  const weekX = 120;
+  const weekX = SAFE;
   const gather = lerp(f, help - 4, help + 22, 0, 1, ease);
   const leave = lerp(f, price - 10, price + 14, 0, 1, ease);
   const card = lerp(f, help + 10, help + 30);
@@ -99,13 +114,15 @@ export const Econ: React.FC<SceneProps> = ({cue, enter}) => {
   return (
     <AbsoluteFill style={{background: C.bg, fontFamily: font, color: C.ink}}>
       {/* заголовок‑якорь */}
-      <div style={{position: 'absolute', left: 120, top: 120, opacity: 1 - leave}}>
-        <Reveal at={enter + 4} style={{fontSize: 64, fontWeight: 700, letterSpacing: -1.5}}>
-          Поиск точек роста вручную
-        </Reveal>
-        <Reveal at={h20 + 8} style={{fontSize: 64, fontWeight: 700, letterSpacing: -1.5, color: C.blue}}>
-          — до 20 часов в месяц*
-        </Reveal>
+      <div style={{opacity: 1 - leave}}>
+        <Head
+          size={76}
+          y={120}
+          lines={[
+            {t: 'Поиск точек роста вручную', at: enter + 4},
+            {t: '— до 20 часов в месяц*', at: h20 + 8, color: C.blue},
+          ]}
+        />
       </div>
       {/* календарь часов */}
       <div style={{position: 'absolute', left: weekX, top: 360, opacity: 1 - leave}}>
@@ -143,7 +160,7 @@ export const Econ: React.FC<SceneProps> = ({cue, enter}) => {
         </div>
       </div>
       {/* сигнал вместо ручного поиска */}
-      <div style={{position: 'absolute', left: 120, top: 380, width: 1680, opacity: card * (1 - leave), transform: `translateY(${(1 - card) * 30 - leave * 40}px)`}}>
+      <div style={{position: 'absolute', left: SAFE, top: 380, width: 1624, opacity: card * (1 - leave), transform: `translateY(${(1 - card) * 30 - leave * 40}px)`}}>
         <div style={{fontSize: 32, color: C.gray, marginBottom: 22, display: 'flex', alignItems: 'center', gap: 12}}>
           <AiIcon size={32} />
           Вместо этого — начать анализ с конкретного сигнала и его причины
@@ -152,7 +169,7 @@ export const Econ: React.FC<SceneProps> = ({cue, enter}) => {
           <div style={{flex: 1.25}}>
             <div style={{display: 'flex', alignItems: 'center', gap: 16}}>
               <Dot color={C.red} size={18} pulse={help + 20} />
-              <span style={{fontSize: 44, fontWeight: 700, letterSpacing: -0.8}}>Валовая прибыль снизилась на 12%</span>
+              <span style={{fontSize: 44, fontWeight: 500, letterSpacing: -0.8}}>Валовая прибыль снизилась на 12%</span>
             </div>
             <div style={{fontSize: 24, color: C.gray, marginTop: 26}}>Возможная причина</div>
             <div style={{fontSize: 32, lineHeight: 1.35, marginTop: 6}}>
@@ -170,37 +187,47 @@ export const Econ: React.FC<SceneProps> = ({cue, enter}) => {
           </div>
         </div>
       </div>
-      {/* цена */}
-      <div style={{position: 'absolute', left: 120, top: 250, opacity: Math.min(1, priceIn * 1.4), transform: `translateY(${(1 - priceIn) * 60}px)`}}>
+      {/* цена: три модуля собираются в один модификатор */}
+      <div style={{position: 'absolute', left: SAFE, top: 190, width: 1040, height: 720, background: '#fff', borderRadius: 40, boxShadow: '0 30px 80px rgba(20,40,80,0.12)', padding: '48px 56px', boxSizing: 'border-box', opacity: Math.min(1, priceIn * 1.4), transform: `translateY(${(1 - priceIn) * 60}px)`}}>
         <div style={{display: 'flex', alignItems: 'center', gap: 18}}>
-          <AiIcon size={52} />
-          <span style={{fontSize: 52, fontWeight: 700, letterSpacing: -1}}>ИИ Бизнес сигналы</span>
+          <AiIcon size={56} />
+          <span style={{fontSize: 56, fontWeight: 500, letterSpacing: -1.2}}>ИИ Бизнес сигналы</span>
         </div>
-        <div style={{fontSize: 32, color: C.gray, marginTop: 14}}>Модификатор Контур.Маркета</div>
-        <div style={{fontSize: 210, fontWeight: 700, letterSpacing: -7, lineHeight: 1, marginTop: 40, fontVariantNumeric: 'tabular-nums'}}>
-          <CountUp from={0} to={22000} at={price + 4} dur={Math.max(12, cue('22') - price)} suffix=" ₽" />
+        <div style={{fontSize: 30, color: C.gray, marginTop: 8, marginLeft: 74}}>Модификатор Контур.Маркета</div>
+        {[
+          {t: 'Аудит торговой точки', i: 'chart'},
+          {t: 'Сверка с Честным знаком', i: 'shield'},
+          {t: 'Сравнение с конкурентами', i: 'store'},
+        ].map((m, i) => {
+          const p = spr(f, price + 6 + i * 7, 14);
+          return (
+            <div key={m.t} style={{position: 'absolute', left: 56, right: 56, top: 220 + i * 104, height: 84, borderRadius: 22, background: C.page, display: 'flex', alignItems: 'center', gap: 20, padding: '0 22px', boxSizing: 'border-box', fontSize: 32, fontWeight: 500, opacity: Math.min(1, p * 1.5), transform: `translate(${(1 - p) * 760}px, ${(1 - p) * -40}px) rotate(${(1 - p) * 6}deg)`}}>
+              <div style={{width: 56, height: 56, borderRadius: 16, background: C.mist, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                <Ico n={m.i} size={30} color={C.blue} sw={1.8} />
+              </div>
+              {m.t}
+              <Ico n="check" size={32} color={C.blue} sw={2.4} style={{marginLeft: 'auto'}} />
+            </div>
+          );
+        })}
+        <div style={{position: 'absolute', left: 56, bottom: 44, fontSize: 132, fontWeight: 700, letterSpacing: -4, lineHeight: 1, fontVariantNumeric: 'tabular-nums'}}>
+          <CountUp from={0} to={22000} at={price + 24} dur={Math.max(12, cue('22') - price - 24)} suffix=" ₽" />
         </div>
       </div>
-      <div style={{position: 'absolute', left: 1180, top: 500, transform: `scale(${saleIn}) rotate(${(1 - saleIn) * -8}deg)`, transformOrigin: 'left center'}}>
+      <div style={{position: 'absolute', left: 1250, top: 430, transform: `scale(${saleIn}) rotate(${(1 - saleIn) * -8}deg)`, transformOrigin: 'left center'}}>
         <div style={{background: C.blue, color: '#fff', borderRadius: 36, padding: '30px 44px', fontFamily: font, boxShadow: '0 20px 50px rgba(34,145,255,0.35)'}}>
           <div style={{fontSize: 34, fontWeight: 500, color: C.onBlue}}>до 30 ноября</div>
-          <div style={{fontSize: 84, fontWeight: 700, letterSpacing: -2, lineHeight: 1.05}}>
+          <div style={{fontSize: 76, fontWeight: 500, letterSpacing: -2, lineHeight: 1.05, whiteSpace: 'nowrap'}}>
             скидка до <CountUp from={0} to={32} at={cue('32') - 4} dur={12} suffix="%" />
           </div>
         </div>
       </div>
-      <div style={{position: 'absolute', left: 120, top: 780, display: 'flex', alignItems: 'center', gap: 16, opacity: lerp(f, price + 24, price + 36), transform: `translateY(${(1 - lerp(f, price + 24, price + 40)) * 20}px)`}}>
-        <span style={{fontSize: 28, color: C.gray, marginRight: 8}}>Три ИИ-модуля:</span>
-        {['Аудит торговой точки', 'Сверка с Честным знаком', 'Сравнение с конкурентами'].map((t) => (
-          <span key={t} style={{fontSize: 28, fontWeight: 500, background: '#fff', borderRadius: 999, padding: '14px 26px'}}>
-            {t}
-          </span>
-        ))}
-      </div>
       <Sfx at={h5} name="tick" />
       <Sfx at={help + 6} name="whoosh" vol={0.7} />
       <Sfx at={help + 22} name="chime" />
-      <Sfx at={price} name="pop" />
+      <Sfx at={price + 6} name="swipe" vol={0.5} />
+      <Sfx at={price + 13} name="swipe" vol={0.4} />
+      <Sfx at={price + 20} name="swipe" vol={0.4} />
       <Sfx at={sale} name="pop" vol={1.2} />
       <Footnote at={h20 + 20}>* Расчётный сценарий; не является гарантией эффекта или окупаемости. Стоимость и условия скидки уточняйте у менеджера Контур.Маркета.</Footnote>
     </AbsoluteFill>
@@ -210,37 +237,11 @@ export const Econ: React.FC<SceneProps> = ({cue, enter}) => {
 /* ---------------------------------- финал ---------------------------------- */
 
 export const Cta: React.FC<SceneProps> = ({cue, dur}) => {
-  const f = useCurrentFrame();
   const k = cue('оставляйте');
   const site = cue('сайте');
-  const btnIn = spr(f, k, 13);
-  const click = k + 34;
-  const logo = lerp(f, site + 20, site + 34);
   return (
     <AbsoluteFill style={{background: C.blue, fontFamily: font}}>
-      <div style={{position: 'absolute', left: 120, top: 250}}>
-        <div style={{display: 'flex', alignItems: 'center', gap: 26}}>
-          <div style={{width: 104, height: 104, borderRadius: 30, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', transform: `scale(${spr(f, 2, 12)})`}}>
-            <AiIcon size={64} />
-          </div>
-          <Reveal at={6} style={{fontSize: 112, fontWeight: 700, color: '#fff', letterSpacing: -3}}>
-            ИИ Бизнес сигналы
-          </Reveal>
-        </div>
-        <Reveal at={14} style={{fontSize: 48, color: C.onBlue, marginTop: 26}}>
-          Потери, риски и точки роста — с причиной и подсказкой
-        </Reveal>
-        <div style={{display: 'flex', alignItems: 'center', gap: 36, marginTop: 70}}>
-          <div style={{transform: `scale(${btnIn * (1 - pressP(f, click) * 0.04)})`, transformOrigin: 'left center', background: hoverP(f, click - 8) > 0.5 ? '#F2F8FF' : '#fff', color: C.blue, fontSize: 44, fontWeight: 700, padding: '28px 60px', borderRadius: 999}}>
-            Оставить заявку
-          </div>
-          <div style={{fontSize: 44, color: '#fff', opacity: lerp(f, site - 4, site + 10)}}>kontur.ru/market</div>
-        </div>
-      </div>
-      <Cursor path={[{x: 900, y: 960, at: k + 10}, {x: 330, y: 600, at: click, click: true}]} size={46} hideAt={dur - 20} />
-      <Sfx at={click} name="click" />
-      <Img src={staticFile('logo-market-32.svg')} style={{position: 'absolute', left: 120, bottom: 72, height: 50, filter: 'brightness(0) invert(1)', opacity: logo}} />
+      <Outro btnAt={k} click={k + 34} siteAt={site} logoAt={site + 20} sub hideCursor={dur - 20} />
     </AbsoluteFill>
   );
 };
-

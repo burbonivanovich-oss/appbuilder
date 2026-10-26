@@ -219,19 +219,24 @@ export const cursorAt = (f: number, path: CurPt[], move = 18) => {
   }
   return {x, y};
 };
+const ARROW = 'M4 2 L4 19 L8.5 15 L11.5 22 L14.5 20.7 L11.6 14 L18 14 Z';
+// указательный палец (как системный курсор над ссылкой)
+const HAND = 'M8.6 2.2c.9 0 1.6.7 1.6 1.6v6.3l.5-.1c.9-.1 1.6.5 1.7 1.3v.4l.5-.1c.9-.1 1.6.5 1.7 1.3l.1.5.4-.1c.9-.1 1.6.6 1.7 1.4l.3 3.2c.2 1.9-.4 3.7-1.7 5l-.6.6H9.7l-4.4-4.9c-.6-.7-.6-1.8.1-2.4.7-.6 1.7-.5 2.3.1l.8.9V3.8c0-.9.7-1.6 1.6-1.6z';
+/* Реалистичный курсор: стрелка, над кликабельным — рука; нажатие с «волной» */
 export const Cursor: React.FC<{path: CurPt[]; size?: number; hideAt?: number}> = ({path, size = 40, hideAt = 1e9}) => {
   const f = useCurrentFrame();
   const show = lerp(f, path[0].at - 10, path[0].at) * (1 - lerp(f, hideAt, hideAt + 8));
   if (show <= 0) return null;
   const {x, y} = cursorAt(f, path);
   const clickAt = path.filter((p) => p.click && f >= p.at - 3).map((p) => p.at).pop();
-  const press = clickAt !== undefined && Math.abs(f - clickAt) < 4 ? 0.82 : 1;
+  const press = clickAt !== undefined && Math.abs(f - clickAt) < 4 ? 0.84 : 1;
   const r = clickAt !== undefined ? lerp(f, clickAt, clickAt + 16, 0, 1, Easing.out(Easing.quad)) : 1;
+  const hand = path.some((p) => p.click && f >= p.at - 9 && f <= p.at + 12);
   return (
     <>
       {r < 1 && <div style={{position: 'absolute', left: x - 34 * r, top: y - 34 * r, width: 68 * r, height: 68 * r, borderRadius: '50%', background: 'rgba(34,145,255,0.22)', border: `2.5px solid ${C.blue}`, opacity: 1 - r}} />}
-      <svg width={size} height={size} viewBox="0 0 24 24" style={{position: 'absolute', left: x - size * 0.17, top: y - size * 0.08, opacity: show, transform: `scale(${press})`, transformOrigin: '17% 8%', filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.28))'}}>
-        <path d="M4 2 L4 19 L8.5 15 L11.5 22 L14.5 20.7 L11.6 14 L18 14 Z" fill={C.ink} stroke="#fff" strokeWidth={1.4} strokeLinejoin="round" />
+      <svg width={size} height={size} viewBox="0 0 24 24" style={{position: 'absolute', left: x - size * (hand ? 0.36 : 0.17), top: y - size * (hand ? 0.09 : 0.08), opacity: show, transform: `scale(${press})`, transformOrigin: hand ? '36% 9%' : '17% 8%', filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.28))'}}>
+        <path d={hand ? HAND : ARROW} fill={hand ? '#fff' : C.ink} stroke={hand ? C.ink : '#fff'} strokeWidth={1.4} strokeLinejoin="round" />
       </svg>
     </>
   );
@@ -327,15 +332,28 @@ export const Tag: React.FC<{tone: Tone; children: React.ReactNode; size?: number
   <span style={{display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: font, fontWeight: 500, fontSize: size, color: TONE[tone].t, background: TONE[tone].bg, padding: `${size * 0.22}px ${size * 0.55}px`, borderRadius: 8, whiteSpace: 'nowrap', ...style}}>{children}</span>
 );
 
+/* Поля по шаблону гайда: контент в 148 px от краёв */
+export const SAFE = 148;
+/* Заголовок по шаблону гайда: Medium, строки проявляются снизу, вторая строка — акцентным цветом */
+export const Head: React.FC<{lines: {t: React.ReactNode; at: number; color?: string; out?: number}[]; size?: number; x?: number; y?: number; width?: number}> = ({lines, size = 88, x = SAFE, y = SAFE - 20, width}) => (
+  <div style={{position: 'absolute', left: x, top: y, width, fontFamily: font, fontWeight: 500, fontSize: size, lineHeight: 1.08, letterSpacing: -size * 0.025, color: C.ink}}>
+    {lines.map((l, i) => (
+      <Reveal key={i} at={l.at} out={l.out} style={{color: l.color}}>
+        {l.t}
+      </Reveal>
+    ))}
+  </div>
+);
+
 /* Сноска‑дисклеймер внизу кадра */
-export const Footnote: React.FC<{at: number; children: React.ReactNode; color?: string; left?: number; right?: number; bottom?: number}> = ({at, children, color = C.gray, left = 120, right = 120, bottom = 44}) => {
+export const Footnote: React.FC<{at: number; children: React.ReactNode; color?: string; left?: number; right?: number; bottom?: number}> = ({at, children, color = C.gray, left = 148, right = 148, bottom = 60}) => {
   const f = useCurrentFrame();
   const o = lerp(f, at, at + 14);
   return <div style={{position: 'absolute', left, right, bottom, fontFamily: font, fontSize: 22, lineHeight: 1.35, color, opacity: o, transform: `translateY(${(1 - o) * 8}px)`}}>{children}</div>;
 };
 
 /* Подпись‑якорь в синей плашке (видна и на синем фоне, и поверх интерфейса при зуме) */
-export const Caption: React.FC<{items: {at: number; text: string; light?: string}[]; until?: number; x?: number; y?: number}> = ({items, until = 1e9, x = 120, y = 44}) => {
+export const Caption: React.FC<{items: {at: number; text: string; light?: string}[]; until?: number; x?: number; y?: number}> = ({items, until = 1e9, x = 148, y = 48}) => {
   const f = useCurrentFrame();
   let i = -1;
   items.forEach((it, k) => {

@@ -1,48 +1,62 @@
 import React from 'react';
 import {AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame} from 'remotion';
 import {evolvePath} from '@remotion/paths';
-import {AiIcon, C, Cursor, Dot, Flow, Ico, Reveal, Sfx, Spot, TONE, Tone, Typewriter, clamp, ease, font, hoverP, lerp, pressP, spr} from './kit';
-import {AiNote, Btn, Card, MarketWindow, NAV_Y, PageHead, PX, R, Screen, SignalCard, home} from './market-ui';
+import {AiIcon, C, Cursor, Dot, Flow, Head, Ico, Reveal, SAFE, Sfx, TONE, Tone, Typewriter, clamp, ease, font, hoverP, lerp, pressP, spr} from './kit';
+import {Btn, Card, Lift, MarketWindow, NAV_Y, PageHead, PX, R, Screen, SignalCard, home, liftFocus} from './market-ui';
 import type {SceneProps} from './SignalsV2';
 
 /* =============================== 0:00 Заставка =============================== */
+/* По шаблону «Интро»: тема ролика слева, справа — изображение (экран раздела), лого внизу.
+   Из экрана раздела вылетают три сигнала — по одному от каждого модуля. */
 
-const INTRO_CARDS: {tone: Tone; title: string; module: string}[] = [
-  {tone: 'red', title: 'Валовая прибыль снизилась на 12%', module: 'Аудит торговой точки'},
-  {tone: 'orange', title: 'У 98 товаров истекает срок годности', module: 'Сверка с Честным знаком'},
-  {tone: 'blue', title: '13 товаров дороже рынка', module: 'Сравнение с конкурентами'},
+const INTRO_CARDS: {tone: Tone; title: string; module: string; from: [number, number]}[] = [
+  {tone: 'red', title: 'Валовая прибыль снизилась на 12%', module: 'Аудит торговой точки', from: [394, 600]},
+  {tone: 'orange', title: 'У 98 товаров истекает срок годности', module: 'Сверка с Честным знаком', from: [394, 190]},
+  {tone: 'blue', title: '13 товаров дороже рынка', module: 'Сравнение с конкурентами', from: [1080, 190]},
 ];
+const IMG = {x: 1000, y: 210, w: 772, h: 560, s: 0.54, ox: 140};
 export const Intro: React.FC<SceneProps> = () => {
   const f = useCurrentFrame();
+  const img = lerp(f, 2, 22);
   return (
     <AbsoluteFill style={{background: C.bg, fontFamily: font, color: C.ink, overflow: 'hidden'}}>
-      <Img src={staticFile('logo-market-32.svg')} style={{position: 'absolute', left: 120, top: 96, height: 44, opacity: lerp(f, 2, 14)}} />
-      <div style={{position: 'absolute', left: 120, top: 300}}>
-        <Reveal at={6} style={{fontSize: 30, color: C.gray, display: 'flex'}}>
+      <div style={{position: 'absolute', left: SAFE, top: 250}}>
+        <Reveal at={4} style={{fontSize: 32, color: C.gray, display: 'flex'}}>
           <span style={{display: 'flex', alignItems: 'center', gap: 12}}>
-            <AiIcon size={30} /> Модификатор Контур.Маркета
+            <AiIcon size={32} /> Модификатор Контур.Маркета
           </span>
         </Reveal>
-        <Reveal at={10} style={{fontSize: 150, fontWeight: 700, letterSpacing: -5, lineHeight: 1, marginTop: 26}}>
-          ИИ Бизнес
-        </Reveal>
-        <Reveal at={15} style={{fontSize: 150, fontWeight: 700, letterSpacing: -5, lineHeight: 1}}>
-          сигналы
-        </Reveal>
-        <Reveal at={24} style={{fontSize: 38, color: C.gray, marginTop: 36, lineHeight: 1.3, width: 760}}>
-          Находят в данных магазина потери, риски и точки роста
-        </Reveal>
+      </div>
+      <Head y={316} size={128} lines={[{t: 'ИИ Бизнес', at: 8}, {t: 'сигналы', at: 13}]} />
+      <div style={{position: 'absolute', left: SAFE, top: 640, width: 760, fontSize: 40, lineHeight: 1.3, color: C.gray}}>
+        <Reveal at={20}>Находят в данных магазина</Reveal>
+        <Reveal at={24}>потери, риски и точки роста</Reveal>
+      </div>
+      <Img src={staticFile('logo-market-32.svg')} style={{position: 'absolute', left: SAFE, top: 1080 - SAFE - 40, height: 40, opacity: lerp(f, 4, 16)}} />
+      {/* изображение: экран раздела «ИИ бизнес-сигналы» */}
+      <div style={{position: 'absolute', left: IMG.x, top: IMG.y, width: IMG.w, height: IMG.h, borderRadius: 36, overflow: 'hidden', background: C.page, boxShadow: '0 30px 80px rgba(20,40,80,0.16)', opacity: img, transform: `translateY(${(1 - img) * 40}px)`}}>
+        <div style={{position: 'absolute', left: -IMG.ox * IMG.s, top: 0, transformOrigin: '0 0', transform: `scale(${IMG.s})`}}>
+          <MarketWindow active="ai">
+            <HubPage t={f + 40} />
+          </MarketWindow>
+        </div>
       </div>
       {INTRO_CARDS.map((c, i) => {
-        const p = spr(f, 18 + i * 9, 15);
+        const at = 18 + i * 8;
+        const p = spr(f, at, 16, 120);
+        if (f < at) return null;
+        const fx = IMG.x + (c.from[0] - IMG.ox) * IMG.s;
+        const fy = IMG.y + c.from[1] * IMG.s;
+        const tx = 880 + (i === 1 ? 70 : 0);
+        const ty = 300 + i * 150;
         return (
-          <div key={c.title} style={{position: 'absolute', left: 1050 + (i % 2) * 40, top: 300 + i * 170 - f * 0.25, opacity: Math.min(1, p * 1.5), transform: `translateX(${(1 - p) * 120}px)`}}>
-            <SignalCard tone={c.tone} title={c.title} module={c.module} w={760} pulse={30 + i * 9} />
+          <div key={c.title} style={{position: 'absolute', left: fx + (tx - fx) * p, top: fy + (ty - fy) * p - Math.max(0, f - at - 20) * 0.2, transformOrigin: '0 0', transform: `scale(${0.5 + 0.5 * p})`, opacity: Math.min(1, p * 2)}}>
+            <SignalCard tone={c.tone} title={c.title} module={c.module} w={680} pulse={at + 12} />
           </div>
         );
       })}
       {INTRO_CARDS.map((_, i) => (
-        <Sfx key={i} at={20 + i * 9} name="pop" vol={0.7} />
+        <Sfx key={i} at={18 + i * 8} name="pop" vol={0.7} />
       ))}
     </AbsoluteFill>
   );
@@ -122,17 +136,15 @@ export const Data: React.FC<SceneProps> = ({cue}) => {
       <div style={{position: 'absolute', left: 0, top: 0, width: 980, bottom: 0, background: `linear-gradient(90deg, ${C.bg} 86%, rgba(242,243,245,0))`}} />
       <div style={{position: 'absolute', left: 0, right: 0, top: 0, height: 110, background: `linear-gradient(${C.bg} 30%, rgba(242,243,245,0))`}} />
       <div style={{position: 'absolute', left: 0, right: 0, bottom: 0, height: 110, background: `linear-gradient(rgba(242,243,245,0), ${C.bg} 70%)`}} />
-      <div style={{position: 'absolute', left: 120, top: 200}}>
-        <Reveal at={cue('достаточно') - 10} style={{fontSize: 80, fontWeight: 700, letterSpacing: -2.4, lineHeight: 1.06}}>
-          Данных достаточно.
-        </Reveal>
-        <Reveal at={no} style={{fontSize: 80, fontWeight: 700, letterSpacing: -2.4, lineHeight: 1.06, color: C.blue}}>
-          Что важно —
-        </Reveal>
-        <Reveal at={no + 5} style={{fontSize: 80, fontWeight: 700, letterSpacing: -2.4, lineHeight: 1.06, color: C.blue}}>
-          не видно.
-        </Reveal>
-      </div>
+      <Head
+        y={196}
+        size={84}
+        lines={[
+          {t: 'Данных достаточно.', at: cue('достаточно') - 10},
+          {t: 'Что важно —', at: no, color: C.blue},
+          {t: 'не видно.', at: no + 5, color: C.blue},
+        ]}
+      />
       {/* три найденные строки «вытаскиваются» из размытой таблицы, к ним тянутся выноски */}
       {[9, 13, 17].map((idx, k) => {
         const r = rows[idx];
@@ -142,7 +154,7 @@ export const Data: React.FC<SceneProps> = ({cue}) => {
         const t = TONE[r.tone!];
         const y = rowY(idx);
         const ly = 590 + k * 92;
-        const lx = 120 + 34 + r.label!.length * 21.5 + 16;
+        const lx = SAFE + 34 + r.label!.length * 21.5 + 16;
         return (
           <React.Fragment key={idx}>
             <div style={{position: 'absolute', left: TX - 10, top: y - 6, width: 1280, height: ROW_H + 12, background: '#fff', borderRadius: 16, boxShadow: `0 16px 40px rgba(20,40,80,${0.16 * p})`, transform: `scale(${1 + 0.03 * p})`, transformOrigin: 'left center', opacity: Math.min(1, p * 2), overflow: 'hidden', border: `3px solid ${t.c}`, boxSizing: 'border-box'}}>
@@ -152,9 +164,9 @@ export const Data: React.FC<SceneProps> = ({cue}) => {
             <svg width={1920} height={1080} style={{position: 'absolute', left: 0, top: 0, pointerEvents: 'none'}}>
               <path d={`M ${lx} ${ly + 26} C ${lx + 120} ${ly + 26}, ${TX - 140} ${y + ROW_H / 2}, ${TX - 16} ${y + ROW_H / 2}`} fill="none" stroke={t.c} strokeWidth={3} strokeLinecap="round" strokeDasharray="2000" strokeDashoffset={2000 * (1 - lerp(f, at + 4, at + 22, 0, 1, ease))} />
             </svg>
-            <div style={{position: 'absolute', left: 120, top: ly, display: 'flex', alignItems: 'center', gap: 16, opacity: Math.min(1, p * 1.6), transform: `translateX(${(1 - p) * -30}px)`}}>
+            <div style={{position: 'absolute', left: SAFE, top: ly, display: 'flex', alignItems: 'center', gap: 16, opacity: Math.min(1, p * 1.6), transform: `translateX(${(1 - p) * -30}px)`}}>
               <Dot color={t.c} size={18} pulse={at + 6} />
-              <span style={{fontSize: 40, fontWeight: 700, whiteSpace: 'nowrap'}}>{r.label}</span>
+              <span style={{fontSize: 40, fontWeight: 500, whiteSpace: 'nowrap'}}>{r.label}</span>
             </div>
             <Sfx at={at} name="pop" />
           </React.Fragment>
@@ -167,9 +179,9 @@ export const Data: React.FC<SceneProps> = ({cue}) => {
 /* ===================== 0:14 Причины ищут вручную → поздно ===================== */
 
 const REPORTS = [
-  {t: 'Отчёт о продажах', cue: 'продажах', icon: 'chart', x: 120, y: 290, rows: [['Пиво', '10 386 ₽', '↑ 2%'], ['Хлеб и выпечка', '3 231 ₽', '↓ 18%'], ['Напитки', '2 539 ₽', '↑ 1%'], ['Снеки и закуски', '2 077 ₽', '↓ 9%'], ['Кондитерские', '1 616 ₽', '↑ 3%'], ['Молочное', '1 385 ₽', '↑ 2%']]},
-  {t: 'Остатки на складе', cue: 'остатках', icon: 'box', x: 690, y: 320, rows: [['Сок «Добрый» 1 л', '36 шт', ''], ['Молоко 2,5%', '64 шт', ''], ['Хлеб «Бородинский»', '6 шт', ''], ['Вода «Бонаква»', '120 шт', ''], ['Печенье «Юбилейное»', '48 шт', ''], ['Кефир 1%', '22 шт', '']]},
-  {t: 'Списания за неделю', cue: 'списаниях', icon: 'doc', x: 1260, y: 290, rows: [['Хлеб «Бородинский»', '24 шт', '1 080 ₽'], ['Кефир 1%', '6 шт', '540 ₽'], ['Батон нарезной', '12 шт', '456 ₽'], ['Йогурт «Чудо»', '9 шт', '405 ₽'], ['Сыр «Российский»', '2 шт', '398 ₽'], ['Молоко 2,5%', '4 шт', '340 ₽']]},
+  {t: 'Отчёт о продажах', cue: 'продажах', icon: 'chart', x: SAFE, y: 300, rows: [['Пиво', '10 386 ₽', '↑ 2%'], ['Хлеб и выпечка', '3 231 ₽', '↓ 18%'], ['Напитки', '2 539 ₽', '↑ 1%'], ['Снеки и закуски', '2 077 ₽', '↓ 9%'], ['Кондитерские', '1 616 ₽', '↑ 3%'], ['Молочное', '1 385 ₽', '↑ 2%']]},
+  {t: 'Остатки на складе', cue: 'остатках', icon: 'box', x: SAFE + 552, y: 330, rows: [['Сок «Добрый» 1 л', '36 шт', ''], ['Молоко 2,5%', '64 шт', ''], ['Хлеб «Бородинский»', '6 шт', ''], ['Вода «Бонаква»', '120 шт', ''], ['Печенье «Юбилейное»', '48 шт', ''], ['Кефир 1%', '22 шт', '']]},
+  {t: 'Списания за неделю', cue: 'списаниях', icon: 'doc', x: SAFE + 1104, y: 300, rows: [['Хлеб «Бородинский»', '24 шт', '1 080 ₽'], ['Кефир 1%', '6 шт', '540 ₽'], ['Батон нарезной', '12 шт', '456 ₽'], ['Йогурт «Чудо»', '9 шт', '405 ₽'], ['Сыр «Российский»', '2 шт', '398 ₽'], ['Молоко 2,5%', '4 шт', '340 ₽']]},
 ];
 const WEEK = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 const TL = {x0: 220, x1: 1700, y: 700};
@@ -250,7 +262,7 @@ const Marker: React.FC<{x: number; at: number; tone: Tone; icon: string; text: s
   );
 };
 const MiniReport: React.FC<{t: string; icon: string; rows: string[][]; active: number; scan: number}> = ({t, icon, rows: rr, active, scan}) => (
-  <div style={{width: 540, height: 470, background: '#fff', borderRadius: 24, padding: '26px 28px', boxSizing: 'border-box', boxShadow: `0 ${10 + active * 14}px ${30 + active * 30}px rgba(20,40,80,${0.08 + active * 0.08})`, border: `3px solid ${active > 0.5 ? C.blue : 'transparent'}`, position: 'relative', overflow: 'hidden'}}>
+  <div style={{width: 520, height: 470, background: '#fff', borderRadius: 24, padding: '26px 28px', boxSizing: 'border-box', boxShadow: `0 ${10 + active * 14}px ${30 + active * 30}px rgba(20,40,80,${0.08 + active * 0.08})`, border: `3px solid ${active > 0.5 ? C.blue : 'transparent'}`, position: 'relative', overflow: 'hidden'}}>
     <div style={{display: 'flex', alignItems: 'center', gap: 12, fontSize: 28, fontWeight: 700}}>
       <Ico n={icon} size={30} color={C.blue} />
       {t}
@@ -274,19 +286,15 @@ export const Owner: React.FC<SceneProps> = ({cue}) => {
   const away = lerp(f, time - 6, time + 14, 0, 1, ease);
   return (
     <AbsoluteFill style={{background: C.bg, fontFamily: font, color: C.ink, overflow: 'hidden'}}>
-      <div style={{position: 'absolute', left: 120, top: 110}}>
-        <Reveal at={4} out={time - 8} style={{fontSize: 64, fontWeight: 700, letterSpacing: -1.5}}>
-          Причины изменений ищут вручную
-        </Reveal>
-      </div>
-      <div style={{position: 'absolute', left: 120, top: 110}}>
-        <Reveal at={time + 4} style={{fontSize: 64, fontWeight: 700, letterSpacing: -1.5}}>
-          На это уходит время,
-        </Reveal>
-        <Reveal at={cue('поздно') - 4} style={{fontSize: 64, fontWeight: 700, letterSpacing: -1.5, color: C.redText}}>
-          а проблему замечают поздно
-        </Reveal>
-      </div>
+      <Head size={76} y={120} lines={[{t: 'Причины изменений ищут вручную', at: 4, out: time - 8}]} />
+      <Head
+        size={76}
+        y={120}
+        lines={[
+          {t: 'На это уходит время,', at: time + 4},
+          {t: 'а проблему замечают поздно', at: cue('поздно') - 4, color: C.redText},
+        ]}
+      />
       {REPORTS.map((r, i) => {
         const p = spr(f, 8 + i * 7, 15);
         const c = cue(r.cue);
@@ -335,17 +343,19 @@ export const Chain: React.FC<SceneProps> = ({cue, dur}) => {
       {/* продолжение недели: сигнал раньше */}
       {f < weekOut + 20 && (
         <>
-          <div style={{position: 'absolute', left: 120, top: 110, opacity: 1 - lerp(f, weekOut, weekOut + 12)}}>
-            <div style={{fontSize: 64, fontWeight: 700, letterSpacing: -1.5}}>На это уходит время,</div>
-            <div style={{fontSize: 64, fontWeight: 700, letterSpacing: -1.5, color: C.blue}}>а сигнал показывает раньше</div>
+          <div style={{position: 'absolute', left: SAFE, top: 120, opacity: 1 - lerp(f, weekOut, weekOut + 12), fontWeight: 500, fontSize: 76, letterSpacing: -1.9, lineHeight: 1.08}}>
+            <div>На это уходит время,</div>
+            <Reveal at={2} style={{color: C.blue}}>
+              а сигнал показывает раньше
+            </Reveal>
           </div>
           <Week show={-60} problem={-200} late={-60} signal={4} out={weekOut} />
           <Sfx at={4} name="chime" />
         </>
       )}
       {/* шаги */}
-      <div style={{position: 'absolute', left: 120, top: 210, opacity: cardIn}}>
-        <Reveal at={a - 6} style={{fontSize: 56, fontWeight: 700, letterSpacing: -1.2, marginBottom: 40}}>
+      <div style={{position: 'absolute', left: SAFE, top: 128, opacity: cardIn}}>
+        <Reveal at={a - 6} style={{fontSize: 76, fontWeight: 500, letterSpacing: -1.9, marginBottom: 56}}>
           Как устроен сигнал
         </Reveal>
         {STEPS.map((s, i) => {
@@ -369,7 +379,7 @@ export const Chain: React.FC<SceneProps> = ({cue, dur}) => {
         })}
       </div>
       {/* карточка сигнала собирается по шагам */}
-      <div style={{position: 'absolute', left: 800, top: 170, width: 1000, height: 740, background: '#fff', borderRadius: 32, padding: '36px 44px 40px', boxSizing: 'border-box', boxShadow: '0 30px 70px rgba(20,40,80,0.14)', opacity: cardIn, transform: `translateY(${(1 - cardIn) * 60}px)`}}>
+      <div style={{position: 'absolute', left: 820, top: 190, width: 952, height: 740, background: '#fff', borderRadius: 32, padding: '36px 44px 40px', boxSizing: 'border-box', boxShadow: '0 30px 70px rgba(20,40,80,0.14)', opacity: cardIn, transform: `translateY(${(1 - cardIn) * 60}px)`}}>
         <div style={{display: 'flex', alignItems: 'center', gap: 12, fontSize: 22, color: C.gray}}>
           <AiIcon size={26} /> Аудит торговой точки · сигнал
         </div>
@@ -430,7 +440,7 @@ export const Chain: React.FC<SceneProps> = ({cue, dur}) => {
           </span>
         </div>
       </div>
-      <Cursor path={[{x: 1500, y: 1020, at: fin + 8}, {x: 1130, y: 840, at: fin + 24}, {x: 940, y: 840, at: click, click: true}]} size={44} hideAt={dur - 6} />
+      <Cursor path={[{x: 1500, y: 1020, at: fin + 8}, {x: 1150, y: 860, at: fin + 24}, {x: 960, y: 860, at: click, click: true}]} size={44} hideAt={dur - 6} />
       <Sfx at={a} name="whoosh" vol={0.6} />
       <Sfx at={dev + 4} name="chime" />
       <Sfx at={click} name="click" />
@@ -439,79 +449,93 @@ export const Chain: React.FC<SceneProps> = ({cue, dur}) => {
 };
 
 /* ================= 0:37 ИИ Контура: данные остаются внутри Маркета ================= */
+/* Показываем на самом интерфейсе: разделы Маркета, где уже лежат данные, подсвечиваются в меню,
+   данные «стекают» к пункту «ИИ бизнес-сигналы» — он в том же меню. Внешний сервис — мимо. */
 
-const TRUST_SRC = [
-  {t: 'Продажи и чеки', i: 'register'},
-  {t: 'Товары и остатки', i: 'box'},
-  {t: 'Поставки', i: 'truck'},
-  {t: 'Маркировка', i: 'code'},
-  {t: 'Цены', i: 'tag'},
+const TW = {x: SAFE, y: 330, w: 1142, h: 640, s: 0.68};
+const SOURCES_NAV = [
+  {k: 'journal', label: '412 чеков за день'},
+  {k: 'goods', label: '1 284 товара'},
+  {k: 'supply', label: '18 поставок'},
+  {k: 'kkt', label: '9 120 кодов маркировки'},
 ];
+const navY = (k: string) => TW.y + (NAV_Y(k) + 25) * TW.s;
+const HomePage: React.FC<{t: number; at: number; hl: number}> = ({t, at, hl}) => (
+  <>
+    <PageHead title="Главная" meta="Сегодня, 11 июня" />
+    {SOURCES_NAV.map((s, i) => (
+      <Card key={s.k} x={44 + (i % 2) * 656} y={130 + Math.floor(i / 2) * 250} w={636} h={230} style={{opacity: lerp(t, at + i * 6, at + 10 + i * 6), border: `4px solid ${t > hl + i * 6 + 4 ? C.blue : 'transparent'}`}}>
+        <div style={{fontSize: 30, color: C.gray}}>{['Журнал продаж', 'Товары', 'Поставки', 'Кассы и маркировка'][i]}</div>
+        <div style={{fontSize: 56, fontWeight: 700, marginTop: 18, lineHeight: 1.1}}>{s.label}</div>
+      </Card>
+    ))}
+  </>
+);
 export const Trust: React.FC<SceneProps> = ({cue}) => {
   const f = useCurrentFrame();
   const work = cue('работает');
   const inside = cue('внутри');
   const send = cue('передавать');
-  const box = lerp(f, work - 6, work + 16, 0, 1, ease);
-  const border = evolvePath(box, 'M 160 300 H 1300 A 36 36 0 0 1 1336 336 V 944 A 36 36 0 0 1 1300 980 H 156 A 36 36 0 0 1 120 944 V 336 A 36 36 0 0 1 156 300 Z');
-  const node = spr(f, 2, 13);
-  const label = lerp(f, inside, inside + 10);
+  const win = lerp(f, 0, 18);
+  const toHub = lerp(f, inside + 6, inside + 22, 0, 1, ease);
   const ghost = lerp(f, send, send + 12);
   const cut = lerp(f, send + 26, send + 36, 0, 1, ease);
-  const NX = 1010;
-  const NY = 640;
+  const aiY = navY('ai');
+  const NX = TW.x + 34 * TW.s;
   return (
     <AbsoluteFill style={{background: C.bg, fontFamily: font, color: C.ink, overflow: 'hidden'}}>
-      <div style={{position: 'absolute', left: 120, top: 100}}>
-        <Reveal at={cue('контура') - 8} style={{fontSize: 64, fontWeight: 700, letterSpacing: -1.5}}>
-          ИИ Контура работает
-        </Reveal>
-        <Reveal at={inside - 4} style={{fontSize: 64, fontWeight: 700, letterSpacing: -1.5, color: C.blue}}>
-          внутри Контур.Маркета
-        </Reveal>
+      <Head
+        size={80}
+        y={110}
+        lines={[
+          {t: 'ИИ Контура работает', at: cue('контура') - 8},
+          {t: 'внутри Контур.Маркета', at: inside - 4, color: C.blue},
+        ]}
+      />
+      <div style={{position: 'absolute', left: TW.x, top: TW.y, width: TW.w, height: TW.h, borderRadius: 32, overflow: 'hidden', boxShadow: '0 30px 80px rgba(20,40,80,0.16)', opacity: win, transform: `translateY(${(1 - win) * 40}px)`}}>
+        <div style={{position: 'absolute', left: 0, top: 0, transformOrigin: '0 0', transform: `scale(${TW.s})`}}>
+          <MarketWindow active={f >= inside + 10 ? 'ai' : 'home'}>
+            <div style={{position: 'absolute', inset: 0, opacity: 1 - toHub}}>
+              <HomePage t={f} at={8} hl={work + 8} />
+            </div>
+            {toHub > 0 && (
+              <div style={{position: 'absolute', inset: 0, opacity: toHub, background: C.page}}>
+                <HubPage t={f - inside} />
+              </div>
+            )}
+          </MarketWindow>
+        </div>
       </div>
-      <svg width={1920} height={1080} style={{position: 'absolute'}}>
-        <path d="M 160 300 H 1300 A 36 36 0 0 1 1336 336 V 944 A 36 36 0 0 1 1300 980 H 156 A 36 36 0 0 1 120 944 V 336 A 36 36 0 0 1 156 300 Z" fill="#fff" opacity={box} />
-        <path d="M 160 300 H 1300 A 36 36 0 0 1 1336 336 V 944 A 36 36 0 0 1 1300 980 H 156 A 36 36 0 0 1 120 944 V 336 A 36 36 0 0 1 156 300 Z" fill="none" stroke={C.blue} strokeWidth={4} strokeDasharray={border.strokeDasharray} strokeDashoffset={border.strokeDashoffset} />
-        {TRUST_SRC.map((_, i) => {
-          const y = 384 + i * 112 + 40;
-          return <Flow key={i} at={inside + 8 + i * 3} d={`M 540 ${y} C 720 ${y}, 760 ${NY}, ${NX - 130} ${NY}`} />;
+      {/* подсветка разделов-источников в меню и поток данных к «ИИ бизнес-сигналы» */}
+      <svg width={1920} height={1080} style={{position: 'absolute', left: 0, top: 0, pointerEvents: 'none'}}>
+        {SOURCES_NAV.map((s, i) => {
+          const at = work + 8 + i * 6;
+          const y = navY(s.k);
+          return (
+            <g key={s.k} opacity={lerp(f, at, at + 8) * (1 - lerp(f, send + 40, send + 54))}>
+              <rect x={TW.x + 14 * TW.s} y={y - 25 * TW.s} width={256 * TW.s} height={50 * TW.s} rx={10} fill="none" stroke={C.blue} strokeWidth={3} />
+              <Flow at={inside + i * 3} d={`M ${NX} ${y + 14} C ${NX - 70} ${y + 40}, ${NX - 70} ${aiY - 40}, ${NX} ${aiY - 12}`} w={3} />
+            </g>
+          );
         })}
+        <rect x={TW.x + 14 * TW.s} y={aiY - 25 * TW.s} width={256 * TW.s} height={50 * TW.s} rx={10} fill="rgba(34,145,255,0.12)" stroke={C.blue} strokeWidth={4} opacity={lerp(f, inside + 4, inside + 12)} />
         {/* в сторонний сервис — не нужно */}
-        <path d={`M 1340 ${NY} H 1480`} stroke={C.gray2} strokeWidth={4} strokeDasharray="12 10" opacity={ghost * (1 - cut * 0.7)} strokeDashoffset={-f * 1.4} />
+        <path d={`M ${TW.x + TW.w + 14} 640 H ${1400}`} stroke={C.gray2} strokeWidth={4} strokeDasharray="12 10" opacity={ghost * (1 - cut * 0.7)} strokeDashoffset={-f * 1.4} />
       </svg>
-      <Img src={staticFile('logo-market-32.svg')} style={{position: 'absolute', left: 170, top: 330, height: 38, opacity: lerp(f, work + 6, work + 18)}} />
-      {TRUST_SRC.map((s, i) => {
-        const p = spr(f, work + 10 + i * 5, 15);
-        return (
-          <div key={s.t} style={{position: 'absolute', left: 170, top: 384 + i * 112, width: 370, height: 82, borderRadius: 20, background: C.page, display: 'flex', alignItems: 'center', gap: 18, padding: '0 24px', boxSizing: 'border-box', fontSize: 28, fontWeight: 500, opacity: Math.min(1, p * 1.5), transform: `translateX(${(1 - p) * -30}px)`}}>
-            <Ico n={s.i} size={32} color={C.blue} />
-            {s.t}
-          </div>
-        );
-      })}
-      <div style={{position: 'absolute', left: NX - 130, top: NY - 130, width: 260, height: 260, borderRadius: 80, background: C.blue, display: 'flex', alignItems: 'center', justifyContent: 'center', transform: `scale(${node})`, boxShadow: '0 24px 60px rgba(34,145,255,0.4)'}}>
-        <AiIcon size={130} style={{filter: 'brightness(0) invert(1)'}} />
-      </div>
-      <div style={{position: 'absolute', left: NX - 200, top: NY + 150, width: 400, textAlign: 'center', fontSize: 30, fontWeight: 700}}>
-        <span style={{opacity: 1 - label, position: 'absolute', left: 0, right: 0}}>ИИ Контура</span>
-        <span style={{opacity: label}}>ИИ Бизнес сигналы</span>
-      </div>
-      {/* сторонний сервис */}
-      <div style={{position: 'absolute', left: 1490, top: NY - 110, width: 310, height: 220, borderRadius: 28, border: `3px dashed ${C.gray2}`, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14, fontSize: 28, color: C.gray, opacity: ghost * (1 - cut * 0.6)}}>
-        <Ico n="cloud" size={56} color={C.gray2} />
+      <div style={{position: 'absolute', left: 1410, top: 520, width: 362, height: 240, borderRadius: 28, border: `3px dashed ${C.gray2}`, boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14, fontSize: 30, color: C.gray, opacity: ghost * (1 - cut * 0.6)}}>
+        <Ico n="cloud" size={60} color={C.gray2} />
         Сторонний сервис
       </div>
-      <div style={{position: 'absolute', left: 1378, top: NY - 34, width: 68, height: 68, borderRadius: 34, background: C.red, display: 'flex', alignItems: 'center', justifyContent: 'center', transform: `scale(${spr(f, send + 26, 12)})`}}>
+      <div style={{position: 'absolute', left: TW.x + TW.w + 36, top: 606, width: 68, height: 68, borderRadius: 34, background: C.red, display: 'flex', alignItems: 'center', justifyContent: 'center', transform: `scale(${spr(f, send + 26, 12)})`}}>
         <Ico n="close" size={38} color="#fff" sw={3} />
       </div>
-      <div style={{position: 'absolute', left: 1380, top: 870, opacity: lerp(f, send + 34, send + 46), display: 'flex', alignItems: 'center', gap: 14, fontSize: 30, fontWeight: 500, width: 440}}>
+      <div style={{position: 'absolute', left: 1410, top: 800, width: 362, opacity: lerp(f, send + 34, send + 46), display: 'flex', alignItems: 'flex-start', gap: 14, fontSize: 30, fontWeight: 500, lineHeight: 1.3}}>
         <Ico n="shield" size={44} color={C.blue} />
         Не нужно передавать данные в другой сервис
       </div>
-      <Sfx at={work} name="whoosh" vol={0.6} />
-      <Sfx at={2} name="pop" />
-      <Sfx at={inside} name="chime" vol={0.6} />
+      <Sfx at={work + 8} name="tick" />
+      <Sfx at={inside} name="whoosh" vol={0.6} />
+      <Sfx at={inside + 12} name="chime" vol={0.6} />
       <Sfx at={send + 26} name="tick" vol={1.4} />
     </AbsoluteFill>
   );
@@ -520,14 +544,14 @@ export const Trust: React.FC<SceneProps> = ({cue}) => {
 /* ===================== 0:48 Раздел «ИИ бизнес-сигналы»: три модуля ===================== */
 
 const Bullet: React.FC<{c: string; children: React.ReactNode}> = ({c, children}) => (
-  <div style={{display: 'flex', alignItems: 'baseline', gap: 12, fontSize: 21, lineHeight: 1.35, marginTop: 10}}>
+  <div style={{display: 'flex', alignItems: 'baseline', gap: 12, fontSize: 22, lineHeight: 1.35, marginTop: 10}}>
     <span style={{width: 10, height: 10, borderRadius: 5, background: c, flexShrink: 0, transform: 'translateY(-2px)'}} />
     <span>{children}</span>
   </div>
 );
 const Stat: React.FC<{label: React.ReactNode; value: string; w: number; ring?: number}> = ({label, value, w, ring}) => (
   <div style={{width: w, height: 112, border: `2px solid ${C.line}`, borderRadius: 18, padding: '18px 22px', boxSizing: 'border-box', position: 'relative'}}>
-    <div style={{fontSize: 19, color: C.ink, display: 'flex', alignItems: 'center', gap: 6}}>{label}</div>
+    <div style={{fontSize: 20, color: C.ink, display: 'flex', alignItems: 'center', gap: 6}}>{label}</div>
     <div style={{fontSize: 30, fontWeight: 700, marginTop: 6}}>{value}</div>
     {ring !== undefined && (
       <svg width={72} height={72} style={{position: 'absolute', right: 18, top: 20}}>
@@ -540,75 +564,112 @@ const Stat: React.FC<{label: React.ReactNode; value: string; w: number; ring?: n
     )}
   </div>
 );
-export const HubPage: React.FC<{t: number}> = ({t}) => (
+/* Содержимое карточек раздела — отдельно, чтобы выносить их вперёд копией (Lift) */
+const CzBody: React.FC<{t: number}> = ({t}) => (
+  <>
+    <div style={{display: 'flex', alignItems: 'center', gap: 12, fontSize: 26, fontWeight: 700}}>
+      <Ico n="shield" size={28} /> Сверка с Честным знаком
+    </div>
+    <div style={{fontSize: 20, color: C.gray, marginTop: 6}}>Находит расхождения между остатками в системе и данными маркировки</div>
+    <div style={{display: 'flex', gap: 14, marginTop: 20}}>
+      <Stat w={313} label={<>Риски <Dot color={C.green} size={12} /></>} value="Не найдены" ring={0} />
+      <Stat w={313} label={<>Предупреждения <Dot color={C.orange} size={12} /></>} value="293 позиции" ring={0.2 * lerp(t, 10, 40)} />
+    </div>
+    <Bullet c={C.orange}>Истекает срок годности: влияет на 150 позиций</Bullet>
+    <Bullet c={C.orange}>Долго на балансе: влияет на 50 позиций</Bullet>
+  </>
+);
+const CompBody: React.FC = () => (
+  <>
+    <div style={{display: 'flex', alignItems: 'center', gap: 12, fontSize: 26, fontWeight: 700}}>
+      <Ico n="store" size={28} /> Сравнение с конкурентами
+    </div>
+    <div style={{fontSize: 20, color: C.gray, marginTop: 6}}>Сравнивает цены ваших товаров с конкурентами</div>
+    <div style={{display: 'flex', gap: 14, marginTop: 20}}>
+      <Stat w={247} label={<>Дороже рынка <Ico n="upRight" size={18} color={C.blue} /></>} value="12 позиций" />
+      <Stat w={247} label={<>Дешевле рынка <Ico n="downRight" size={18} color={C.blue} /></>} value="27 позиций" />
+    </div>
+    <Bullet c={C.blue}>13 товаров дороже рынка: риск потери покупателей</Bullet>
+    <Bullet c={C.blue}>27 товаров дешевле рынка: риск потери прибыли</Bullet>
+  </>
+);
+const AuditBody: React.FC = () => (
+  <>
+    <div style={{display: 'flex', alignItems: 'center', gap: 12, fontSize: 26, fontWeight: 700}}>
+      <Ico n="chart" size={28} /> Аудит торговой точки
+    </div>
+    <div style={{fontSize: 20, color: C.gray, marginTop: 6}}>Помогает выявлять и исправлять проблемные места в учёте</div>
+    <Bullet c={C.blue}>Выручка выросла на 3%</Bullet>
+    <Bullet c={C.orange}>Валовая прибыль снизилась на 12%</Bullet>
+    <Bullet c={C.orange}>Списания выросли на 8%</Bullet>
+    <div style={{position: 'absolute', left: 30, bottom: 26}}>
+      <Btn size={19}>Перейти в отчёт →</Btn>
+    </div>
+    <div style={{position: 'absolute', right: 30, bottom: 36, fontSize: 18, color: C.gray}}>Данные за 29 июня — 5 июля</div>
+  </>
+);
+const HUB = {
+  cz: {x: 44, y: 130, w: 700, h: 404},
+  comp: {x: 768, y: 130, w: 568, h: 404},
+  audit: {x: 44, y: 558, w: 700, h: 330},
+};
+export const HubPage: React.FC<{t: number; hide?: string}> = ({t, hide}) => (
   <>
     <PageHead title="ИИ бизнес-сигналы" />
-    <Card x={44} y={130} w={700} h={404}>
-      <div style={{display: 'flex', alignItems: 'center', gap: 12, fontSize: 26, fontWeight: 700}}>
-        <Ico n="shield" size={28} /> Сверка с Честным знаком
-      </div>
-      <div style={{fontSize: 19, color: C.gray, marginTop: 6}}>Находит расхождения между остатками в системе и данными маркировки</div>
-      <div style={{display: 'flex', gap: 14, marginTop: 20}}>
-        <Stat w={313} label={<>Риски <Dot color={C.green} size={12} /></>} value="Не найдены" ring={0} />
-        <Stat w={313} label={<>Предупреждения <Dot color={C.orange} size={12} /></>} value="293 позиции" ring={0.2 * lerp(t, 10, 40)} />
-      </div>
-      <Bullet c={C.orange}>Истекает срок годности: влияет на 150 позиций</Bullet>
-      <Bullet c={C.orange}>Долго на балансе: влияет на 50 позиций</Bullet>
+    <Card {...HUB.cz} style={{opacity: hide === 'cz' ? 0 : 1}}>
+      <CzBody t={t} />
     </Card>
-    <Card x={768} y={130} w={568} h={404}>
-      <div style={{display: 'flex', alignItems: 'center', gap: 12, fontSize: 26, fontWeight: 700}}>
-        <Ico n="store" size={28} /> Сравнение с конкурентами
-      </div>
-      <div style={{fontSize: 19, color: C.gray, marginTop: 6}}>Сравнивает цены ваших товаров с конкурентами</div>
-      <div style={{display: 'flex', gap: 14, marginTop: 20}}>
-        <Stat w={247} label={<>Дороже рынка <Ico n="upRight" size={18} color={C.blue} /></>} value="12 позиций" />
-        <Stat w={247} label={<>Дешевле рынка <Ico n="downRight" size={18} color={C.blue} /></>} value="27 позиций" />
-      </div>
-      <Bullet c={C.blue}>13 товаров дороже рынка: риск потери покупателей</Bullet>
-      <Bullet c={C.blue}>27 товаров дешевле рынка: риск потери прибыли</Bullet>
+    <Card {...HUB.comp} style={{opacity: hide === 'comp' ? 0 : 1}}>
+      <CompBody />
     </Card>
-    <Card x={44} y={558} w={700} h={330}>
-      <div style={{display: 'flex', alignItems: 'center', gap: 12, fontSize: 26, fontWeight: 700}}>
-        <Ico n="chart" size={28} /> Аудит торговой точки
-      </div>
-      <div style={{fontSize: 19, color: C.gray, marginTop: 6}}>Помогает выявлять и исправлять проблемные места в учёте товаров</div>
-      <Bullet c={C.blue}>Выручка выросла на 3%</Bullet>
-      <Bullet c={C.orange}>Валовая прибыль снизилась на 12%</Bullet>
-      <Bullet c={C.orange}>Списания выросли на 8%</Bullet>
-      <div style={{position: 'absolute', left: 30, bottom: 26}}>
-        <Btn size={19}>Перейти в отчёт →</Btn>
-      </div>
-      <div style={{position: 'absolute', right: 30, bottom: 36, fontSize: 18, color: C.gray}}>Данные за 29 июня — 5 июля</div>
+    <Card {...HUB.audit} style={{opacity: hide === 'audit' ? 0 : 1}}>
+      <AuditBody />
     </Card>
   </>
 );
+/* Карточка модуля выезжает вперёд крупнее, остальной экран размыт */
+const liftTo = (k: keyof typeof HUB, scale: number, dy = 0) => {
+  const r = HUB[k];
+  const fx = 120 + PX + r.x;
+  const fy = 150 + r.y;
+  return {x: fx - (r.w * (scale - 1)) / 2, y: fy - (r.h * (scale - 1)) / 2 + dy, w: r.w * scale};
+};
 export const Modules: React.FC<SceneProps> = ({cue, dur}) => {
   const f = useCurrentFrame();
   const a = cue('аудит');
   const b = cue('сверка');
   const c = cue('сравнение');
+  const spans: [number, number][] = [
+    [a, b - 8],
+    [b, c - 8],
+    [c, dur - 6],
+  ];
+  const lifted = f >= c ? 'comp' : f >= b ? 'cz' : f >= a ? 'audit' : undefined;
+  const body = (k: string) => (k === 'cz' ? <CzBody t={f} /> : k === 'comp' ? <CompBody /> : <AuditBody />);
+  const order: [keyof typeof HUB, number, number, number][] = [
+    ['audit', a, b - 8, -110],
+    ['cz', b, c - 8, 30],
+    ['comp', c, dur - 6, 30],
+  ];
   return (
     <Screen
       enter={0}
-      cam={[home(0), home(a - 16), {at: a + 4, s: 1.05, x: 830, y: 372}, {at: dur, s: 1.07, x: 840, y: 365}]}
+      cam={[home(0)]}
+      focus={liftFocus(f, spans) * 0.75}
       overlay={<Caption2 at={10} />}
+      lifts={order.map(([k, at, until, dy]) => (
+        <Lift key={k} rect={R(HUB[k].x, HUB[k].y, HUB[k].w, HUB[k].h)} to={liftTo(k, 1.18, dy)} at={at} until={until}>
+          {() => <div style={{position: 'absolute', inset: 0, padding: '26px 30px', boxSizing: 'border-box'}}>{body(k)}</div>}
+        </Lift>
+      ))}
     >
       <MarketWindow active="ai">
-        <HubPage t={f} />
+        <HubPage t={f} hide={lifted} />
       </MarketWindow>
       <div style={{position: 'absolute', left: 22, top: NAV_Y('ai'), width: 256, height: 50, borderRadius: 14, border: `3px solid ${C.blue}`, boxSizing: 'border-box', opacity: lerp(f, 12, 20) * (1 - lerp(f, a - 10, a))}} />
-      <Spot
-        w={1680}
-        h={1040}
-        phases={[
-          {from: a, rects: [R(44, 558, 700, 330, 22)]},
-          {from: b, rects: [R(44, 130, 700, 404, 22)]},
-          {from: c, to: dur - 4, rects: [R(768, 130, 568, 404, 22)]},
-        ]}
-      />
-      <Sfx at={a} name="tick" />
-      <Sfx at={b} name="tick" />
-      <Sfx at={c} name="tick" />
+      <Sfx at={a} name="swipe" vol={0.5} />
+      <Sfx at={b} name="swipe" vol={0.5} />
+      <Sfx at={c} name="swipe" vol={0.5} />
     </Screen>
   );
 };
@@ -616,9 +677,8 @@ const Caption2: React.FC<{at: number}> = ({at}) => {
   const f = useCurrentFrame();
   const p = lerp(f, at, at + 14);
   return (
-    <div style={{position: 'absolute', left: 120, top: 46, fontFamily: font, fontSize: 40, fontWeight: 700, color: '#fff', opacity: p, transform: `translateY(${(1 - p) * 16}px)`}}>
-      Три ИИ-модуля <span style={{color: C.onBlue, fontWeight: 500}}>в разделе «ИИ бизнес-сигналы»</span>
+    <div style={{position: 'absolute', left: SAFE, top: 48, fontFamily: font, fontSize: 44, fontWeight: 500, color: '#fff', opacity: p, transform: `translateY(${(1 - p) * 16}px)`}}>
+      Три ИИ-модуля <span style={{color: C.onBlue}}>в разделе «ИИ бизнес-сигналы»</span>
     </div>
   );
 };
-

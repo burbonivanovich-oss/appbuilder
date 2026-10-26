@@ -1,6 +1,6 @@
-import React from 'react';
+import React, {createContext, useContext} from 'react';
 import {AbsoluteFill, Img, staticFile, useCurrentFrame} from 'remotion';
-import {AiIcon, C, CamKey, Ico, Tone, TONE, Dot, camAt, font, lerp, ease} from './kit';
+import {AiIcon, C, CamKey, Ico, Tone, TONE, Dot, camAt, font, lerp, ease, spr} from './kit';
 
 /*
  * Интерфейс Контур.Маркета, перерисованный по макетам из Figma (public/signals/ui/*.png):
@@ -175,26 +175,77 @@ export const SignalCard: React.FC<{tone: Tone; title: string; module: string; w?
   </div>
 );
 
-/* Синий фон «продуктового» цвета + окно + камера. Окно въезжает снизу в кадре enter. */
-export const Screen: React.FC<{enter?: number; cam: CamKey[]; children: React.ReactNode; overlay?: React.ReactNode; bg?: string; exit?: number}> = ({enter = 0, cam, children, overlay, bg = C.blue, exit}) => {
-  const f = useCurrentFrame();
-  const p = lerp(f, enter, enter + 22);
-  const q = exit === undefined ? 0 : lerp(f, exit, exit + 18, 0, 1, ease);
-  // Камера не показывает край окна посреди кадра: если окно шире кадра — держим края за кадром,
-  // нижний край окна в кадр не попадает никогда.
+/* ------------------------- окно в кадре и камера ------------------------- */
+
+type CamState = {s: number; x: number; y: number; dy: number};
+const CamCtx = createContext<CamState>({s: 1, x: 840, y: 390, dy: 0});
+/* Положение камеры в кадре f: края окна не обрываются посреди кадра, нижний край окна не виден */
+const camState = (f: number, cam: CamKey[]) => {
   const k = camAt(f, cam);
   let {x, y} = k;
   const s = k.s;
   if (WIN_W * s > 1920) x = Math.min(Math.max(x, 960 / s), WIN_W - 960 / s);
   y = Math.min(y, WIN_H - 540 / s);
+  return {s, x, y};
+};
+/* Прямоугольник окна → прямоугольник кадра при текущей камере */
+export const useWinToFrame = () => {
+  const c = useContext(CamCtx);
+  return (r: {x: number; y: number; w: number; h: number}) => ({x: 960 + (r.x - c.x) * c.s, y: 540 + (r.y - c.y) * c.s + c.dy, w: r.w * c.s, h: r.h * c.s, s: c.s});
+};
+
+/* Синий фон «продуктового» цвета + окно + камера. Окно въезжает снизу в кадре enter.
+   focus 0…1 — интерфейс размывается и притеняется, когда ключевой элемент вынесен вперёд (Lift).
+   При быстрых перелётах камеры окно чуть размывается — как motion blur. */
+export const Screen: React.FC<{enter?: number; cam: CamKey[]; children: React.ReactNode; overlay?: React.ReactNode; lifts?: React.ReactNode; mid?: React.ReactNode; bg?: string; exit?: number; focus?: number}> = ({enter = 0, cam, children, overlay, lifts, mid, bg = C.blue, exit, focus = 0}) => {
+  const f = useCurrentFrame();
+  const p = lerp(f, enter, enter + 22);
+  const q = exit === undefined ? 0 : lerp(f, exit, exit + 18, 0, 1, ease);
+  const dy = (1 - p) * 760 + q * 1300;
+  const {s, x, y} = camState(f, cam);
+  const prev = camState(f - 1, cam);
+  const move = Math.hypot(960 - x * s - (960 - prev.x * prev.s), 540 - y * s - (540 - prev.y * prev.s)) + Math.abs(s - prev.s) * 900;
+  const mb = Math.min(3.5, Math.max(0, (move - 8) * 0.05));
+  const blur = focus * 7 + mb;
   return (
     <AbsoluteFill style={{background: bg, overflow: 'hidden'}}>
-      <div style={{position: 'absolute', inset: 0, transform: `translateY(${(1 - p) * 760 + q * 900}px)`}}>
-        <div style={{position: 'absolute', left: 0, top: 0, transformOrigin: '0 0', transform: `translate(${960 - x * s}px, ${540 - y * s}px) scale(${s})`}}>
-          <div style={{position: 'relative', width: WIN_W, height: WIN_H}}>{children}</div>
+      <CamCtx.Provider value={{s, x, y, dy}}>
+        <div style={{position: 'absolute', inset: 0, transform: `translateY(${dy}px)`, filter: blur > 0.05 ? `blur(${blur}px)` : undefined}}>
+          <div style={{position: 'absolute', left: 0, top: 0, transformOrigin: '0 0', transform: `translate(${960 - x * s}px, ${540 - y * s}px) scale(${s})`}}>
+            <div style={{position: 'relative', width: WIN_W, height: WIN_H}}>{children}</div>
+          </div>
         </div>
-      </div>
-      {overlay}
+        {focus > 0 && <div style={{position: 'absolute', inset: 0, background: `rgba(10, 30, 70, ${0.32 * focus})`}} />}
+        {mid}
+        {lifts}
+        {overlay}
+      </CamCtx.Provider>
     </AbsoluteFill>
   );
 };
+
+/* Вынос ключевого элемента интерфейса вперёд: копия элемента вылетает из окна (rect — в координатах окна)
+   в позицию кадра to (левый верхний угол и ширина исходного прямоугольника), крупнее, с тенью; grow/growW —
+   на сколько (в px элемента) он вырастает, чтобы показать подробности. Пока элемент вынесен, сцена
+   передаёт focus в Screen — интерфейс за ним размыт. children получают p (0…1), чтобы дорисовать детали. */
+export const Lift: React.FC<{rect: {x: number; y: number; w: number; h: number}; to: {x: number; y: number; w: number}; at: number; until?: number; out?: 'back' | 'fade'; r?: number; bg?: string; grow?: number; growW?: number; children: (p: number) => React.ReactNode}> = ({rect, to, at, until = 1e9, out = 'back', r = 22, bg = '#fff', grow = 0, growW = 0, children}) => {
+  const f = useCurrentFrame();
+  const map = useWinToFrame();
+  const pin = spr(f, at, 17, 120);
+  const pout = lerp(f, until, until + 16, 0, 1, ease);
+  const p = out === 'back' ? pin * (1 - pout) : pin;
+  if (f < at || (out === 'fade' && pout >= 1) || (out === 'back' && pout >= 1)) return null;
+  const a = map(rect);
+  const k = to.w / rect.w;
+  const sc = a.s + (k - a.s) * p;
+  const left = a.x + (to.x - a.x) * p;
+  const top = a.y + (to.y - a.y) * p;
+  const fade = out === 'fade' ? 1 - pout : 1;
+  return (
+    <div style={{position: 'absolute', left, top, width: rect.w + growW * p, height: rect.h + grow * p, transformOrigin: '0 0', transform: `scale(${sc * (out === 'fade' ? 1 - pout * 0.06 : 1)})`, opacity: fade, borderRadius: r, background: bg, boxShadow: `0 ${30 * p}px ${70 * p}px rgba(6, 30, 70, ${0.35 * p})`, overflow: 'hidden', fontFamily: font, color: C.ink}}>
+      {children(p)}
+    </div>
+  );
+};
+/* Сколько «вынесено» в кадре f: для focus у Screen */
+export const liftFocus = (f: number, spans: [number, number][]) => Math.max(0, ...spans.map(([a, b]) => lerp(f, a, a + 14) * (1 - lerp(f, b, b + 14))));
