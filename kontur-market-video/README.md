@@ -20,3 +20,27 @@ npm run render        # → out/kassa-ofd.mp4
 1. Опишите слайды в `src/autopres/<name>.json`. Типы слайдов: `intro`, `hero`, `bullets` (пункты с иконками и фото), `grid` (пункты в две колонки), `ui` (скриншот с подсветкой блоков `focus`), `outro`. У каждого слайда, пункта и фокуса есть реплика `say`.
 2. `python3 scripts/autopres-vo.py src/autopres/<name>.json` синтезирует голос и пишет тайминги в `<name>.timing.json`.
 3. Слайды и появление пунктов автоматически встают под голос: `npm run autopres:render`.
+
+## «ИИ Бизнес сигналы» v2 (`src/signals-v2`) — сервисное видео по гайду
+
+Переделка ролика после дизайн‑ревью: интерфейс перерисован в коде по макетам Figma и анимирован,
+подсветка по гайду (зум, затенение, маркер Multiply), перебивки по модулям, своя музыка, 5 частей для сайта.
+
+```bash
+npm run fetch-fonts
+python3 scripts/signals-v2-build.py   # реплики → timeline.json (главы, сцены, время слов‑якорей), chapters.vtt
+python3 scripts/signals-v2-sfx.py     # звуки интерфейса → public/signals-v2/sfx
+python3 scripts/signals-v2-music.py   # музыка под таймлайн → public/signals-v2/music.wav
+npx remotion studio                   # папка SignalsV2: полная версия, без музыки, part1…part5
+python3 scripts/signals-v2-finish.py  # рендер + −16 LUFS + части + главы + обложка → out/signals-v2
+python3 scripts/signals-v2-docx.py    # сценарий v2 с текстом для диктора → Сценарий_ИИ_Бизнес_сигналы_v2.docx
+```
+
+- `script.json` — главы и сцены: какая реплика, где резать (`trim`), слова‑якоря для анимации (`cues`).
+- `kit.tsx` — приёмы: `Spot` (затенение с «окном»), `Marker`/`Mark` (маркер), `Cursor`, `CountUp`, `Typewriter`, `Caption`, `Sfx`.
+- `market-ui.tsx` — интерфейс Маркета (меню, карточки, вкладки, панели, вывод ИИ) и `Screen`: синий фон + окно + камера,
+  которая не даёт краю окна оборваться посреди кадра.
+- `scenes-how.tsx`, `scenes-modules.tsx`, `scenes-final.tsx` — сцены; `scenes.tsx` — карта id → компонент.
+- Голос заменить записью диктора: файлы `public/signals/vo/<id>.wav` (имена и тексты — в сценарии v2), удалить
+  `src/signals-v2/asr.json`, запустить `signals-v2-build.py` — анимация подстроится под новые длины.
+- Проверка кадров: `node scripts/stills.mjs SignalsV2 out/check 12.5s 40s 900` → `out/check/sheet.html`.

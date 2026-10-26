@@ -9,6 +9,7 @@ import {AutoPres, autoPresDuration, type Scenario, type Timing} from './autopres
 import ofdStats from './autopres/ofd-stats.json';
 import {Signals, signalsDuration} from './signals/Signals';
 import ofdStatsTiming from './autopres/ofd-stats.timing.json';
+import {SignalsV2, v2Duration, CHAPTERS} from './signals-v2/SignalsV2';
 
 const segments = ['cafe', 'retail', 'services'] as const;
 
@@ -25,6 +26,13 @@ export const Root: React.FC = () => (
       ))}
       {(['short30', 'module-audit', 'module-cz', 'module-comp'] as const).map((cut) => (
         <Composition key={`v-${cut}`} id={`Signals-${cut}-9x16`} component={Signals} defaultProps={{cut, vertical: true}} durationInFrames={signalsDuration(cut)} fps={FPS} width={1080} height={1920} />
+      ))}
+    </Folder>
+    <Folder name="SignalsV2">
+      <Composition id="SignalsV2" component={SignalsV2} defaultProps={{music: true}} durationInFrames={v2Duration()} fps={FPS} width={1920} height={1080} />
+      <Composition id="SignalsV2-nomusic" component={SignalsV2} defaultProps={{music: false}} durationInFrames={v2Duration()} fps={FPS} width={1920} height={1080} />
+      {CHAPTERS.map((c, i) => (
+        <Composition key={c.id} id={`SignalsV2-part${i + 1}-${c.id}`} component={SignalsV2} defaultProps={{part: i + 1, music: true}} durationInFrames={v2Duration(i + 1)} fps={FPS} width={1920} height={1080} />
       ))}
     </Folder>
     <Folder name="AutoPres">
