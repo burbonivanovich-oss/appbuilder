@@ -1,6 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, Img, staticFile, useCurrentFrame} from 'remotion';
-import {AiIcon, C, CountUp, Cursor, Dot, Footnote, Head, Ico, Reveal, SAFE, Sfx, ease, font, hoverP, lerp, pressP, s2f, spr} from './kit';
+import {AiIcon, C, useBg, CountUp, Cursor, Dot, Footnote, Head, Ico, Reveal, SAFE, Sfx, ease, font, hoverP, lerp, pressP, s2f, spr} from './kit';
 import type {SceneProps} from './SignalsV2';
 
 /* ------------------------------- перебивка -------------------------------- */
@@ -112,7 +112,7 @@ export const Econ: React.FC<SceneProps> = ({cue, enter}) => {
   const priceIn = spr(f, price, 15);
   const saleIn = spr(f, sale, 11, 180);
   return (
-    <AbsoluteFill style={{background: C.bg, fontFamily: font, color: C.ink}}>
+    <AbsoluteFill style={{background: useBg(C.bg), fontFamily: font, color: C.ink}}>
       {/* заголовок‑якорь */}
       <div style={{opacity: 1 - leave}}>
         <Head

@@ -76,10 +76,22 @@ export const CountUp: React.FC<{from?: number; to: number; at: number; dur?: num
   );
 };
 
+/* ------------------------- режимы рендера ассетов -------------------------
+   off — обычный ролик; window — только окно интерфейса без камеры, фона и акцентов;
+   lifts — только вынесенные вперёд элементы; graphics — сцена на прозрачном фоне без курсора и подписей.
+   Звук: AudioMix выключает голос или звуки интерфейса (для раздельных дорожек). */
+export type AssetMode = 'off' | 'window' | 'lifts' | 'graphics';
+export const AssetCtx = React.createContext<AssetMode>('off');
+export const useAsset = () => React.useContext(AssetCtx);
+/* Фон сцены: в режимах ассетов — прозрачный */
+export const useBg = (color: string) => (useAsset() === 'off' ? color : 'transparent');
+export const AudioMix = React.createContext<{vo: boolean; sfx: boolean}>({vo: true, sfx: true});
+
 /* Маркер по тексту: фон «прокрашивается» слева направо, переносы строк поддерживаются */
 export const Mark: React.FC<{at: number; color?: string; dur?: number; children: React.ReactNode}> = ({at, color = C.marker, dur = 12, children}) => {
   const f = useCurrentFrame();
-  const p = lerp(f, at, at + dur, 0, 1, ease);
+  const clean = useAsset() === 'window';
+  const p = clean ? 0 : lerp(f, at, at + dur, 0, 1, ease);
   return (
     <span
       style={{
@@ -154,7 +166,9 @@ export type Rect = {x: number; y: number; w: number; h: number; r?: number};
 export type SpotPhase = {from: number; to?: number; rects: Rect[]};
 export const Spot: React.FC<{phases: SpotPhase[]; w: number; h: number; dim?: number; ring?: boolean}> = ({phases, w, h, dim = 0.5, ring = true}) => {
   const f = useCurrentFrame();
+  const mode = useAsset();
   const T = 14;
+  if (mode !== 'off') return null;
   let i = -1;
   for (let k = 0; k < phases.length; k++) if (f >= phases[k].from) i = k;
   if (i < 0) return null;
@@ -197,9 +211,10 @@ export const Spot: React.FC<{phases: SpotPhase[]; w: number; h: number; dim?: nu
 /* Выделение цветом с наложением Multiply */
 export const Marker: React.FC<{x: number; y: number; w: number; h: number; at: number; until?: number; color?: string; r?: number}> = ({x, y, w, h, at, until = 1e9, color = C.marker, r = 8}) => {
   const f = useCurrentFrame();
+  const mode = useAsset();
   const p = lerp(f, at, at + 12, 0, 1, ease);
   const o = 1 - lerp(f, until, until + 10);
-  if (p <= 0 || o <= 0) return null;
+  if (p <= 0 || o <= 0 || mode !== 'off') return null;
   return <div style={{position: 'absolute', left: x, top: y, width: w * p, height: h, background: color, mixBlendMode: 'multiply', borderRadius: r, opacity: o}} />;
 };
 
@@ -225,8 +240,9 @@ const HAND = 'M8.6 2.2c.9 0 1.6.7 1.6 1.6v6.3l.5-.1c.9-.1 1.6.5 1.7 1.3v.4l.5-.1
 /* Реалистичный курсор: стрелка, над кликабельным — рука; нажатие с «волной» */
 export const Cursor: React.FC<{path: CurPt[]; size?: number; hideAt?: number}> = ({path, size = 40, hideAt = 1e9}) => {
   const f = useCurrentFrame();
+  const mode = useAsset();
   const show = lerp(f, path[0].at - 10, path[0].at) * (1 - lerp(f, hideAt, hideAt + 8));
-  if (show <= 0) return null;
+  if (show <= 0 || mode !== 'off') return null;
   const {x, y} = cursorAt(f, path);
   const clickAt = path.filter((p) => p.click && f >= p.at - 3).map((p) => p.at).pop();
   const press = clickAt !== undefined && Math.abs(f - clickAt) < 4 ? 0.84 : 1;
@@ -249,11 +265,12 @@ export const pressP = (f: number, at: number) => (f >= at - 2 && f < at + 5 ? 1 
 
 export type SfxName = 'click' | 'whoosh' | 'pop' | 'chime' | 'tick' | 'swipe' | 'type';
 const SFX_VOL: Record<SfxName, number> = {click: 0.5, whoosh: 0.32, pop: 0.38, chime: 0.3, tick: 0.25, swipe: 0.3, type: 0.18};
-export const Sfx: React.FC<{at: number; name: SfxName; vol?: number}> = ({at, name, vol = 1}) => (
-  <Sequence from={Math.max(0, Math.round(at))} durationInFrames={FPS * 3} layout="none">
-    <Audio src={staticFile(`signals-v2/sfx/${name}.wav`)} volume={SFX_VOL[name] * vol} />
-  </Sequence>
-);
+export const Sfx: React.FC<{at: number; name: SfxName; vol?: number}> = ({at, name, vol = 1}) =>
+  React.useContext(AudioMix).sfx ? (
+    <Sequence from={Math.max(0, Math.round(at))} durationInFrames={FPS * 3} layout="none">
+      <Audio src={staticFile(`signals-v2/sfx/${name}.wav`)} volume={SFX_VOL[name] * vol} />
+    </Sequence>
+  ) : null;
 
 /* --------------------------------- значки ---------------------------------- */
 
@@ -353,8 +370,10 @@ export const Footnote: React.FC<{at: number; children: React.ReactNode; color?: 
 };
 
 /* Подпись‑якорь в синей плашке (видна и на синем фоне, и поверх интерфейса при зуме) */
-export const Caption: React.FC<{items: {at: number; text: string; light?: string}[]; until?: number; x?: number; y?: number}> = ({items, until = 1e9, x = 148, y = 48}) => {
+export const Caption: React.FC<{items: {at: number; text: string; light?: string}[]; until?: number; x?: number; y?: number; force?: boolean}> = ({items, until = 1e9, x = 148, y = 48, force}) => {
   const f = useCurrentFrame();
+  const mode = useAsset();
+  if (mode !== 'off' && !force) return null;
   let i = -1;
   items.forEach((it, k) => {
     if (f >= it.at) i = k;

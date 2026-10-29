@@ -46,3 +46,16 @@ python3 scripts/signals-v2-docx.py    # сценарий v2 с текстом д
 - Голос заменить записью диктора: файлы `public/signals/vo/<id>.wav` (имена и тексты — в сценарии v2), удалить
   `src/signals-v2/asr.json`, запустить `signals-v2-build.py` — анимация подстроится под новые длины.
 - Проверка кадров: `node scripts/stills.mjs SignalsV2 out/check 12.5s 40s 900` → `out/check/sheet.html`.
+
+### Раскадровка и пакет ассетов для моушн‑дизайнера
+
+```bash
+node scripts/signals-v2-assets.mjs          # слои PNG @2x (экраны, вынесенные элементы, графика, упаковка) и кадры раскадровки
+                                             # + раздельные дорожки: npx remotion render SignalsV2 x.wav --codec=wav --props='{"music":false,"sfx":false}'
+python3 scripts/signals-v2-storyboard.py    # раскадровка: out/storyboard/index.html + storyboard.pdf (заметки — src/signals-v2/storyboard.json)
+python3 scripts/signals-v2-pack.py          # пакет out/signals-v2-assets + архивы visual / audio-ref (README пакета — scripts/signals-v2-pack-readme.md)
+```
+
+Слои рендерятся теми же сценами, что и ролик, в режимах `AssetCtx` (kit.tsx): `window` — только окно интерфейса без камеры,
+затемнений и курсора; `lifts` — только вынесенные элементы; `graphics` — сцена без фона, курсора и подписей.
+Композиции `SignalsV2-scene` (сцена в режиме ассета) и `SignalsV2-asset` (отдельный элемент) — в `src/signals-v2/assets.tsx`.

@@ -10,6 +10,7 @@ import ofdStats from './autopres/ofd-stats.json';
 import {Signals, signalsDuration} from './signals/Signals';
 import ofdStatsTiming from './autopres/ofd-stats.timing.json';
 import {SignalsV2, v2Duration, CHAPTERS} from './signals-v2/SignalsV2';
+import {AssetSheet, SceneAsset, assetSheetMeta, sceneAssetMeta} from './signals-v2/assets';
 
 const segments = ['cafe', 'retail', 'services'] as const;
 
@@ -31,6 +32,8 @@ export const Root: React.FC = () => (
     <Folder name="SignalsV2">
       <Composition id="SignalsV2" component={SignalsV2} defaultProps={{music: true}} durationInFrames={v2Duration()} fps={FPS} width={1920} height={1080} />
       <Composition id="SignalsV2-nomusic" component={SignalsV2} defaultProps={{music: false}} durationInFrames={v2Duration()} fps={FPS} width={1920} height={1080} />
+      <Composition id="SignalsV2-scene" component={SceneAsset} defaultProps={{scene: 'audit', mode: 'window' as const}} calculateMetadata={sceneAssetMeta} durationInFrames={300} fps={FPS} width={1920} height={1080} />
+      <Composition id="SignalsV2-asset" component={AssetSheet} defaultProps={{id: 'ui-hub'}} calculateMetadata={assetSheetMeta} durationInFrames={120} fps={FPS} width={1920} height={1080} />
       {CHAPTERS.map((c, i) => (
         <Composition key={c.id} id={`SignalsV2-part${i + 1}-${c.id}`} component={SignalsV2} defaultProps={{part: i + 1, music: true}} durationInFrames={v2Duration(i + 1)} fps={FPS} width={1920} height={1080} />
       ))}

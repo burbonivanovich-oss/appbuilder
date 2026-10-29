@@ -1,7 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame} from 'remotion';
 import {evolvePath} from '@remotion/paths';
-import {AiIcon, C, Cursor, Dot, Flow, Head, Ico, Reveal, SAFE, Sfx, TONE, Tone, Typewriter, clamp, ease, font, hoverP, lerp, pressP, spr} from './kit';
+import {AiIcon, C, useBg, Cursor, Dot, Flow, Head, Ico, Reveal, SAFE, Sfx, TONE, Tone, Typewriter, clamp, ease, font, hoverP, lerp, pressP, spr} from './kit';
 import {Btn, Card, Lift, MarketWindow, NAV_Y, PageHead, PX, R, Screen, SignalCard, home, liftFocus} from './market-ui';
 import type {SceneProps} from './SignalsV2';
 
@@ -19,7 +19,7 @@ export const Intro: React.FC<SceneProps> = () => {
   const f = useCurrentFrame();
   const img = lerp(f, 2, 22);
   return (
-    <AbsoluteFill style={{background: C.bg, fontFamily: font, color: C.ink, overflow: 'hidden'}}>
+    <AbsoluteFill style={{background: useBg(C.bg), fontFamily: font, color: C.ink, overflow: 'hidden'}}>
       <div style={{position: 'absolute', left: SAFE, top: 250}}>
         <Reveal at={4} style={{fontSize: 32, color: C.gray, display: 'flex'}}>
           <span style={{display: 'flex', alignItems: 'center', gap: 12}}>
@@ -119,7 +119,7 @@ export const Data: React.FC<SceneProps> = ({cue}) => {
   const TY = 120 - scroll;
   const rowY = (i: number) => TY + 64 + i * ROW_H;
   return (
-    <AbsoluteFill style={{background: C.bg, fontFamily: font, color: C.ink, overflow: 'hidden'}}>
+    <AbsoluteFill style={{background: useBg(C.bg), fontFamily: font, color: C.ink, overflow: 'hidden'}}>
       <div style={{position: 'absolute', left: TX, top: TY, width: 1260, background: '#fff', borderRadius: 28, filter: `blur(${blur * 3}px)`, opacity: 1 - blur * 0.45}}>
         <div style={{display: 'flex', height: 64, alignItems: 'center', fontSize: 20, color: C.gray, borderBottom: `1px solid ${C.line}`}}>
           {COLS.map((c) => (
@@ -285,7 +285,7 @@ export const Owner: React.FC<SceneProps> = ({cue}) => {
   const time = cue('время');
   const away = lerp(f, time - 6, time + 14, 0, 1, ease);
   return (
-    <AbsoluteFill style={{background: C.bg, fontFamily: font, color: C.ink, overflow: 'hidden'}}>
+    <AbsoluteFill style={{background: useBg(C.bg), fontFamily: font, color: C.ink, overflow: 'hidden'}}>
       <Head size={76} y={120} lines={[{t: 'Причины изменений ищут вручную', at: 4, out: time - 8}]} />
       <Head
         size={76}
@@ -339,7 +339,7 @@ export const Chain: React.FC<SceneProps> = ({cue, dur}) => {
   const spark = 'M 0 40 C 30 36, 50 20, 80 24 S 130 10, 160 16 S 200 60, 230 70 S 260 64, 280 66';
   const sp = evolvePath(lerp(f, dev, dev + 20, 0, 1, ease), spark);
   return (
-    <AbsoluteFill style={{background: C.bg, fontFamily: font, color: C.ink, overflow: 'hidden'}}>
+    <AbsoluteFill style={{background: useBg(C.bg), fontFamily: font, color: C.ink, overflow: 'hidden'}}>
       {/* продолжение недели: сигнал раньше */}
       {f < weekOut + 20 && (
         <>
@@ -460,7 +460,7 @@ const SOURCES_NAV = [
   {k: 'kkt', label: '9 120 кодов маркировки'},
 ];
 const navY = (k: string) => TW.y + (NAV_Y(k) + 25) * TW.s;
-const HomePage: React.FC<{t: number; at: number; hl: number}> = ({t, at, hl}) => (
+export const HomePage: React.FC<{t: number; at: number; hl: number}> = ({t, at, hl}) => (
   <>
     <PageHead title="Главная" meta="Сегодня, 11 июня" />
     {SOURCES_NAV.map((s, i) => (
@@ -483,7 +483,7 @@ export const Trust: React.FC<SceneProps> = ({cue}) => {
   const aiY = navY('ai');
   const NX = TW.x + 34 * TW.s;
   return (
-    <AbsoluteFill style={{background: C.bg, fontFamily: font, color: C.ink, overflow: 'hidden'}}>
+    <AbsoluteFill style={{background: useBg(C.bg), fontFamily: font, color: C.ink, overflow: 'hidden'}}>
       <Head
         size={80}
         y={110}

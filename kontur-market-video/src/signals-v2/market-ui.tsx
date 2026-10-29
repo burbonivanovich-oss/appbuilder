@@ -1,6 +1,6 @@
 import React, {createContext, useContext} from 'react';
 import {AbsoluteFill, Img, staticFile, useCurrentFrame} from 'remotion';
-import {AiIcon, C, CamKey, Ico, Tone, TONE, Dot, camAt, font, lerp, ease, spr} from './kit';
+import {AiIcon, C, CamKey, Ico, Tone, TONE, Dot, camAt, font, lerp, ease, spr, useAsset} from './kit';
 
 /*
  * Интерфейс Контур.Маркета, перерисованный по макетам из Figma (public/signals/ui/*.png):
@@ -51,12 +51,16 @@ export const Sidebar: React.FC<{active?: string}> = ({active = 'ai'}) => (
 );
 
 /* Окно Маркета: меню + страница. Страница — абсолютные координаты от (PX, 0). */
-export const MarketWindow: React.FC<{active?: string; children: React.ReactNode; page?: React.CSSProperties}> = ({active, children, page}) => (
-  <div style={{position: 'absolute', left: 0, top: 0, width: WIN_W, height: WIN_H, borderRadius: 30, overflow: 'hidden', background: C.page, fontFamily: font, color: C.ink, boxShadow: '0 30px 80px rgba(6, 50, 110, 0.28)'}}>
+export const MarketWindow: React.FC<{active?: string; children: React.ReactNode; page?: React.CSSProperties}> = ({active, children, page}) => {
+  const shadow = useAsset() === 'window' ? 'none' : '0 30px 80px rgba(6, 50, 110, 0.28)';
+  return (
+  <div style={{position: 'absolute', left: 0, top: 0, width: WIN_W, height: WIN_H, borderRadius: 30, overflow: 'hidden', background: C.page, fontFamily: font, color: C.ink, boxShadow: shadow}}>
     <Sidebar active={active} />
     <div style={{position: 'absolute', left: PX, top: 0, right: 0, bottom: 0, ...page}}>{children}</div>
   </div>
-);
+
+  );
+};
 
 export const PageHead: React.FC<{title: string; back?: string; meta?: string; style?: React.CSSProperties}> = ({title, back, meta, style}) => (
   <div style={{position: 'absolute', left: 44, right: 44, top: back ? 26 : 40, ...style}}>
@@ -207,8 +211,20 @@ export const Screen: React.FC<{enter?: number; cam: CamKey[]; children: React.Re
   const move = Math.hypot(960 - x * s - (960 - prev.x * prev.s), 540 - y * s - (540 - prev.y * prev.s)) + Math.abs(s - prev.s) * 900;
   const mb = Math.min(3.5, Math.max(0, (move - 8) * 0.05));
   const blur = focus * 7 + mb;
+  const mode = useAsset();
+  if (mode === 'window') {
+    // только окно: без камеры, фона, размытия и вынесенных элементов
+    return <div style={{position: 'absolute', left: 0, top: 0, width: WIN_W, height: WIN_H}}>{children}</div>;
+  }
+  if (mode === 'lifts') {
+    return (
+      <AbsoluteFill>
+        <CamCtx.Provider value={{s, x, y, dy}}>{lifts}</CamCtx.Provider>
+      </AbsoluteFill>
+    );
+  }
   return (
-    <AbsoluteFill style={{background: bg, overflow: 'hidden'}}>
+    <AbsoluteFill style={{background: mode === 'graphics' ? 'transparent' : bg, overflow: 'hidden'}}>
       <CamCtx.Provider value={{s, x, y, dy}}>
         <div style={{position: 'absolute', inset: 0, transform: `translateY(${dy}px)`, filter: blur > 0.05 ? `blur(${blur}px)` : undefined}}>
           <div style={{position: 'absolute', left: 0, top: 0, transformOrigin: '0 0', transform: `translate(${960 - x * s}px, ${540 - y * s}px) scale(${s})`}}>

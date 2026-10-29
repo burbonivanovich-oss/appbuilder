@@ -1,7 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Audio, Sequence, interpolate, staticFile, useCurrentFrame} from 'remotion';
 import timeline from './timeline.json';
-import {C, clamp, s2f} from './kit';
+import {AudioMix, C, clamp, s2f} from './kit';
 import {Divider, EndCard, END_CARD} from './scenes-final';
 import {SCENES} from './scenes';
 
@@ -31,7 +31,8 @@ const Fade: React.FC<{len: number; on: boolean; children: React.ReactNode}> = ({
   return <AbsoluteFill style={{opacity: o}}>{children}</AbsoluteFill>;
 };
 
-export const SignalsV2: React.FC<{part?: number; music?: boolean}> = ({part, music = true}) => {
+/* vo/sfx = false — раздельные дорожки для монтажа (голос, звуки интерфейса, музыка) */
+export const SignalsV2: React.FC<{part?: number; music?: boolean; vo?: boolean; sfx?: boolean}> = ({part, music = true, vo: voOn = true, sfx = true}) => {
   const chapters = part ? [T.chapters[part - 1]] : T.chapters;
   const t0 = s2f(chapters[0].start);
   const total = v2Duration(part);
@@ -49,6 +50,7 @@ export const SignalsV2: React.FC<{part?: number; music?: boolean}> = ({part, mus
     return (0.62 - 0.44 * duck(f)) * fadeIn * fadeOut;
   };
   return (
+    <AudioMix.Provider value={{vo: voOn, sfx}}>
     <AbsoluteFill style={{background: C.bg}}>
       {music && <Audio src={staticFile('signals-v2/music.wav')} startFrom={t0} volume={musicVol} />}
       {chapters.map((ch, ci) =>
@@ -68,7 +70,8 @@ export const SignalsV2: React.FC<{part?: number; music?: boolean}> = ({part, mus
           );
         }),
       )}
-      {chapters.map((ch) =>
+      {voOn &&
+        chapters.map((ch) =>
         ch.scenes
           .filter((s) => s.vo)
           .map((s) => (
@@ -91,6 +94,7 @@ export const SignalsV2: React.FC<{part?: number; music?: boolean}> = ({part, mus
         </Sequence>
       )}
     </AbsoluteFill>
+    </AudioMix.Provider>
   );
 };
 

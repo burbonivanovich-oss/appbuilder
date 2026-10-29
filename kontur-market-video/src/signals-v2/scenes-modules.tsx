@@ -1,7 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, useCurrentFrame} from 'remotion';
 import {evolvePath} from '@remotion/paths';
-import {AiIcon, C, Caption, CountUp, Cursor, Dot, Footnote, Head, Ico, Mark, SAFE, Sfx, Spot, Tag, Tone, TONE, Typewriter, ease, font, hoverP, lerp, pressP, spr} from './kit';
+import {AiIcon, C, useBg, useAsset, Caption, CountUp, Cursor, Dot, Footnote, Head, Ico, Mark, SAFE, Sfx, Spot, Tag, Tone, TONE, Typewriter, ease, font, hoverP, lerp, pressP, spr} from './kit';
 import {AiNote, Appear, Btn, Card, Delta, Lift, MarketWindow, PX, PageHead, R, Screen, SidePanel, SignalCard, Tabs, WIN_H, WIN_W, home, liftFocus} from './market-ui';
 import type {SceneProps} from './SignalsV2';
 
@@ -214,6 +214,7 @@ export const Audit: React.FC<SceneProps> = ({cue, enter, dur}) => {
   const rowsAt = goods + 2;
   const rowsEnd = rec - 10;
   const p2 = lerp(f, page2, page2 + 16, 0, 1, ease);
+  const clean = useAsset() === 'window'; // для ассета экрана — без скрытых под вынос элементов
   const spans: [number, number][] = [
     [liftAt, liftEnd],
     [rowsAt, rowsEnd],
@@ -278,11 +279,11 @@ export const Audit: React.FC<SceneProps> = ({cue, enter, dur}) => {
     >
       <MarketWindow active="ai">
         <div style={{position: 'absolute', inset: 0, opacity: 1 - p2}}>
-          <AuditDash t0={enter + 6} why={why} hideKpi={f >= liftAt && f < page2 + 4 ? 1 : undefined} />
+          <AuditDash t0={enter + 6} why={why} hideKpi={!clean && f >= liftAt && f < page2 + 4 ? 1 : undefined} />
         </div>
         {f >= page2 && (
           <div style={{position: 'absolute', inset: 0, background: C.page, opacity: p2}}>
-            <ProfitPage t0={page2} hideRows={f >= rowsAt && f < rowsEnd + 14} hideInsight={f >= rec} />
+            <ProfitPage t0={page2} hideRows={!clean && f >= rowsAt && f < rowsEnd + 14} hideInsight={!clean && f >= rec} />
           </div>
         )}
       </MarketWindow>
@@ -724,7 +725,7 @@ export const Fines: React.FC<SceneProps> = ({cue}) => {
     );
   };
   return (
-    <AbsoluteFill style={{background: C.bg, fontFamily: font, color: C.ink, overflow: 'hidden'}}>
+    <AbsoluteFill style={{background: useBg(C.bg), fontFamily: font, color: C.ink, overflow: 'hidden'}}>
       <Head
         size={72}
         y={110}
@@ -905,9 +906,10 @@ export const Market: React.FC<SceneProps> = ({cue, enter, dur}) => {
   const calc = pot - 6;
   const calcP = lerp(f, calc, calc + 20, 0, 1, ease);
   const slotsIn = lerp(f, calc + 22, calc + 32);
+  const mode = useAsset();
   return (
-    <AbsoluteFill style={{background: C.blue, fontFamily: font, overflow: 'hidden'}}>
-      {f < winIn + 30 && <PriceMap at={enter + 2} rivals={rynok} morph={esli} gap={d15} out={winIn} />}
+    <AbsoluteFill style={{background: useBg(C.blue), fontFamily: font, overflow: 'hidden'}}>
+      {f < winIn + 30 && mode !== 'window' && <PriceMap at={enter + 2} rivals={rynok} morph={esli} gap={d15} out={winIn} />}
       {f >= winIn && (
         <Screen
           bg="transparent"
