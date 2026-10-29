@@ -8,6 +8,8 @@ description: Собрать длинный объясняющий ролик/а�
 Проект: `kontur-market-video/` (Remotion 4, React, TypeScript). **Эталон — `src/signals-v2/`** (ролик «ИИ Бизнес сигналы» v2,
 2:50, 5 частей, собран по гайду «Видео о сервисах» после дизайн‑ревью). `src/signals/` — первая версия, как НЕ надо
 (см. «Уроки ревью» ниже). Инструкция для людей — `kontur-market-video/GUIDE.md`, по v2 — раздел в `README.md`.
+Полное описание процесса v2, ревью и ссылки на фреймы гайда — `kontur-market-video/handoff/` (PROCESS, REVIEW, FIGMA);
+архив для передачи в другую сессию — `python3 scripts/signals-v2-handoff.py`.
 
 ## Уроки дизайн‑ревью (обязательно)
 Гайд: Figma «Видеоролики», страница «Общие правила» (fileKey `VrQVW6nUWesPAp9wZUCOJq`, node `314-9439`) — фреймы

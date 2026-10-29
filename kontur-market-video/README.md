@@ -59,3 +59,9 @@ python3 scripts/signals-v2-pack.py          # пакет out/signals-v2-assets +
 Слои рендерятся теми же сценами, что и ролик, в режимах `AssetCtx` (kit.tsx): `window` — только окно интерфейса без камеры,
 затемнений и курсора; `lifts` — только вынесенные элементы; `graphics` — сцена без фона, курсора и подписей.
 Композиции `SignalsV2-scene` (сцена в режиме ассета) и `SignalsV2-asset` (отдельный элемент) — в `src/signals-v2/assets.tsx`.
+
+### Передача в другую сессию
+
+`handoff/` — как сделан ролик (`PROCESS.md`), ревью и что по нему сделано (`REVIEW.md`), какие фреймы Figma смотреть (`FIGMA.md`).
+`python3 scripts/signals-v2-handoff.py` собирает всё в один архив `out/kontur-signals-v2-handoff.zip`: документы, скиллы,
+итоговые видео, сценарии, пакет ассетов с раскадровкой и исходники (с `src/fontData.ts`, без `node_modules`).
