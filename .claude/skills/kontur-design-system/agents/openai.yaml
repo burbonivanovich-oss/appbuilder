@@ -1,0 +1,5 @@
+interface:
+  display_name: "Kontur Design System"
+  short_description: "Ассеты, цвета и правила дизайн-системы Контура"
+  icon_small: "https://s.kontur.ru/common-v2/logos/v2/kontur/kontur-32.svg"
+  icon_large: "https://s.kontur.ru/common-v2/logos/v2/kontur/kontur-32.svg"

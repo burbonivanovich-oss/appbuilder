@@ -1,0 +1,2598 @@
+[
+  {
+    "title": "бизнес",
+    "name": "business-box",
+    "groupTitle": "Бизнес и торговля",
+    "tags": [
+      "бизнес",
+      "деловые процессы",
+      "коробка",
+      "упаковка",
+      "business",
+      "workflows",
+      "box",
+      "package"
+    ]
+  },
+  {
+    "title": "бизнес",
+    "name": "business-card-contact",
+    "groupTitle": "Бизнес и торговля",
+    "tags": [
+      "бизнес",
+      "деловые процессы",
+      "карта",
+      "карточка",
+      "контакт",
+      "визитка",
+      "business",
+      "workflows",
+      "card",
+      "cardholder",
+      "contact",
+      "business card"
+    ]
+  },
+  {
+    "title": "бизнес",
+    "name": "business-card-regular",
+    "groupTitle": "Бизнес и торговля",
+    "tags": [
+      "бизнес",
+      "деловые процессы",
+      "карта",
+      "карточка",
+      "business",
+      "workflows",
+      "card",
+      "cardholder"
+    ]
+  },
+  {
+    "title": "бизнес",
+    "name": "business-card-terminal",
+    "groupTitle": "Бизнес и торговля",
+    "tags": [
+      "бизнес",
+      "деловые процессы",
+      "карта",
+      "карточка",
+      "терминал",
+      "оплата",
+      "business",
+      "workflows",
+      "card",
+      "cardholder",
+      "terminal",
+      "payment"
+    ]
+  },
+  {
+    "title": "бизнес",
+    "name": "business-coin-3",
+    "groupTitle": "Бизнес и торговля",
+    "tags": [
+      "бизнес",
+      "деловые процессы",
+      "монета",
+      "деньги",
+      "business",
+      "workflows",
+      "coin",
+      "money"
+    ]
+  },
+  {
+    "title": "бизнес",
+    "name": "business-coin-dollar",
+    "groupTitle": "Бизнес и торговля",
+    "tags": [
+      "бизнес",
+      "деловые процессы",
+      "монета",
+      "деньги",
+      "доллар",
+      "валюта",
+      "business",
+      "workflows",
+      "coin",
+      "money",
+      "dollar",
+      "currency"
+    ]
+  },
+  {
+    "title": "бизнес",
+    "name": "business-coin-euro",
+    "groupTitle": "Бизнес и торговля",
+    "tags": [
+      "бизнес",
+      "деловые процессы",
+      "монета",
+      "деньги",
+      "евро",
+      "валюта",
+      "business",
+      "workflows",
+      "coin",
+      "money",
+      "euro",
+      "currency"
+    ]
+  },
+  {
+    "title": "бизнес",
+    "name": "business-coin-rouble",
+    "groupTitle": "Бизнес и торговля",
+    "tags": [
+      "бизнес",
+      "деловые процессы",
+      "монета",
+      "деньги",
+      "рубль",
+      "российская валюта",
+      "business",
+      "workflows",
+      "coin",
+      "money",
+      "ruble",
+      "Russian currency"
+    ]
+  },
+  {
+    "title": "бизнес",
+    "name": "business-coins-arrow-right",
+    "groupTitle": "Бизнес и торговля",
+    "tags": [
+      "бизнес",
+      "деловые процессы",
+      "монеты",
+      "деньги",
+      "стрелка",
+      "направление",
+      "вправо",
+      "переход",
+      "business",
+      "workflows",
+      "coins",
+      "money",
+      "arrow",
+      "direction",
+      "right",
+      "navigate"
+    ]
+  },
+  {
+    "title": "бизнес",
+    "name": "business-receipt",
+    "groupTitle": "Бизнес и торговля",
+    "tags": [
+      "бизнес",
+      "деловые процессы",
+      "чек",
+      "квитанция",
+      "business",
+      "workflows",
+      "receipt",
+      "invoice"
+    ]
+  },
+  {
+    "title": "бизнес",
+    "name": "business-scan-barcode",
+    "groupTitle": "Бизнес и торговля",
+    "tags": [
+      "бизнес",
+      "деловые процессы",
+      "сканирование",
+      "сканер",
+      "штрихкод",
+      "business",
+      "workflows",
+      "scan",
+      "scanner",
+      "barcode"
+    ]
+  },
+  {
+    "title": "бизнес",
+    "name": "business-scan-fgis-corn",
+    "groupTitle": "Бизнес и торговля",
+    "tags": [
+      "бизнес",
+      "деловые процессы",
+      "сканирование",
+      "сканер",
+      "ФГИС",
+      "государственная система",
+      "зерно",
+      "агропродукция",
+      "business",
+      "workflows",
+      "scan",
+      "scanner",
+      "FGIS",
+      "government system",
+      "grain",
+      "agriculture"
+    ]
+  },
+  {
+    "title": "бизнес",
+    "name": "business-scaner-barcode",
+    "groupTitle": "Бизнес и торговля",
+    "tags": [
+      "бизнес",
+      "деловые процессы",
+      "сканер",
+      "сканирование",
+      "штрихкод",
+      "business",
+      "workflows",
+      "scanner",
+      "scan",
+      "barcode"
+    ]
+  },
+  {
+    "title": "бизнес",
+    "name": "business-scaner-check",
+    "groupTitle": "Бизнес и торговля",
+    "tags": [
+      "бизнес",
+      "деловые процессы",
+      "сканер",
+      "сканирование",
+      "проверка",
+      "подтверждение",
+      "business",
+      "workflows",
+      "scanner",
+      "scan",
+      "check",
+      "confirmation"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-arrow-parallel-v",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "стрелка",
+      "направление",
+      "параллельный",
+      "вертикальный",
+      "documents",
+      "document workflow",
+      "arrow",
+      "direction",
+      "parallel",
+      "vertical"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-a-arrow-down",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "стрелка",
+      "направление",
+      "вниз",
+      "скачивание",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "arrow",
+      "direction",
+      "download",
+      "down"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-a-arrow-up-right",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "стрелка",
+      "направление",
+      "вверх",
+      "загрузка",
+      "вправо",
+      "переход",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "arrow",
+      "direction",
+      "upload",
+      "up",
+      "right",
+      "navigate"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-a-cancel",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "отмена",
+      "ошибка",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "cancel",
+      "error"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-a-check",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "проверка",
+      "подтверждение",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "check",
+      "confirmation"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-a-fns",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "ФНС",
+      "налоговая служба",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "Federal Tax Service",
+      "tax office"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-a-gov",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "государственные услуги",
+      "госорган",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "government services",
+      "public authority"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-a-paperclip",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "скрепка",
+      "вложение",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "paperclip",
+      "attachment"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-a-people",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "люди",
+      "пользователи",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "people",
+      "users"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-a-plus",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "добавление",
+      "создание",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "add",
+      "create"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-a-question",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "вопрос",
+      "справка",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "question",
+      "help"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-alarm-arrow-down",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "напоминание",
+      "срок",
+      "стрелка",
+      "направление",
+      "вниз",
+      "скачивание",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "reminder",
+      "deadline",
+      "arrow",
+      "direction",
+      "download",
+      "down"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-alarm-cancel",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "напоминание",
+      "срок",
+      "отмена",
+      "ошибка",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "reminder",
+      "deadline",
+      "cancel",
+      "error"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-alarm-check",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "напоминание",
+      "срок",
+      "проверка",
+      "подтверждение",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "reminder",
+      "deadline",
+      "check",
+      "confirmation"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-alarm-people",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "напоминание",
+      "срок",
+      "люди",
+      "пользователи",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "reminder",
+      "deadline",
+      "people",
+      "users"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-alarm-plus",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "напоминание",
+      "срок",
+      "добавление",
+      "создание",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "reminder",
+      "deadline",
+      "add",
+      "create"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-alarm-warning",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "напоминание",
+      "срок",
+      "предупреждение",
+      "внимание",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "reminder",
+      "deadline",
+      "warning",
+      "attention"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-arrow",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "стрелка",
+      "направление",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "arrow",
+      "direction"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-exchange",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "обмен",
+      "синхронизация",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "exchange",
+      "sync"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-folder-alarm-arrow-down",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "папка",
+      "каталог",
+      "напоминание",
+      "срок",
+      "стрелка",
+      "направление",
+      "вниз",
+      "скачивание",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "folder",
+      "directory",
+      "reminder",
+      "deadline",
+      "arrow",
+      "direction",
+      "download",
+      "down"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-folder-alarm-cancel",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "папка",
+      "каталог",
+      "напоминание",
+      "срок",
+      "отмена",
+      "ошибка",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "folder",
+      "directory",
+      "reminder",
+      "deadline",
+      "cancel",
+      "error"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-folder-alarm-check",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "папка",
+      "каталог",
+      "напоминание",
+      "срок",
+      "проверка",
+      "подтверждение",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "folder",
+      "directory",
+      "reminder",
+      "deadline",
+      "check",
+      "confirmation"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-folder-alarm-people",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "папка",
+      "каталог",
+      "напоминание",
+      "срок",
+      "люди",
+      "пользователи",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "folder",
+      "directory",
+      "reminder",
+      "deadline",
+      "people",
+      "users"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-folder-alarm-plus",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "папка",
+      "каталог",
+      "напоминание",
+      "срок",
+      "добавление",
+      "создание",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "folder",
+      "directory",
+      "reminder",
+      "deadline",
+      "add",
+      "create"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-folder-alarm-warning",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "папка",
+      "каталог",
+      "напоминание",
+      "срок",
+      "предупреждение",
+      "внимание",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "folder",
+      "directory",
+      "reminder",
+      "deadline",
+      "warning",
+      "attention"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-folder-arrow-down",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "папка",
+      "каталог",
+      "стрелка",
+      "направление",
+      "вниз",
+      "скачивание",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "folder",
+      "directory",
+      "arrow",
+      "direction",
+      "download",
+      "down"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-folder-arrow-people",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "папка",
+      "каталог",
+      "стрелка",
+      "направление",
+      "люди",
+      "пользователи",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "folder",
+      "directory",
+      "arrow",
+      "direction",
+      "people",
+      "users"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-folder-arrow-up-right",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "папка",
+      "каталог",
+      "стрелка",
+      "направление",
+      "вверх",
+      "загрузка",
+      "вправо",
+      "переход",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "folder",
+      "directory",
+      "arrow",
+      "direction",
+      "upload",
+      "up",
+      "right",
+      "navigate"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-folder-cancel",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "папка",
+      "каталог",
+      "отмена",
+      "ошибка",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "folder",
+      "directory",
+      "cancel",
+      "error"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-folder-check",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "папка",
+      "каталог",
+      "проверка",
+      "подтверждение",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "folder",
+      "directory",
+      "check",
+      "confirmation"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-folder-plus",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "папка",
+      "каталог",
+      "добавление",
+      "создание",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "folder",
+      "directory",
+      "add",
+      "create"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-search",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "поиск",
+      "найти",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "search",
+      "find"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-search-intersect",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "поиск",
+      "найти",
+      "пересечение",
+      "сопоставление",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "search",
+      "find",
+      "intersection",
+      "matching"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-doc-signature",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "документ",
+      "файл",
+      "подпись",
+      "электронная подпись",
+      "documents",
+      "document workflow",
+      "document",
+      "file",
+      "signature",
+      "e-signature"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-folder-arrow-right",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "папка",
+      "каталог",
+      "стрелка",
+      "направление",
+      "вправо",
+      "переход",
+      "documents",
+      "document workflow",
+      "folder",
+      "directory",
+      "arrow",
+      "direction",
+      "right",
+      "navigate"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-folder-check",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "папка",
+      "каталог",
+      "проверка",
+      "подтверждение",
+      "documents",
+      "document workflow",
+      "folder",
+      "directory",
+      "check",
+      "confirmation"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-folder-plus",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "папка",
+      "каталог",
+      "добавление",
+      "создание",
+      "documents",
+      "document workflow",
+      "folder",
+      "directory",
+      "add",
+      "create"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-folder-regular",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "папка",
+      "каталог",
+      "documents",
+      "document workflow",
+      "folder",
+      "directory"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-passport",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "паспорт",
+      "удостоверение личности",
+      "documents",
+      "document workflow",
+      "passport",
+      "identity document"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-security-doc",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "безопасность",
+      "защита",
+      "документ",
+      "файл",
+      "documents",
+      "document workflow",
+      "security",
+      "protection",
+      "document",
+      "file"
+    ]
+  },
+  {
+    "title": "документы",
+    "name": "docs-sticker",
+    "groupTitle": "Документы",
+    "tags": [
+      "документы",
+      "документооборот",
+      "стикер",
+      "наклейка",
+      "documents",
+      "document workflow",
+      "sticker",
+      "label"
+    ]
+  },
+  {
+    "title": "медиа",
+    "name": "media-chat",
+    "groupTitle": "Медиа",
+    "tags": [
+      "медиа",
+      "коммуникация",
+      "чат",
+      "сообщения",
+      "media",
+      "communication",
+      "chat",
+      "messages"
+    ]
+  },
+  {
+    "title": "медиа",
+    "name": "media-letter-v",
+    "groupTitle": "Медиа",
+    "tags": [
+      "медиа",
+      "коммуникация",
+      "письмо",
+      "сообщение",
+      "media",
+      "communication",
+      "letter",
+      "message"
+    ]
+  },
+  {
+    "title": "медиа",
+    "name": "media-mail-arrow-out",
+    "groupTitle": "Медиа",
+    "tags": [
+      "медиа",
+      "коммуникация",
+      "почта",
+      "электронное письмо",
+      "стрелка",
+      "направление",
+      "отправка",
+      "исходящее",
+      "media",
+      "communication",
+      "mail",
+      "email",
+      "arrow",
+      "direction",
+      "outgoing",
+      "send"
+    ]
+  },
+  {
+    "title": "медиа",
+    "name": "media-microphone",
+    "groupTitle": "Медиа",
+    "tags": [
+      "медиа",
+      "коммуникация",
+      "микрофон",
+      "аудио",
+      "media",
+      "communication",
+      "microphone",
+      "audio"
+    ]
+  },
+  {
+    "title": "медиа",
+    "name": "media-podcast",
+    "groupTitle": "Медиа",
+    "tags": [
+      "медиа",
+      "коммуникация",
+      "подкаст",
+      "аудиоконтент",
+      "media",
+      "communication",
+      "podcast",
+      "audio content"
+    ]
+  },
+  {
+    "title": "медиа",
+    "name": "media-send-paperplane",
+    "groupTitle": "Медиа",
+    "tags": [
+      "медиа",
+      "коммуникация",
+      "отправка",
+      "пересылка",
+      "бумажный самолётик",
+      "сообщение",
+      "media",
+      "communication",
+      "send",
+      "forward",
+      "paper plane",
+      "message"
+    ]
+  },
+  {
+    "title": "медиа",
+    "name": "media-webinar-gear",
+    "groupTitle": "Медиа",
+    "tags": [
+      "медиа",
+      "коммуникация",
+      "вебинар",
+      "онлайн-трансляция",
+      "настройки",
+      "шестерёнка",
+      "media",
+      "communication",
+      "webinar",
+      "online broadcast",
+      "settings",
+      "gear"
+    ]
+  },
+  {
+    "title": "медиа",
+    "name": "media-webinar-loading",
+    "groupTitle": "Медиа",
+    "tags": [
+      "медиа",
+      "коммуникация",
+      "вебинар",
+      "онлайн-трансляция",
+      "загрузка",
+      "ожидание",
+      "media",
+      "communication",
+      "webinar",
+      "online broadcast",
+      "loading",
+      "waiting"
+    ]
+  },
+  {
+    "title": "медиа",
+    "name": "media-webinar-pause",
+    "groupTitle": "Медиа",
+    "tags": [
+      "медиа",
+      "коммуникация",
+      "вебинар",
+      "онлайн-трансляция",
+      "пауза",
+      "остановка",
+      "media",
+      "communication",
+      "webinar",
+      "online broadcast",
+      "pause",
+      "stop"
+    ]
+  },
+  {
+    "title": "медиа",
+    "name": "media-webinar-play",
+    "groupTitle": "Медиа",
+    "tags": [
+      "медиа",
+      "коммуникация",
+      "вебинар",
+      "онлайн-трансляция",
+      "воспроизведение",
+      "запуск",
+      "media",
+      "communication",
+      "webinar",
+      "online broadcast",
+      "play",
+      "start"
+    ]
+  },
+  {
+    "title": "медиа",
+    "name": "media-webinar-speaker",
+    "groupTitle": "Медиа",
+    "tags": [
+      "медиа",
+      "коммуникация",
+      "вебинар",
+      "онлайн-трансляция",
+      "динамик",
+      "звук",
+      "media",
+      "communication",
+      "webinar",
+      "online broadcast",
+      "speaker",
+      "sound"
+    ]
+  },
+  {
+    "title": "медиа",
+    "name": "media-webinar-volume",
+    "groupTitle": "Медиа",
+    "tags": [
+      "медиа",
+      "коммуникация",
+      "вебинар",
+      "онлайн-трансляция",
+      "громкость",
+      "аудио",
+      "media",
+      "communication",
+      "webinar",
+      "online broadcast",
+      "volume",
+      "audio"
+    ]
+  },
+  {
+    "title": "медиа",
+    "name": "media-webinar-waiting",
+    "groupTitle": "Медиа",
+    "tags": [
+      "медиа",
+      "коммуникация",
+      "вебинар",
+      "онлайн-трансляция",
+      "ожидание",
+      "ожидающий режим",
+      "media",
+      "communication",
+      "webinar",
+      "online broadcast",
+      "waiting",
+      "pending"
+    ]
+  },
+  {
+    "title": "медиа",
+    "name": "media-webinar-warning",
+    "groupTitle": "Медиа",
+    "tags": [
+      "медиа",
+      "коммуникация",
+      "вебинар",
+      "онлайн-трансляция",
+      "предупреждение",
+      "внимание",
+      "media",
+      "communication",
+      "webinar",
+      "online broadcast",
+      "warning",
+      "attention"
+    ]
+  },
+  {
+    "title": "Новый год",
+    "name": "newyear-christmas-ball-circle",
+    "groupTitle": "Новогоднее",
+    "tags": [
+      "Новый год",
+      "новогодняя иллюстрация",
+      "Рождество",
+      "праздник",
+      "ёлочный шар",
+      "ёлочное украшение",
+      "круг",
+      "New Year",
+      "holiday illustration",
+      "Christmas",
+      "holiday",
+      "bauble",
+      "tree ornament",
+      "circle"
+    ]
+  },
+  {
+    "title": "Новый год",
+    "name": "newyear-christmas-ball-cone",
+    "groupTitle": "Новогоднее",
+    "tags": [
+      "Новый год",
+      "новогодняя иллюстрация",
+      "Рождество",
+      "праздник",
+      "ёлочный шар",
+      "ёлочное украшение",
+      "конус",
+      "New Year",
+      "holiday illustration",
+      "Christmas",
+      "holiday",
+      "bauble",
+      "tree ornament",
+      "cone"
+    ]
+  },
+  {
+    "title": "Новый год",
+    "name": "newyear-christmas-ball-diamond",
+    "groupTitle": "Новогоднее",
+    "tags": [
+      "Новый год",
+      "новогодняя иллюстрация",
+      "Рождество",
+      "праздник",
+      "ёлочный шар",
+      "ёлочное украшение",
+      "ромб",
+      "New Year",
+      "holiday illustration",
+      "Christmas",
+      "holiday",
+      "bauble",
+      "tree ornament",
+      "diamond"
+    ]
+  },
+  {
+    "title": "Новый год",
+    "name": "newyear-christmas-bell",
+    "groupTitle": "Новогоднее",
+    "tags": [
+      "Новый год",
+      "новогодняя иллюстрация",
+      "Рождество",
+      "праздник",
+      "колокольчик",
+      "уведомление",
+      "New Year",
+      "holiday illustration",
+      "Christmas",
+      "holiday",
+      "bell",
+      "notification"
+    ]
+  },
+  {
+    "title": "Новый год",
+    "name": "newyear-snowglobe-discount",
+    "groupTitle": "Новогоднее",
+    "tags": [
+      "Новый год",
+      "новогодняя иллюстрация",
+      "снежный шар",
+      "скидка",
+      "дисконт",
+      "New Year",
+      "holiday illustration",
+      "snow globe",
+      "discount",
+      "sale"
+    ]
+  },
+  {
+    "title": "Новый год",
+    "name": "newyear-snowglobe-snowflake",
+    "groupTitle": "Новогоднее",
+    "tags": [
+      "Новый год",
+      "новогодняя иллюстрация",
+      "снежный шар",
+      "снежинка",
+      "New Year",
+      "holiday illustration",
+      "snow globe",
+      "snowflake"
+    ]
+  },
+  {
+    "title": "продажи",
+    "name": "sale-bag",
+    "groupTitle": "Акции и скидки",
+    "tags": [
+      "продажи",
+      "акция",
+      "пакет",
+      "покупка",
+      "sale",
+      "promotion",
+      "shopping bag",
+      "purchase"
+    ]
+  },
+  {
+    "title": "продажи",
+    "name": "sale-gift-discount",
+    "groupTitle": "Акции и скидки",
+    "tags": [
+      "продажи",
+      "акция",
+      "подарок",
+      "презент",
+      "скидка",
+      "дисконт",
+      "sale",
+      "promotion",
+      "gift",
+      "present",
+      "discount"
+    ]
+  },
+  {
+    "title": "продажи",
+    "name": "sale-gift-regular",
+    "groupTitle": "Акции и скидки",
+    "tags": [
+      "продажи",
+      "акция",
+      "подарок",
+      "презент",
+      "sale",
+      "promotion",
+      "gift",
+      "present"
+    ]
+  },
+  {
+    "title": "продажи",
+    "name": "sale-tag-h-discount",
+    "groupTitle": "Акции и скидки",
+    "tags": [
+      "продажи",
+      "акция",
+      "ценник",
+      "бирка",
+      "скидка",
+      "дисконт",
+      "sale",
+      "promotion",
+      "price tag",
+      "label",
+      "discount"
+    ]
+  },
+  {
+    "title": "продажи",
+    "name": "sale-tag-h-discount-10",
+    "groupTitle": "Акции и скидки",
+    "tags": [
+      "продажи",
+      "акция",
+      "ценник",
+      "бирка",
+      "скидка",
+      "дисконт",
+      "sale",
+      "promotion",
+      "price tag",
+      "label",
+      "discount"
+    ]
+  },
+  {
+    "title": "продажи",
+    "name": "sale-tag-h-discount-20",
+    "groupTitle": "Акции и скидки",
+    "tags": [
+      "продажи",
+      "акция",
+      "ценник",
+      "бирка",
+      "скидка",
+      "дисконт",
+      "sale",
+      "promotion",
+      "price tag",
+      "label",
+      "discount"
+    ]
+  },
+  {
+    "title": "продажи",
+    "name": "sale-tag-h-discount-30",
+    "groupTitle": "Акции и скидки",
+    "tags": [
+      "продажи",
+      "акция",
+      "ценник",
+      "бирка",
+      "скидка",
+      "дисконт",
+      "sale",
+      "promotion",
+      "price tag",
+      "label",
+      "discount"
+    ]
+  },
+  {
+    "title": "продажи",
+    "name": "sale-tag-h-discount-rouble",
+    "groupTitle": "Акции и скидки",
+    "tags": [
+      "продажи",
+      "акция",
+      "ценник",
+      "бирка",
+      "скидка",
+      "дисконт",
+      "рубль",
+      "российская валюта",
+      "sale",
+      "promotion",
+      "price tag",
+      "label",
+      "discount",
+      "ruble",
+      "Russian currency"
+    ]
+  },
+  {
+    "title": "продажи",
+    "name": "sale-tag-v-discount",
+    "groupTitle": "Акции и скидки",
+    "tags": [
+      "продажи",
+      "акция",
+      "ценник",
+      "бирка",
+      "скидка",
+      "дисконт",
+      "sale",
+      "promotion",
+      "price tag",
+      "label",
+      "discount"
+    ]
+  },
+  {
+    "title": "продажи",
+    "name": "sale-tag-v-discount-2",
+    "groupTitle": "Акции и скидки",
+    "tags": [
+      "продажи",
+      "акция",
+      "ценник",
+      "бирка",
+      "скидка",
+      "дисконт",
+      "sale",
+      "promotion",
+      "price tag",
+      "label",
+      "discount"
+    ]
+  },
+  {
+    "title": "технологии",
+    "name": "tech-battery-charge",
+    "groupTitle": "Технологии",
+    "tags": [
+      "технологии",
+      "цифровые сервисы",
+      "батарея",
+      "заряд",
+      "зарядка",
+      "энергия",
+      "technology",
+      "digital services",
+      "battery",
+      "charge",
+      "charging",
+      "power"
+    ]
+  },
+  {
+    "title": "технологии",
+    "name": "tech-data-structure-tree",
+    "groupTitle": "Технологии",
+    "tags": [
+      "технологии",
+      "цифровые сервисы",
+      "данные",
+      "информация",
+      "структура",
+      "схема",
+      "дерево",
+      "иерархия",
+      "technology",
+      "digital services",
+      "data",
+      "information",
+      "structure",
+      "schema",
+      "tree",
+      "hierarchy"
+    ]
+  },
+  {
+    "title": "технологии",
+    "name": "tech-id-finger",
+    "groupTitle": "Технологии",
+    "tags": [
+      "технологии",
+      "цифровые сервисы",
+      "идентификация",
+      "ID",
+      "отпечаток пальца",
+      "биометрия",
+      "technology",
+      "digital services",
+      "identification",
+      "ID",
+      "fingerprint",
+      "biometrics"
+    ]
+  },
+  {
+    "title": "технологии",
+    "name": "tech-laptop-arrow-right",
+    "groupTitle": "Технологии",
+    "tags": [
+      "технологии",
+      "цифровые сервисы",
+      "ноутбук",
+      "компьютер",
+      "стрелка",
+      "направление",
+      "вправо",
+      "переход",
+      "technology",
+      "digital services",
+      "laptop",
+      "computer",
+      "arrow",
+      "direction",
+      "right",
+      "navigate"
+    ]
+  },
+  {
+    "title": "технологии",
+    "name": "tech-phone-coins-arrow-right",
+    "groupTitle": "Технологии",
+    "tags": [
+      "технологии",
+      "цифровые сервисы",
+      "телефон",
+      "смартфон",
+      "монеты",
+      "деньги",
+      "стрелка",
+      "направление",
+      "вправо",
+      "переход",
+      "technology",
+      "digital services",
+      "phone",
+      "smartphone",
+      "coins",
+      "money",
+      "arrow",
+      "direction",
+      "right",
+      "navigate"
+    ]
+  },
+  {
+    "title": "технологии",
+    "name": "tech-phone-qr",
+    "groupTitle": "Технологии",
+    "tags": [
+      "технологии",
+      "цифровые сервисы",
+      "телефон",
+      "смартфон",
+      "QR-код",
+      "сканирование",
+      "technology",
+      "digital services",
+      "phone",
+      "smartphone",
+      "QR code",
+      "scan"
+    ]
+  },
+  {
+    "title": "технологии",
+    "name": "tech-shield-signature",
+    "groupTitle": "Технологии",
+    "tags": [
+      "технологии",
+      "цифровые сервисы",
+      "щит",
+      "защита",
+      "подпись",
+      "электронная подпись",
+      "technology",
+      "digital services",
+      "shield",
+      "protection",
+      "signature",
+      "e-signature"
+    ]
+  },
+  {
+    "title": "технологии",
+    "name": "tech-token-regular",
+    "groupTitle": "Технологии",
+    "tags": [
+      "технологии",
+      "цифровые сервисы",
+      "токен",
+      "авторизация",
+      "technology",
+      "digital services",
+      "token",
+      "authorization"
+    ]
+  },
+  {
+    "title": "технологии",
+    "name": "tech-token-support",
+    "groupTitle": "Технологии",
+    "tags": [
+      "технологии",
+      "цифровые сервисы",
+      "токен",
+      "авторизация",
+      "поддержка",
+      "помощь",
+      "technology",
+      "digital services",
+      "token",
+      "authorization",
+      "support",
+      "help"
+    ]
+  },
+  {
+    "title": "технологии",
+    "name": "tech-token-update",
+    "groupTitle": "Технологии",
+    "tags": [
+      "технологии",
+      "цифровые сервисы",
+      "токен",
+      "авторизация",
+      "обновление",
+      "актуализация",
+      "technology",
+      "digital services",
+      "token",
+      "authorization",
+      "update",
+      "refresh"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-abstract",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "абстракция",
+      "геометрия",
+      "universal illustration",
+      "interface",
+      "abstract",
+      "geometry"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-arrow-diag-inside",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "стрелка",
+      "направление",
+      "диагональ",
+      "внутри",
+      "вложенность",
+      "universal illustration",
+      "interface",
+      "arrow",
+      "direction",
+      "diagonal",
+      "inside",
+      "nested"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-arrow-diag-outside",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "стрелка",
+      "направление",
+      "диагональ",
+      "наружу",
+      "внешнее действие",
+      "universal illustration",
+      "interface",
+      "arrow",
+      "direction",
+      "diagonal",
+      "outside",
+      "external action"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-arrow-right-and-left",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "стрелка",
+      "направление",
+      "вправо",
+      "переход",
+      "обмен",
+      "двунаправленный",
+      "влево",
+      "обратно",
+      "universal illustration",
+      "interface",
+      "arrow",
+      "direction",
+      "right",
+      "navigate",
+      "exchange",
+      "bidirectional",
+      "left",
+      "back"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-bell-alarm",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "колокольчик",
+      "уведомление",
+      "напоминание",
+      "срок",
+      "universal illustration",
+      "interface",
+      "bell",
+      "notification",
+      "reminder",
+      "deadline"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-bell-notificaton-alarm",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "колокольчик",
+      "уведомление",
+      "оповещение",
+      "напоминание",
+      "срок",
+      "universal illustration",
+      "interface",
+      "bell",
+      "notification",
+      "alert",
+      "reminder",
+      "deadline"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-bell-notificaton-one",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "колокольчик",
+      "уведомление",
+      "оповещение",
+      "одно уведомление",
+      "счётчик",
+      "universal illustration",
+      "interface",
+      "bell",
+      "notification",
+      "alert",
+      "one notification",
+      "badge"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-bell-regular",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "колокольчик",
+      "уведомление",
+      "universal illustration",
+      "interface",
+      "bell",
+      "notification"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-bookmark",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "закладка",
+      "сохранённое",
+      "universal illustration",
+      "interface",
+      "bookmark",
+      "saved"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-calculator",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "калькулятор",
+      "расчёт",
+      "universal illustration",
+      "interface",
+      "calculator",
+      "calculation"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-calendar-data",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "календарь",
+      "дата",
+      "данные",
+      "информация",
+      "universal illustration",
+      "interface",
+      "calendar",
+      "date",
+      "data",
+      "information"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-calendar-data-1",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "календарь",
+      "дата",
+      "данные",
+      "информация",
+      "universal illustration",
+      "interface",
+      "calendar",
+      "date",
+      "data",
+      "information"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-calendar-percent",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "календарь",
+      "дата",
+      "процент",
+      "скидка",
+      "universal illustration",
+      "interface",
+      "calendar",
+      "date",
+      "percent",
+      "discount"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-calendar-regular",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "календарь",
+      "дата",
+      "universal illustration",
+      "interface",
+      "calendar",
+      "date"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-clock",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "часы",
+      "время",
+      "universal illustration",
+      "interface",
+      "clock",
+      "time"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-data-chart",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "данные",
+      "информация",
+      "график",
+      "аналитика",
+      "universal illustration",
+      "interface",
+      "data",
+      "information",
+      "chart",
+      "analytics"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-data-chart-pie",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "данные",
+      "информация",
+      "график",
+      "аналитика",
+      "круговая диаграмма",
+      "доли",
+      "universal illustration",
+      "interface",
+      "data",
+      "information",
+      "chart",
+      "analytics",
+      "pie chart",
+      "share"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-flower",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "цветок",
+      "декор",
+      "universal illustration",
+      "interface",
+      "flower",
+      "decoration"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-lightbulb-on",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "лампочка",
+      "идея",
+      "включено",
+      "активно",
+      "universal illustration",
+      "interface",
+      "light bulb",
+      "idea",
+      "on",
+      "active"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-location-signpost",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "локация",
+      "местоположение",
+      "указатель",
+      "навигация",
+      "universal illustration",
+      "interface",
+      "location",
+      "place",
+      "signpost",
+      "navigation"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-people-2",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "люди",
+      "пользователи",
+      "universal illustration",
+      "interface",
+      "people",
+      "users"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-people-notification",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "люди",
+      "пользователи",
+      "уведомление",
+      "оповещение",
+      "universal illustration",
+      "interface",
+      "people",
+      "users",
+      "notification",
+      "alert"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-search",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "поиск",
+      "найти",
+      "universal illustration",
+      "interface",
+      "search",
+      "find"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-search-people",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "поиск",
+      "найти",
+      "люди",
+      "пользователи",
+      "universal illustration",
+      "interface",
+      "search",
+      "find",
+      "people",
+      "users"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-security-lock-closed",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "безопасность",
+      "защита",
+      "замок",
+      "закрыто",
+      "заблокировано",
+      "universal illustration",
+      "interface",
+      "security",
+      "protection",
+      "lock",
+      "closed",
+      "locked"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-security-lock-pass",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "безопасность",
+      "защита",
+      "замок",
+      "доступ",
+      "разрешение",
+      "universal illustration",
+      "interface",
+      "security",
+      "protection",
+      "lock",
+      "access",
+      "permission"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-settings-sliders",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "настройки",
+      "параметры",
+      "ползунки",
+      "регулировка",
+      "universal illustration",
+      "interface",
+      "settings",
+      "controls",
+      "sliders",
+      "adjustment"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-square-arrow-down",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "квадрат",
+      "элемент интерфейса",
+      "стрелка",
+      "направление",
+      "вниз",
+      "скачивание",
+      "universal illustration",
+      "interface",
+      "square",
+      "interface element",
+      "arrow",
+      "direction",
+      "download",
+      "down"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-square-arrow-right",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "квадрат",
+      "элемент интерфейса",
+      "стрелка",
+      "направление",
+      "вправо",
+      "переход",
+      "universal illustration",
+      "interface",
+      "square",
+      "interface element",
+      "arrow",
+      "direction",
+      "right",
+      "navigate"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-square-cancel",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "квадрат",
+      "элемент интерфейса",
+      "отмена",
+      "ошибка",
+      "universal illustration",
+      "interface",
+      "square",
+      "interface element",
+      "cancel",
+      "error"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-square-check",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "квадрат",
+      "элемент интерфейса",
+      "проверка",
+      "подтверждение",
+      "universal illustration",
+      "interface",
+      "square",
+      "interface element",
+      "check",
+      "confirmation"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-square-people",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "квадрат",
+      "элемент интерфейса",
+      "люди",
+      "пользователи",
+      "universal illustration",
+      "interface",
+      "square",
+      "interface element",
+      "people",
+      "users"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-square-plus",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "квадрат",
+      "элемент интерфейса",
+      "добавление",
+      "создание",
+      "universal illustration",
+      "interface",
+      "square",
+      "interface element",
+      "add",
+      "create"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-square-question",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "квадрат",
+      "элемент интерфейса",
+      "вопрос",
+      "справка",
+      "universal illustration",
+      "interface",
+      "square",
+      "interface element",
+      "question",
+      "help"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-target",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "цель",
+      "фокус",
+      "universal illustration",
+      "interface",
+      "target",
+      "focus"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-toggle",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "переключатель",
+      "выбор",
+      "universal illustration",
+      "interface",
+      "toggle",
+      "switch"
+    ]
+  },
+  {
+    "title": "универсальная иллюстрация",
+    "name": "universal-toggle-2",
+    "groupTitle": "Универсальные",
+    "tags": [
+      "универсальная иллюстрация",
+      "интерфейс",
+      "переключатель",
+      "выбор",
+      "universal illustration",
+      "interface",
+      "toggle",
+      "switch"
+    ]
+  }
+]
